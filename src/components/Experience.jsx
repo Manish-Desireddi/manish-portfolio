@@ -3,7 +3,6 @@ import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import { CalendarDays, MapPin, CheckCircle2 } from 'lucide-react'
 import { EXPERIENCE } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
-import AnimatedBackground from './AnimatedBackground'
 
 /**
  * Single timeline entry card.
@@ -89,9 +88,7 @@ const Experience = () => {
   )
 
   return (
-    <section id="experience" ref={sectionRef} className="relative py-28 px-6 overflow-hidden bg-zinc-950">
-      <AnimatedBackground variant="experience" showGrid={false} />
-
+    <section id="experience" ref={sectionRef} className="relative py-28 px-6">
       <div className="relative z-10 max-w-4xl mx-auto">
         <SectionHeader
           eyebrow="02 // Experience"

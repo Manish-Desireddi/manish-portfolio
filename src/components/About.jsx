@@ -3,9 +3,8 @@ import { motion } from 'framer-motion'
 import { TECH_STACK } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
 import ProfileCard from './ProfileCard'
-import AnimatedBackground from './AnimatedBackground'
 
-// Alphabetically sorted â€” O(1) at runtime, sorted at definition time
+// Alphabetically sorted at definition time
 const SORTED_TECH = [...TECH_STACK].sort((a, b) =>
   a.toLowerCase().localeCompare(b.toLowerCase()),
 )
@@ -36,10 +35,7 @@ Chip.displayName = 'Chip'
 
 const About = () => {
   return (
-    <section id="about" className="relative py-28 px-6 overflow-hidden bg-zinc-950">
-      {/* Animated AI-style background */}
-      <AnimatedBackground variant="about" showGrid={true} />
-
+    <section id="about" className="relative py-28 px-6">
       <div className="relative z-10 max-w-6xl mx-auto">
         <SectionHeader
           eyebrow="01 // About"
@@ -101,8 +97,8 @@ const About = () => {
                 Artificial Intelligence &amp; Data Science
               </span>
               , engineering production-grade AI systems that survive at scale. My work spans{' '}
-              <span className="text-cyan-400">Generative AI</span> ”fine-tuning LLMs with LoRA
-              and quantization” and assembling{' '}
+              <span className="text-cyan-400">Generative AI</span> &mdash; fine-tuning LLMs with LoRA
+              and quantization &mdash; and assembling{' '}
               <span className="text-violet-400">agentic pipelines</span> that automate complex
               multi-step workflows end-to-end.
             </p>

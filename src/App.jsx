@@ -8,72 +8,62 @@ import Experience from './components/Experience'
 import Projects from './components/Projects'
 import AIArchitecture from './components/AIArchitecture'
 import Footer from './components/Footer'
+import Neural3DBackground from './components/Neural3DBackground'
+import DownloadPage from './components/DownloadPage'
+
+const DOWNLOAD_ROUTE = '#/downloads/ai-assistant'
 
 const App = () => {
   const [heroActive, setHeroActive] = useState(true)
+  const [route, setRoute]           = useState(() => window.location.hash)
 
-  // Lock body scroll while the hero intro overlay is covering the page
+  // Tiny hash router so the AI Assistant page works without a router dep.
   useEffect(() => {
-    document.body.style.overflow = heroActive ? 'hidden' : ''
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [heroActive])
+    const onHash = () => setRoute(window.location.hash)
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
 
-  const handleVideoEnd     = useCallback(() => setHeroActive(false), [])
-  const handleRequestHero  = useCallback(() => {
+  useEffect(() => {
+    const lock = heroActive && route !== DOWNLOAD_ROUTE
+    document.body.style.overflow = lock ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [heroActive, route])
+
+  const handleVideoEnd    = useCallback(() => setHeroActive(false), [])
+  const handleRequestHero = useCallback(() => {
     setHeroActive(true)
-    // Snap to top so the overlay covers from the correct position
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [])
 
+  // Route: standalone AI Assistant download page
+  if (route === DOWNLOAD_ROUTE) {
+    return (
+      <div className="relative min-h-screen overflow-x-hidden bg-zinc-950">
+        <CustomCursor />
+        <DownloadPage />
+      </div>
+    )
+  }
+
   return (
-    <div className="relative bg-zinc-950 min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-hidden bg-zinc-950">
       <CustomCursor />
 
-      {/* Navigation only appears after the hero intro slides out */}
+      {/* Continuous aurora background — sits behind every post-hero section */}
+      <Neural3DBackground />
+
       {!heroActive && <Navigation onRequestHero={handleRequestHero} />}
 
-      {/* Fixed ambient gradient orbs — always behind content */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
-        aria-hidden="true"
-      >
-        <div
-          className="gradient-orb absolute top-[15%] left-[10%] w-[600px] h-[600px] rounded-full"
-          style={{ background: 'radial-gradient(ellipse, rgba(6,182,212,0.055) 0%, transparent 70%)' }}
-        />
-        <div
-          className="gradient-orb absolute top-[60%] right-[8%] w-[500px] h-[500px] rounded-full"
-          style={{
-            background: 'radial-gradient(ellipse, rgba(124,58,237,0.065) 0%, transparent 70%)',
-            animationDelay: '-5s',
-          }}
-        />
-        <div
-          className="gradient-orb absolute top-[40%] left-[55%] w-[400px] h-[400px] rounded-full"
-          style={{
-            background: 'radial-gradient(ellipse, rgba(99,102,241,0.045) 0%, transparent 70%)',
-            animationDelay: '-2.5s',
-          }}
-        />
-      </div>
-
-      {/*
-       * Hero is a fixed full-screen overlay (z-[60]).
-       * Main content is always in the DOM behind it — no flash or layout jump
-       * when hero slides away on video end.
-       */}
       <AnimatePresence
         onExitComplete={() => window.scrollTo({ top: 0, behavior: 'instant' })}
       >
         {heroActive && <Hero key="hero" onVideoEnd={handleVideoEnd} />}
       </AnimatePresence>
 
-      {/* Anchor target so the Home nav item works after hero is gone */}
       <div id="home" aria-hidden="true" />
 
-      <main>
+      <main className="relative z-10">
         <About />
         <Experience />
         <Projects />

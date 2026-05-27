@@ -1,9 +1,8 @@
 import React, { useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, ArrowUp, Github, Linkedin } from 'lucide-react'
+import { Mail, ArrowUp, Github, Linkedin, ChevronRight } from 'lucide-react'
 import { LEADERSHIP } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
-import AnimatedBackground from './AnimatedBackground'
 
 const CONTACT_EMAIL = 'manishdesireddi@gmail.com'
 
@@ -26,9 +25,7 @@ const Footer = () => {
   }, [])
 
   return (
-    <footer id="leadership" className="relative overflow-hidden bg-zinc-950 pt-28 pb-8 px-6">
-      <AnimatedBackground variant="footer" showGrid={false} />
-
+    <footer id="leadership" className="relative pt-28 pb-8 px-6">
       <div className="relative z-10 max-w-6xl mx-auto">
         <SectionHeader
           eyebrow="05 // Education & Leadership"
@@ -66,8 +63,8 @@ const Footer = () => {
               <ul className="space-y-2">
                 {LEADERSHIP.education.highlights.map((highlight, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm text-zinc-400">
-                    <span className="text-violet-500 mt-0.5 text-xs shrink-0" aria-hidden="true">▸</span>
-                    {highlight}
+                    <ChevronRight size={14} className="text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
+                    <span>{highlight}</span>
                   </li>
                 ))}
               </ul>
@@ -107,8 +104,8 @@ const Footer = () => {
                     transition={{ delay: 0.1 + i * 0.06 }}
                     className="flex items-start gap-2.5 text-sm text-zinc-400 leading-relaxed"
                   >
-                    <span className="text-cyan-500 mt-0.5 text-xs shrink-0" aria-hidden="true">▸</span>
-                    {detail}
+                    <ChevronRight size={14} className="text-cyan-400 mt-0.5 shrink-0" aria-hidden="true" />
+                    <span>{detail}</span>
                   </motion.li>
                 ))}
               </ul>

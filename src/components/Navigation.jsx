@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Home, User, Briefcase, Code2, Trophy, Download } from 'lucide-react'
 import { NAV_ITEMS } from '../data/portfolioData'
@@ -11,9 +11,9 @@ const NAV_ENTRIES = NAV_ITEMS.map((item) => ({
 }))
 
 const Navigation = ({ onRequestHero }) => {
-  const [activeId, setActiveId]   = useState('home')
-  const [visible, setVisible]     = useState(true)
-  const lastScrollY               = useRef(0)
+  const [activeId, setActiveId] = useState('home')
+  const [visible, setVisible]   = useState(true)
+  const lastScrollY             = useRef(0)
 
   const handleScroll = useCallback(() => {
     const currentY = window.scrollY
@@ -34,9 +34,8 @@ const Navigation = ({ onRequestHero }) => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [handleScroll])
 
-  const scrollTo = useCallback((id) => {
+  const goToSection = useCallback((id) => {
     if (id === 'home') {
-      // Re-show the hero intro overlay instead of plain scroll-to-top
       onRequestHero?.()
       return
     }
@@ -48,24 +47,24 @@ const Navigation = ({ onRequestHero }) => {
     <AnimatePresence>
       {visible && (
         <motion.nav
-          key="bottom-nav"
+          key="nav-pill"
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-          className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 max-w-[calc(100vw-1.5rem)]"
+          className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2"
           aria-label="Primary navigation"
         >
-          <div className="flex items-center gap-0.5 px-2 sm:px-3 py-2.5 rounded-2xl bg-zinc-900/85 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/60">
+          <div className="flex items-center gap-0.5 px-2 sm:px-3 py-2 sm:py-2.5 rounded-2xl bg-zinc-900/85 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/60">
             {NAV_ENTRIES.map(({ id, label, Icon }) => {
               const isActive = activeId === id
               return (
                 <button
                   key={id}
-                  onClick={() => scrollTo(id)}
+                  onClick={() => goToSection(id)}
                   aria-label={`Go to ${label} section`}
                   aria-current={isActive ? 'page' : undefined}
-                  className="relative flex flex-col items-center gap-0.5 px-2.5 sm:px-3.5 py-2 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 group"
+                  className="relative flex flex-col items-center gap-0.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 group"
                 >
                   {isActive && (
                     <motion.span
@@ -81,7 +80,7 @@ const Navigation = ({ onRequestHero }) => {
                     }`}
                   />
                   <span
-                    className={`relative z-10 hidden sm:block text-[9px] font-mono tracking-wide transition-colors duration-200 ${
+                    className={`relative z-10 text-[9px] font-mono tracking-wide transition-colors duration-200 hidden sm:block ${
                       isActive ? 'text-cyan-400' : 'text-zinc-600 group-hover:text-zinc-400'
                     }`}
                   >
@@ -91,22 +90,20 @@ const Navigation = ({ onRequestHero }) => {
               )
             })}
 
-            {/* Divider */}
-            <div className="w-px h-8 bg-white/10 mx-1 shrink-0" aria-hidden="true" />
+            <div className="w-px h-6 sm:h-8 bg-white/10 mx-0.5 sm:mx-1 shrink-0" aria-hidden="true" />
 
-            {/* Download Resume — identical style to nav items */}
             <a
               href="/assets/resume.pdf"
               download
               aria-label="Download resume PDF"
-              className="relative flex flex-col items-center gap-0.5 px-2.5 sm:px-3.5 py-2 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 group"
+              className="relative flex flex-col items-center gap-0.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 group"
             >
               <Download
                 size={17}
                 className="text-zinc-500 group-hover:text-zinc-200 transition-colors duration-200"
                 aria-hidden="true"
               />
-              <span className="hidden sm:block text-[9px] font-mono tracking-wide text-zinc-600 group-hover:text-zinc-400 transition-colors duration-200">
+              <span className="text-[9px] font-mono tracking-wide text-zinc-600 group-hover:text-zinc-400 transition-colors duration-200 hidden sm:block">
                 Resume
               </span>
             </a>

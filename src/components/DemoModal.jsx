@@ -1,29 +1,28 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
+import { DEMO_VARIANTS } from '../data/portfolioData'
 
-const TYPING_TEXT = 'Demo under development...'
-const PROGRESS_BARS = [1, 1, 1, 0.6, 0.22] // fill ratios for the 5 AI progress bars
+const DEFAULT_VARIANT = {
+  title: 'Demo under development.',
+  body:  'This project demo is currently under active development. A live preview will be available soon - check back shortly.',
+  progress: [1, 1, 1, 0.6, 0.22],
+}
 
 /**
- * DemoModal — shown when a project "Live Demo" button is clicked.
- *
- * Features:
- * - Typing animation for the status message
- * - Glitch flicker on the typed text after it completes
- * - AI-style progress indicator bar
- * - Framer Motion spring entrance/exit
- * - Keyboard accessible (Escape to close, focus trap via role=dialog)
+ * DemoModal - opens when a project "Demo" button is clicked.
+ * Content is variant-driven so each project can show its own status.
  */
-const DemoModal = ({ isOpen, onClose }) => {
-  const [displayed, setDisplayed]   = useState('')
-  const [glitchOn, setGlitchOn]     = useState(false)
-  const indexRef    = useRef(0)
-  const timerRef    = useRef(null)
-  const glitchRef   = useRef(null)
+const DemoModal = ({ isOpen, onClose, variantId }) => {
+  const variant = DEMO_VARIANTS[variantId] ?? DEFAULT_VARIANT
+
+  const [displayed, setDisplayed] = useState('')
+  const [glitchOn, setGlitchOn]   = useState(false)
+  const indexRef  = useRef(0)
+  const timerRef  = useRef(null)
+  const glitchRef = useRef(null)
   const closeBtnRef = useRef(null)
 
-  // Reset & start typing when modal opens
   useEffect(() => {
     if (!isOpen) {
       setDisplayed('')
@@ -34,25 +33,22 @@ const DemoModal = ({ isOpen, onClose }) => {
       return
     }
 
-    // Auto-focus close button for keyboard users
     const focusTimer = setTimeout(() => closeBtnRef.current?.focus(), 80)
 
-    // Typing animation
     const startTimer = setTimeout(() => {
       timerRef.current = setInterval(() => {
-        if (indexRef.current < TYPING_TEXT.length) {
-          setDisplayed(TYPING_TEXT.slice(0, indexRef.current + 1))
+        if (indexRef.current < variant.title.length) {
+          setDisplayed(variant.title.slice(0, indexRef.current + 1))
           indexRef.current += 1
         } else {
           clearInterval(timerRef.current)
-          // Periodic glitch flicker after typing completes
           glitchRef.current = setInterval(() => {
             setGlitchOn(true)
             setTimeout(() => setGlitchOn(false), 160)
           }, 3200)
         }
-      }, 58)
-    }, 350)
+      }, 48)
+    }, 320)
 
     return () => {
       clearTimeout(focusTimer)
@@ -60,9 +56,8 @@ const DemoModal = ({ isOpen, onClose }) => {
       clearInterval(timerRef.current)
       clearInterval(glitchRef.current)
     }
-  }, [isOpen])
+  }, [isOpen, variant.title])
 
-  // Escape key closes modal
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
     if (isOpen) window.addEventListener('keydown', onKey)
@@ -73,7 +68,6 @@ const DemoModal = ({ isOpen, onClose }) => {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             key="modal-backdrop"
             initial={{ opacity: 0 }}
@@ -85,29 +79,23 @@ const DemoModal = ({ isOpen, onClose }) => {
             aria-hidden="true"
           />
 
-          {/* Dialog */}
-          <div
-            className="fixed inset-0 z-[71] flex items-center justify-center p-4 pointer-events-none"
-          >
+          <div className="fixed inset-0 z-[71] flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               key="modal-panel"
               role="dialog"
               aria-modal="true"
-              aria-label="Project demo coming soon"
+              aria-label={variant.title}
               initial={{ opacity: 0, scale: 0.86, y: 24 }}
-              animate={{ opacity: 1, scale: 1,    y: 0  }}
-              exit={{    opacity: 0, scale: 0.92,  y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 12 }}
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
               className="relative w-full max-w-md pointer-events-auto rounded-2xl bg-zinc-900/92 border border-white/10 backdrop-blur-xl overflow-hidden"
             >
-              {/* Top edge glow */}
               <div
                 className="absolute top-0 left-1/4 right-1/4 h-px"
                 style={{ background: 'linear-gradient(to right, transparent, rgba(6,182,212,0.6), transparent)' }}
                 aria-hidden="true"
               />
-
-              {/* Inner ambient orb */}
               <div
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 blur-3xl opacity-20 pointer-events-none"
                 style={{ background: 'radial-gradient(ellipse, #06b6d4 0%, transparent 70%)' }}
@@ -115,7 +103,6 @@ const DemoModal = ({ isOpen, onClose }) => {
               />
 
               <div className="relative z-10 p-8">
-                {/* Close button */}
                 <motion.button
                   ref={closeBtnRef}
                   whileHover={{ scale: 1.1, rotate: 90 }}
@@ -127,7 +114,6 @@ const DemoModal = ({ isOpen, onClose }) => {
                   <X size={14} aria-hidden="true" />
                 </motion.button>
 
-                {/* AI system indicator */}
                 <div className="flex items-center gap-2.5 mb-6">
                   <div className="flex gap-1 items-end" aria-hidden="true">
                     {[4, 6, 8, 6, 4].map((h, i) => (
@@ -146,27 +132,21 @@ const DemoModal = ({ isOpen, onClose }) => {
                   </span>
                 </div>
 
-                {/* Typing headline */}
                 <div className="mb-3 min-h-[2.5rem]">
                   <p
-                    className={`text-2xl font-bold font-mono text-white typing-cursor ${
-                      glitchOn ? 'glitch-text' : ''
-                    }`}
+                    className={`text-2xl font-bold font-mono text-white typing-cursor ${glitchOn ? 'glitch-text' : ''}`}
                     aria-live="polite"
-                    aria-label="Demo coming soon"
                   >
                     {displayed}
                   </p>
                 </div>
 
-                <p className="text-zinc-500 text-sm leading-relaxed mb-7">
-                  This project demo is currently under active development. A live preview
-                  will be available soon — check back shortly.
+                <p className="text-zinc-400 text-sm leading-relaxed mb-7">
+                  {variant.body}
                 </p>
 
-                {/* AI-style progress bars */}
-                <div className="space-y-2" aria-label="Development progress indicators">
-                  {PROGRESS_BARS.map((fill, i) => (
+                <div className="space-y-2" aria-label="Training / build progress">
+                  {variant.progress.map((fill, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <div className="flex-1 h-1 rounded-full bg-zinc-800 overflow-hidden">
                         <motion.div
@@ -177,7 +157,7 @@ const DemoModal = ({ isOpen, onClose }) => {
                           style={{ originX: 0 }}
                         />
                       </div>
-                      <span className="text-[9px] font-mono text-zinc-700 w-8 text-right">
+                      <span className="text-[9px] font-mono text-zinc-600 w-8 text-right">
                         {Math.round(fill * 100)}%
                       </span>
                     </div>

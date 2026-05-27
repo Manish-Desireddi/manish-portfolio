@@ -187,3 +187,21 @@ body {
   overflow-x: hidden;
   max-width: 100vw;
 }
+
+/* --- Aurora background blob drift ------------------------------------------ */
+@keyframes aurora-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  25%      { transform: translate3d(6%, -4%, 0) scale(1.08); }
+  50%      { transform: translate3d(-4%, 5%, 0) scale(0.94); }
+  75%      { transform: translate3d(-6%, -3%, 0) scale(1.04); }
+}
+
+.aurora-blob {
+  animation: aurora-drift 28s ease-in-out infinite;
+  will-change: transform;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob { animation: none; }
+}
