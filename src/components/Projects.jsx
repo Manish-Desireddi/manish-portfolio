@@ -1,200 +1,253 @@
 import React, { useRef, useCallback, useState } from 'react'
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion'
-import { Github, ExternalLink, Download, ChevronDown } from 'lucide-react'
+import { Github, ExternalLink, Download } from 'lucide-react'
 import { PROJECTS } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
 import DemoModal from './DemoModal'
 import PrivateRepoModal from './PrivateRepoModal'
 
 const ACCENT = {
-  cyan:    { tag: 'bg-cyan-400/10 text-cyan-300 border-cyan-400/20',       glow: 'rgba(6,182,212,0.15)',   border: 'rgba(6,182,212,0.35)',   metric: 'text-cyan-400'    },
-  violet:  { tag: 'bg-violet-400/10 text-violet-300 border-violet-400/20', glow: 'rgba(139,92,246,0.15)',  border: 'rgba(139,92,246,0.35)',  metric: 'text-violet-400'  },
-  indigo:  { tag: 'bg-indigo-400/10 text-indigo-300 border-indigo-400/20', glow: 'rgba(99,102,241,0.15)',  border: 'rgba(99,102,241,0.35)',  metric: 'text-indigo-400'  },
-  emerald: { tag: 'bg-emerald-400/10 text-emerald-300 border-emerald-400/20', glow: 'rgba(52,211,153,0.17)', border: 'rgba(52,211,153,0.35)', metric: 'text-emerald-400' },
+  cyan:    { tag: 'bg-cyan-400/10 text-cyan-300 border-cyan-400/20',       glow: 'rgba(6,182,212,0.18)',   border: 'rgba(6,182,212,0.45)',   metric: 'text-cyan-400',    shimmer: '#22d3ee' },
+  violet:  { tag: 'bg-violet-400/10 text-violet-300 border-violet-400/20', glow: 'rgba(139,92,246,0.18)',  border: 'rgba(139,92,246,0.45)',  metric: 'text-violet-400',  shimmer: '#a78bfa' },
+  indigo:  { tag: 'bg-indigo-400/10 text-indigo-300 border-indigo-400/20', glow: 'rgba(99,102,241,0.18)',  border: 'rgba(99,102,241,0.45)',  metric: 'text-indigo-400',  shimmer: '#818cf8' },
+  emerald: { tag: 'bg-emerald-400/10 text-emerald-300 border-emerald-400/20', glow: 'rgba(52,211,153,0.20)', border: 'rgba(52,211,153,0.45)', metric: 'text-emerald-400', shimmer: '#34d399' },
 }
 
-const TILT_SPRING = { damping: 22, stiffness: 220 }
-const GLOW_SPRING = { damping: 24, stiffness: 200 }
+const TILT_SPRING = { damping: 20, stiffness: 260 }
 
 const ProjectCard = React.memo(({ project, index, onDemoClick, onGithubClick }) => {
   const cardRef = useRef(null)
-  const [expanded, setExpanded] = useState(false)
+  const [flipped, setFlipped] = useState(false)
   const palette = ACCENT[project.accent] ?? ACCENT.cyan
 
   const rawX = useMotionValue(0)
   const rawY = useMotionValue(0)
 
-  const rotateY = useSpring(useTransform(rawX, [-0.5, 0.5], [-6, 6]), TILT_SPRING)
-  const rotateX = useSpring(useTransform(rawY, [-0.5, 0.5], [5, -5]), TILT_SPRING)
+  const rotateY = useSpring(useTransform(rawX, [-0.5, 0.5], [-12, 12]), TILT_SPRING)
+  const rotateX = useSpring(useTransform(rawY, [-0.5, 0.5], [10, -10]), TILT_SPRING)
 
-  const glowOpacity = useMotionValue(0)
-  const springGlow  = useSpring(glowOpacity, GLOW_SPRING)
+  // Shimmer position tracks cursor for holographic effect
+  const shimmerX = useMotionValue(50)
+  const shimmerY = useMotionValue(50)
 
   const onMouseMove = useCallback(
     (e) => {
       if (!cardRef.current) return
       const { left, top, width, height } = cardRef.current.getBoundingClientRect()
-      rawX.set((e.clientX - left) / width  - 0.5)
-      rawY.set((e.clientY - top)  / height - 0.5)
+      const nx = (e.clientX - left) / width
+      const ny = (e.clientY - top) / height
+      rawX.set(nx - 0.5)
+      rawY.set(ny - 0.5)
+      shimmerX.set(nx * 100)
+      shimmerY.set(ny * 100)
     },
-    [rawX, rawY],
+    [rawX, rawY, shimmerX, shimmerY],
   )
 
-  const onMouseEnter = useCallback(() => glowOpacity.set(1), [glowOpacity])
   const onMouseLeave = useCallback(() => {
-    rawX.set(0); rawY.set(0); glowOpacity.set(0)
-  }, [rawX, rawY, glowOpacity])
+    rawX.set(0)
+    rawY.set(0)
+  }, [rawX, rawY])
 
   const isDownload = project.demoKind === 'download-cloud'
-  const DemoIcon   = isDownload ? Download : ExternalLink
-  const demoLabel  = isDownload ? 'Download' : 'Demo'
+  const DemoIcon = isDownload ? Download : ExternalLink
+  const demoLabel = isDownload ? 'Download' : 'Demo'
 
   return (
     <motion.article
       ref={cardRef}
-      initial={{ opacity: 0, y: 50, scale: 0.95 }}
+      initial={{ opacity: 0, y: 60, scale: 0.92 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.7, delay: index * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
-      style={{ rotateX, rotateY, transformPerspective: 1100 }}
+      style={{ rotateX, rotateY, transformPerspective: 1000 }}
       onMouseMove={onMouseMove}
-      onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="relative rounded-2xl overflow-hidden transition-all duration-500"
+      onClick={() => setFlipped((f) => !f)}
+      className="relative rounded-2xl overflow-hidden cursor-pointer group"
       aria-label={project.title}
     >
-      {/* Frosted glass layer */}
+      {/* Holographic shimmer border — follows cursor */}
       <div
-        className="absolute inset-0 rounded-2xl"
+        className="absolute inset-0 rounded-2xl pointer-events-none z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-        }}
-      />
-
-      {/* Border glow on hover */}
-      <motion.div
-        className="absolute inset-0 rounded-2xl pointer-events-none"
-        style={{
-          opacity: springGlow,
-          boxShadow: `inset 0 0 0 1px ${palette.border}, 0 0 40px ${palette.glow}, 0 0 80px ${palette.glow}`,
+          boxShadow: `inset 0 0 0 1.5px ${palette.border}, 0 0 30px ${palette.glow}, 0 0 60px ${palette.glow}`,
         }}
         aria-hidden="true"
       />
 
       {/* Resting border */}
-      <div className="absolute inset-0 rounded-2xl border border-white/8 pointer-events-none" />
+      <div className="absolute inset-0 rounded-2xl border border-white/8 pointer-events-none z-10" />
 
-      {/* Accent glow orb */}
-      <motion.div
-        className="absolute -top-20 -right-20 w-56 h-56 rounded-full pointer-events-none"
-        style={{
-          opacity: springGlow,
-          background: `radial-gradient(circle, ${palette.glow} 0%, transparent 65%)`,
-          filter: 'blur(30px)',
-        }}
-        aria-hidden="true"
-      />
-
-      <div className="relative z-10 p-7 flex flex-col h-full min-h-[340px]">
-        <div className="flex items-start justify-between mb-5">
-          <span
-            className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center text-[11px] font-mono shrink-0"
-            style={{ color: palette.border, background: palette.glow }}
-          >
-            0{index + 1}
-          </span>
-
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => onGithubClick(project)}
-              aria-label={`View ${project.title} repository status`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 border border-white/10 bg-white/5 hover:border-white/25 hover:text-white hover:bg-white/10 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400"
-            >
-              <Github size={12} aria-hidden="true" />
-              GitHub
-            </button>
-            <button
-              type="button"
-              onClick={() => onDemoClick(project)}
-              aria-label={`${demoLabel} for ${project.title}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 border border-white/10 bg-white/5 hover:border-white/25 hover:text-white hover:bg-white/10 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400"
-            >
-              <DemoIcon size={12} aria-hidden="true" />
-              {demoLabel}
-            </button>
-          </div>
-        </div>
-
-        <h3 className="text-xl font-bold text-white mb-3 leading-snug">{project.title}</h3>
-        <p className="text-zinc-400 text-sm leading-relaxed mb-5">{project.description}</p>
-
-        {/* Expand toggle */}
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="flex items-center gap-1.5 text-xs font-mono text-zinc-500 hover:text-zinc-300 transition-colors mb-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400 rounded"
-          aria-expanded={expanded}
-        >
-          <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.25 }}>
-            <ChevronDown size={14} />
-          </motion.span>
-          {expanded ? 'less' : 'more details'}
-        </button>
-
-        {/* Expanded section */}
-        <AnimatePresence>
-          {expanded && (
+      {/* Flip container */}
+      <div className="relative w-full" style={{ minHeight: 380 }}>
+        <AnimatePresence mode="wait" initial={false}>
+          {!flipped ? (
+            /* ─── Front face ─── */
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="overflow-hidden"
+              key="front"
+              initial={{ rotateY: -90, opacity: 0 }}
+              animate={{ rotateY: 0, opacity: 1 }}
+              exit={{ rotateY: 90, opacity: 0 }}
+              transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+              className="relative z-10 p-7 flex flex-col"
+              style={{ minHeight: 380, backfaceVisibility: 'hidden' }}
             >
-              {project.metrics && (
-                <div className="flex flex-wrap gap-3 mb-4 pb-4 border-b border-white/8">
-                  {Object.entries(project.metrics).map(([key, value]) => (
-                    <div key={key} className="flex flex-col items-center px-3">
-                      <span className={`text-sm font-bold font-mono ${palette.metric}`}>{value}</span>
-                      <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-wider">{key}</span>
-                    </div>
+              {/* Glass bg */}
+              <div
+                className="absolute inset-0 rounded-2xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.015) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                }}
+              />
+
+              {/* Accent orb */}
+              <div
+                className="absolute -top-16 -right-16 w-48 h-48 rounded-full pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700"
+                style={{
+                  background: `radial-gradient(circle, ${palette.glow} 0%, transparent 65%)`,
+                  filter: 'blur(25px)',
+                }}
+                aria-hidden="true"
+              />
+
+              <div className="relative z-10 flex flex-col h-full" style={{ minHeight: 330 }}>
+                <div className="flex items-start justify-between mb-5">
+                  <span
+                    className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center text-[11px] font-mono shrink-0"
+                    style={{ color: palette.border, background: palette.glow }}
+                  >
+                    0{index + 1}
+                  </span>
+
+                  <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      onClick={() => onGithubClick(project)}
+                      aria-label={`View ${project.title} repository`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 border border-white/10 bg-white/5 hover:border-white/25 hover:text-white hover:bg-white/10 transition-all duration-200"
+                    >
+                      <Github size={12} aria-hidden="true" />
+                      GitHub
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDemoClick(project)}
+                      aria-label={`${demoLabel} for ${project.title}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 border border-white/10 bg-white/5 hover:border-white/25 hover:text-white hover:bg-white/10 transition-all duration-200"
+                    >
+                      <DemoIcon size={12} aria-hidden="true" />
+                      {demoLabel}
+                    </button>
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-bold text-white mb-3 leading-snug">{project.title}</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed mb-5 line-clamp-3">{project.description}</p>
+
+                {/* Tags pinned at bottom */}
+                <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
+                  {project.tags.map((tag) => (
+                    <span key={tag} className={`px-2.5 py-1 rounded-md text-xs font-mono border ${palette.tag}`}>
+                      {tag}
+                    </span>
                   ))}
                 </div>
-              )}
-              {project.highlights && (
-                <ul className="space-y-2 mb-4">
-                  {project.highlights.map((item, i) => (
-                    <motion.li
-                      key={i}
-                      initial={{ opacity: 0, x: -12 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.06 }}
-                      className="flex items-start gap-2 text-xs text-zinc-400"
-                    >
-                      <span className="mt-1 w-1 h-1 rounded-full shrink-0" style={{ background: palette.border }} />
-                      {item}
-                    </motion.li>
-                  ))}
-                </ul>
-              )}
+
+                <p className="text-[10px] font-mono text-zinc-600 mt-4 text-center tracking-wider select-none">
+                  click to flip · details →
+                </p>
+              </div>
+            </motion.div>
+          ) : (
+            /* ─── Back face — metrics + highlights ─── */
+            <motion.div
+              key="back"
+              initial={{ rotateY: 90, opacity: 0 }}
+              animate={{ rotateY: 0, opacity: 1 }}
+              exit={{ rotateY: -90, opacity: 0 }}
+              transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+              className="relative z-10 p-7 flex flex-col"
+              style={{ minHeight: 380, backfaceVisibility: 'hidden' }}
+            >
+              {/* Glass bg */}
+              <div
+                className="absolute inset-0 rounded-2xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                }}
+              />
+
+              <div className="relative z-10 flex flex-col h-full" style={{ minHeight: 330 }}>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold text-white leading-snug">{project.title}</h3>
+                  <span className="text-[10px] font-mono text-zinc-500 tracking-wider select-none">← flip back</span>
+                </div>
+
+                {/* Metrics */}
+                {project.metrics && (
+                  <div className="grid grid-cols-3 gap-4 mb-6 pb-5 border-b border-white/8">
+                    {Object.entries(project.metrics).map(([key, value], i) => (
+                      <motion.div
+                        key={key}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.08, duration: 0.35 }}
+                        className="flex flex-col items-center"
+                      >
+                        <span className={`text-xl font-bold font-mono ${palette.metric}`}>{value}</span>
+                        <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-wider mt-1">{key}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Highlights */}
+                {project.highlights && (
+                  <ul className="space-y-3 flex-1">
+                    {project.highlights.map((item, i) => (
+                      <motion.li
+                        key={i}
+                        initial={{ opacity: 0, x: -16 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.15 + i * 0.08, duration: 0.3 }}
+                        className="flex items-start gap-3 text-sm text-zinc-300"
+                      >
+                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: palette.border }} />
+                        {item}
+                      </motion.li>
+                    ))}
+                  </ul>
+                )}
+
+                {/* Buttons on back face */}
+                <div className="flex gap-3 mt-auto pt-4" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    onClick={() => onGithubClick(project)}
+                    className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium text-zinc-300 border border-white/10 bg-white/5 hover:bg-white/10 hover:text-white transition-all duration-200"
+                  >
+                    <Github size={13} aria-hidden="true" />
+                    Source
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDemoClick(project)}
+                    className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all duration-200"
+                    style={{ borderColor: palette.border, color: palette.shimmer, background: palette.glow }}
+                  >
+                    <DemoIcon size={13} aria-hidden="true" />
+                    {demoLabel}
+                  </button>
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Tags pinned to bottom */}
-        <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className={`px-2.5 py-1 rounded-md text-xs font-mono border ${palette.tag}`}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
       </div>
     </motion.article>
   )

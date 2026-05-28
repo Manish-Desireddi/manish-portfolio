@@ -48,11 +48,11 @@ const Navigation = ({ onRequestHero }) => {
       {visible && (
         <motion.nav
           key="nav-pill"
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
+          initial={{ y: 100, x: '-50%', opacity: 0 }}
+          animate={{ y: 0, x: '-50%', opacity: 1 }}
+          exit={{ y: 100, x: '-50%', opacity: 0 }}
           transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-          className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2"
+          className="fixed bottom-5 left-1/2 z-50"
           aria-label="Primary navigation"
         >
           <div className="flex items-center gap-0.5 px-2 sm:px-3 py-2 sm:py-2.5 rounded-2xl bg-zinc-900/85 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/60">

@@ -3,21 +3,18 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
 /* ---------------------------------------------------------------------------
- * Neural3DBackground — Digital DNA Helix
- * Double-helix made of glowing nodes with data-stream bridges and orbiting
- * particles. Represents AI/ML evolution. Cursor interaction warps the helix.
- *
- * Performance: instanced nodes, buffer-geometry edges, point-cloud particles.
- * Honors prefers-reduced-motion by freezing after first frame.
+ * Neural3DBackground — Warm Charcoal + Amber + Gold
+ * Double-helix with amber/gold node colors, warm particle drifts, and
+ * golden fog. Matches a cinematic warm-dark video palette.
  * --------------------------------------------------------------------------- */
 
-const HELIX_NODES     = 80       // nodes per strand (×2 for double helix)
+const HELIX_NODES     = 80
 const HELIX_RADIUS    = 2.8
 const HELIX_HEIGHT    = 22
 const HELIX_TURNS     = 4
-const BRIDGE_SKIP     = 4        // connect every Nth pair across strands
+const BRIDGE_SKIP     = 4
 const PARTICLE_COUNT  = 500
-const ORBIT_COUNT     = 120      // particles orbiting the helix
+const ORBIT_COUNT     = 120
 
 const tmpObj   = new THREE.Object3D()
 const tmpColor = new THREE.Color()
@@ -27,7 +24,6 @@ const makeRng = (seed) => {
   return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 0xffffffff }
 }
 
-// Build positions for both strands of the double helix
 const buildHelixPositions = () => {
   const positions = new Float32Array(HELIX_NODES * 2 * 3)
   for (let i = 0; i < HELIX_NODES; i++) {
@@ -35,12 +31,10 @@ const buildHelixPositions = () => {
     const angle = t * Math.PI * 2 * HELIX_TURNS
     const y = (t - 0.5) * HELIX_HEIGHT
 
-    // Strand A
     positions[i * 3 + 0] = Math.cos(angle) * HELIX_RADIUS
     positions[i * 3 + 1] = y
     positions[i * 3 + 2] = Math.sin(angle) * HELIX_RADIUS
 
-    // Strand B — offset by π
     const j = HELIX_NODES + i
     positions[j * 3 + 0] = Math.cos(angle + Math.PI) * HELIX_RADIUS
     positions[j * 3 + 1] = y
@@ -49,28 +43,22 @@ const buildHelixPositions = () => {
   return positions
 }
 
-// Build bridge connections between the two strands
 const buildBridges = () => {
   const bridges = []
-  for (let i = 0; i < HELIX_NODES; i += BRIDGE_SKIP) {
-    bridges.push([i, HELIX_NODES + i])
-  }
+  for (let i = 0; i < HELIX_NODES; i += BRIDGE_SKIP) bridges.push([i, HELIX_NODES + i])
   return bridges
 }
 
-// Build backbone edges along each strand
 const buildBackbone = () => {
   const edges = []
   for (let i = 0; i < HELIX_NODES - 1; i++) {
-    edges.push([i, i + 1])                             // strand A
-    edges.push([HELIX_NODES + i, HELIX_NODES + i + 1]) // strand B
+    edges.push([i, i + 1])
+    edges.push([HELIX_NODES + i, HELIX_NODES + i + 1])
   }
   return edges
 }
 
-// ---------------------------------------------------------------------------
-// HelixNodes — instanced spheres along both strands
-// ---------------------------------------------------------------------------
+// ── Helix Nodes ──────────────────────────────────────────────────────────────
 const HelixNodes = ({ positions, pointer }) => {
   const ref = useRef()
   const totalNodes = HELIX_NODES * 2
@@ -86,9 +74,11 @@ const HelixNodes = ({ positions, pointer }) => {
       const t = (positions[i * 3 + 1] + HELIX_HEIGHT / 2) / HELIX_HEIGHT
       const isStrandB = i >= HELIX_NODES
       if (isStrandB) {
-        tmpColor.setHSL(0.78 - t * 0.15, 0.7, 0.55) // violet strand
+        // Warm amber strand: hue ~0.08 (amber-orange)
+        tmpColor.setHSL(0.08 + t * 0.04, 0.75, 0.55)
       } else {
-        tmpColor.setHSL(0.52 - t * 0.12, 0.75, 0.55) // cyan strand
+        // Gold strand: hue ~0.12 (gold-yellow)
+        tmpColor.setHSL(0.12 - t * 0.04, 0.7, 0.5)
       }
       ref.current.setColorAt(i, tmpColor)
     }
@@ -109,7 +99,6 @@ const HelixNodes = ({ positions, pointer }) => {
       const phaseOff = isStrandB ? Math.PI : 0
       const y = (frac - 0.5) * HELIX_HEIGHT
 
-      // Cursor warping — nodes near cursor bend outward
       const dx = Math.cos(angle + phaseOff) * HELIX_RADIUS - cursorX
       const dy = y - cursorY
       const dist = Math.sqrt(dx * dx + dy * dy)
@@ -137,9 +126,7 @@ const HelixNodes = ({ positions, pointer }) => {
   )
 }
 
-// ---------------------------------------------------------------------------
-// HelixEdges — backbone strands + bridge rungs with animated pulses
-// ---------------------------------------------------------------------------
+// ── Helix Edges ──────────────────────────────────────────────────────────────
 const edgeVertex = /* glsl */ `
   attribute float aT;
   attribute float aEdgeIndex;
@@ -165,10 +152,10 @@ const edgeFragment = /* glsl */ `
     float pulse = smoothstep(0.0, 0.1, 1.0 - abs(vT - phase) * 5.0);
     float base = mix(0.12, 0.25, vIsBridge);
     float a = base + pulse * 0.5;
-    // Cyan for backbone, violet for bridges
-    vec3 cyanCol = vec3(0.13, 0.83, 0.93);
-    vec3 violetCol = vec3(0.66, 0.33, 0.97);
-    vec3 col = mix(cyanCol, violetCol, vIsBridge * 0.7 + vT * 0.3);
+    // Amber for backbone, warm gold for bridges
+    vec3 amberCol = vec3(0.96, 0.62, 0.15);
+    vec3 goldCol  = vec3(0.85, 0.75, 0.35);
+    vec3 col = mix(amberCol, goldCol, vIsBridge * 0.7 + vT * 0.3);
     gl_FragColor = vec4(col, a);
   }
 `
@@ -192,7 +179,7 @@ const HelixEdges = ({ pointer }) => {
     const edgeIdAttr = new Float32Array(vertCount)
     const bridgeAttr = new Float32Array(vertCount)
 
-    allEdges.forEach(([a, b], i) => {
+    allEdges.forEach(([, ], i) => {
       tAttr[i * 2] = 0
       tAttr[i * 2 + 1] = 1
       edgeIdAttr[i * 2] = i
@@ -213,7 +200,6 @@ const HelixEdges = ({ pointer }) => {
   useFrame(({ clock }) => {
     if (matRef.current) matRef.current.uniforms.uTime.value = clock.getElapsedTime()
 
-    // Update edge positions to follow rotating helix
     if (!posRef.current) return
     const t = clock.getElapsedTime()
     const verts = posRef.current
@@ -254,9 +240,7 @@ const HelixEdges = ({ pointer }) => {
   )
 }
 
-// ---------------------------------------------------------------------------
-// DataParticles — points drifting upward through and around the helix
-// ---------------------------------------------------------------------------
+// ── Data Particles ───────────────────────────────────────────────────────────
 const DataParticles = ({ pointer }) => {
   const ref = useRef()
 
@@ -283,13 +267,11 @@ const DataParticles = ({ pointer }) => {
     const cursorY = -pointer.current.y * 5
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
-      // Drift upward and spiral
       arr[i * 3 + 1] += 0.008 + seeds[i] * 0.004
       const angle = t * 0.2 + seeds[i] * Math.PI * 2
       arr[i * 3 + 0] += Math.cos(angle) * 0.002
       arr[i * 3 + 2] += Math.sin(angle) * 0.002
 
-      // Cursor repulsion
       const cdx = arr[i * 3] - cursorX
       const cdy = arr[i * 3 + 1] - cursorY
       const cdist = Math.sqrt(cdx * cdx + cdy * cdy)
@@ -299,7 +281,6 @@ const DataParticles = ({ pointer }) => {
         arr[i * 3 + 1] += (cdy / (cdist + 0.01)) * repulse
       }
 
-      // Wrap around when leaving bounds
       if (arr[i * 3 + 1] > HELIX_HEIGHT * 0.7) {
         arr[i * 3 + 1] = -HELIX_HEIGHT * 0.7
       }
@@ -314,9 +295,9 @@ const DataParticles = ({ pointer }) => {
       </bufferGeometry>
       <pointsMaterial
         size={0.04}
-        color="#7dd3fc"
+        color="#f5c542"
         transparent
-        opacity={0.45}
+        opacity={0.40}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
         sizeAttenuation
@@ -325,10 +306,8 @@ const DataParticles = ({ pointer }) => {
   )
 }
 
-// ---------------------------------------------------------------------------
-// OrbitRing — particles orbiting the helix at various heights
-// ---------------------------------------------------------------------------
-const OrbitRing = ({ pointer }) => {
+// ── Orbit Ring ───────────────────────────────────────────────────────────────
+const OrbitRing = () => {
   const ref = useRef()
 
   const { positions, speeds, radii, heights } = useMemo(() => {
@@ -369,9 +348,9 @@ const OrbitRing = ({ pointer }) => {
       </bufferGeometry>
       <pointsMaterial
         size={0.06}
-        color="#a855f7"
+        color="#d4a030"
         transparent
-        opacity={0.35}
+        opacity={0.30}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
         sizeAttenuation
@@ -380,9 +359,7 @@ const OrbitRing = ({ pointer }) => {
   )
 }
 
-// ---------------------------------------------------------------------------
-// CursorGlow — soft emissive sphere following the mouse
-// ---------------------------------------------------------------------------
+// ── Cursor Glow ──────────────────────────────────────────────────────────────
 const CursorGlow = ({ pointer }) => {
   const ref = useRef()
   const targetPos = useRef(new THREE.Vector3(0, 0, 2))
@@ -400,9 +377,9 @@ const CursorGlow = ({ pointer }) => {
     <mesh ref={ref}>
       <sphereGeometry args={[1.0, 16, 16]} />
       <meshBasicMaterial
-        color="#22d3ee"
+        color="#f59e0b"
         transparent
-        opacity={0.05}
+        opacity={0.04}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
@@ -410,9 +387,7 @@ const CursorGlow = ({ pointer }) => {
   )
 }
 
-// ---------------------------------------------------------------------------
-// Camera — slow orbit with parallax
-// ---------------------------------------------------------------------------
+// ── Camera ───────────────────────────────────────────────────────────────────
 const CameraDriver = ({ pointer }) => {
   const { camera } = useThree()
   const base = useRef(new THREE.Vector3(0, 0, 18))
@@ -431,29 +406,25 @@ const CameraDriver = ({ pointer }) => {
   return null
 }
 
-// ---------------------------------------------------------------------------
-// Scene
-// ---------------------------------------------------------------------------
+// ── Scene ────────────────────────────────────────────────────────────────────
 const Scene = ({ pointer }) => {
   const positions = useMemo(() => buildHelixPositions(), [])
 
   return (
     <>
-      <color attach="background" args={[0, 0, 0]} />
-      <fog attach="fog" args={['#030408', 16, 35]} />
+      <color attach="background" args={['#0a0806']} />
+      <fog attach="fog" args={['#0d0a06', 16, 35]} />
       <HelixNodes positions={positions} pointer={pointer} />
       <HelixEdges pointer={pointer} />
       <DataParticles pointer={pointer} />
-      <OrbitRing pointer={pointer} />
+      <OrbitRing />
       <CursorGlow pointer={pointer} />
       <CameraDriver pointer={pointer} />
     </>
   )
 }
 
-// ---------------------------------------------------------------------------
-// Public component
-// ---------------------------------------------------------------------------
+// ── Public Component ─────────────────────────────────────────────────────────
 const Neural3DBackground = () => {
   const pointer = useRef({ x: 0, y: 0 })
   const [reducedMotion, setReducedMotion] = useState(false)
@@ -468,7 +439,7 @@ const Neural3DBackground = () => {
 
   useEffect(() => {
     const onMove = (e) => {
-      const nx = (e.clientX / window.innerWidth)  * 2 - 1
+      const nx = (e.clientX / window.innerWidth) * 2 - 1
       const ny = (e.clientY / window.innerHeight) * 2 - 1
       pointer.current.x = nx
       pointer.current.y = -ny
@@ -483,7 +454,7 @@ const Neural3DBackground = () => {
       className="fixed inset-0 -z-0 pointer-events-none"
       style={{
         background:
-          'radial-gradient(ellipse at 50% 30%, #0a0e1a 0%, #040608 55%, #020306 100%)',
+          'radial-gradient(ellipse at 50% 30%, #1a1408 0%, #0d0a06 55%, #080604 100%)',
       }}
     >
       <Canvas

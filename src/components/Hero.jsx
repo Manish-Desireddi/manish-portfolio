@@ -19,11 +19,10 @@ const TAGLINE_LINES = [
  *   4. Show "Tap to enable sound" hint only while blocked.
  */
 const Hero = ({ onVideoEnd }) => {
-  const videoRef                        = useRef(null)
-  const [muted, setMuted]               = useState(true)
-  const [audioBlocked, setAudioBlocked] = useState(false)
+  const videoRef = useRef(null)
+  const [muted, setMuted] = useState(false)
 
-  // ── Audio: unmuted attempt with first-interaction fallback ─────────────────
+  // Attempt unmuted autoplay; fall back to muted + restore on first gesture
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
@@ -35,21 +34,17 @@ const Hero = ({ onVideoEnd }) => {
     attempt
       .then(() => setMuted(false))
       .catch(() => {
-        // Autoplay policy blocked unmuted — fall back to muted
         video.muted = true
         video.play().catch(() => {})
         setMuted(true)
-        setAudioBlocked(true)
 
-        // Restore audio on first user gesture without requiring explicit button press
         const unlock = () => {
           const v = videoRef.current
           if (!v) return
           v.muted = false
           setMuted(false)
-          setAudioBlocked(false)
         }
-        document.addEventListener('click',      unlock, { once: true })
+        document.addEventListener('click', unlock, { once: true })
         document.addEventListener('touchstart', unlock, { once: true, passive: true })
       })
   }, [])
@@ -59,8 +54,7 @@ const Hero = ({ onVideoEnd }) => {
     if (!video) return
     video.muted = !video.muted
     setMuted(video.muted)
-    if (audioBlocked) setAudioBlocked(false)
-  }, [audioBlocked])
+  }, [])
 
   const handleVideoEnd = useCallback(() => {
     setTimeout(() => onVideoEnd?.(), 400)
@@ -197,24 +191,22 @@ const Hero = ({ onVideoEnd }) => {
         </motion.button>
       </div>
 
-      {/* ── Audio hint (only while browser has blocked audio) ─────────────── */}
-      {audioBlocked && (
-        <motion.button
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          onClick={toggleAudio}
-          className="absolute bottom-8 right-8 z-[3] flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900/80 border border-white/12 text-zinc-300 text-xs font-mono backdrop-blur-sm hover:bg-zinc-800/80 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400"
-          aria-label={muted ? 'Enable audio' : 'Mute audio'}
-        >
-          {muted ? (
-            <VolumeX size={14} aria-hidden="true" />
-          ) : (
-            <Volume2 size={14} aria-hidden="true" />
-          )}
-          {muted ? 'Tap to enable sound' : 'Mute'}
-        </motion.button>
-      )}
+      {/* ── Persistent audio toggle — always visible ────────────────────── */}
+      <motion.button
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        onClick={toggleAudio}
+        className="absolute bottom-8 right-8 z-[3] flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900/80 border border-white/12 text-zinc-300 text-xs font-mono backdrop-blur-sm hover:bg-zinc-800/80 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400"
+        aria-label={muted ? 'Unmute audio' : 'Mute audio'}
+      >
+        {muted ? (
+          <VolumeX size={14} aria-hidden="true" />
+        ) : (
+          <Volume2 size={14} aria-hidden="true" />
+        )}
+        {muted ? 'Unmute' : 'Mute'}
+      </motion.button>
     </motion.section>
   )
 }
