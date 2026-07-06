@@ -1,20 +1,11 @@
-import React, { useRef, useCallback } from 'react'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
-
-const TILT_SPRING = { damping: 22, stiffness: 200, mass: 0.7 }
-const GLOW_SPRING = { damping: 24, stiffness: 160 }
+import React from 'react'
 
 const STATS = [
   { label: 'Age', value: '21+' },
-  { label: 'Location', value: 'Hyderabad' },
-  { label: 'Country', value: 'India' },
+  { label: 'Location', value: 'Hyd, IN' },
+  { label: 'Clearance', value: 'Active' },
 ]
 
-/**
- * ProfileCard — 3D tilt card with cursor-following light reflection and
- * atmospheric behind-glow. Designed to sit on a dark bg without looking
- * like a generic UI card.
- */
 const ProfileCard = ({
   name         = 'Manish Desireddi',
   title        = 'AI & Automation Engineer',
@@ -22,150 +13,66 @@ const ProfileCard = ({
   status       = 'Open to Work',
   contactText  = 'Connect',
   avatarUrl    = '/assets/profile-casual.jpg',
-  enableTilt   = true,
-  behindGlowEnabled = true,
 }) => {
-  const cardRef = useRef(null)
-
-  // Raw normalised mouse position within the card (-0.5 to 0.5)
-  const rawX = useMotionValue(0)
-  const rawY = useMotionValue(0)
-
-  // Spring-smoothed tilt
-  const rotateY = useSpring(useTransform(rawX, [-0.5, 0.5], [-10, 10]), TILT_SPRING)
-  const rotateX = useSpring(useTransform(rawY, [-0.5, 0.5], [7, -7]),  TILT_SPRING)
-
-  // Glow opacity driven by hover state
-  const glowOpacity = useMotionValue(0)
-  const springGlow  = useSpring(glowOpacity, GLOW_SPRING)
-
-  // Cursor-following light reflection — maps mouse position to CSS gradient
-  const lightBg = useTransform([rawX, rawY], ([x, y]) => {
-    const lx = Math.round((x + 0.5) * 100)
-    const ly = Math.round((y + 0.5) * 100)
-    return `radial-gradient(circle at ${lx}% ${ly}%, rgba(255,255,255,0.065) 0%, transparent 55%)`
-  })
-
-  const onMouseMove = useCallback(
-    (e) => {
-      if (!enableTilt || !cardRef.current) return
-      const { left, top, width, height } = cardRef.current.getBoundingClientRect()
-      rawX.set((e.clientX - left) / width  - 0.5)
-      rawY.set((e.clientY - top)  / height - 0.5)
-    },
-    [enableTilt, rawX, rawY],
-  )
-
-  const onMouseEnter = useCallback(() => glowOpacity.set(1), [glowOpacity])
-
-  const onMouseLeave = useCallback(() => {
-    rawX.set(0)
-    rawY.set(0)
-    glowOpacity.set(0)
-  }, [rawX, rawY, glowOpacity])
-
   return (
-    <div className="relative w-full max-w-sm mx-auto" style={{ perspective: '1200px' }}>
-      {/* Atmospheric glow behind the card — only visible on hover */}
-      {behindGlowEnabled && (
-        <motion.div
-          className="absolute -inset-6 -z-10 blur-3xl rounded-[40px]"
-          style={{
-            opacity: springGlow,
-            background:
-              'radial-gradient(ellipse at center, rgba(6,182,212,0.35) 0%, rgba(124,58,237,0.2) 50%, transparent 80%)',
-          }}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Card surface */}
-      <motion.div
-        ref={cardRef}
-        style={{
-          rotateX: enableTilt ? rotateX : 0,
-          rotateY: enableTilt ? rotateY : 0,
-          transformStyle: 'preserve-3d',
-        }}
-        onMouseMove={onMouseMove}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-        className="relative overflow-hidden rounded-3xl bg-zinc-900/50 border border-white/10 backdrop-blur-xl"
-        role="region"
-        aria-label={`Profile card for ${name}`}
-      >
-        {/* Cursor-following surface reflection */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none z-20 rounded-3xl"
-          style={{ opacity: springGlow, background: lightBg }}
-          aria-hidden="true"
-        />
-
-        {/* Top edge highlight line */}
-        <div
-          className="absolute top-0 left-1/4 right-1/4 h-px z-10"
-          style={{ background: 'linear-gradient(to right, transparent, rgba(6,182,212,0.55), transparent)' }}
-          aria-hidden="true"
-        />
+    <div className="relative w-full max-w-sm mx-auto group">
+      {/* Profile Card Content */}
+      <div className="relative p-2 transition-all duration-300">
 
         {/* ── Avatar ───────────────────────────────────────────────────────── */}
-        <div className="relative">
+        <div className="relative border-2 border-zinc-800 overflow-hidden mb-6">
           <img
             src={avatarUrl}
             alt={`${name} — profile photo`}
             loading="lazy"
             draggable={false}
-            onContextMenu={(e) => e.preventDefault()}
-            className="w-full block"
+            className="w-full h-auto block grayscale group-hover:grayscale-0 transition-all duration-500"
             style={{
-              filter: 'brightness(0.90) contrast(1.05)',
-              userSelect: 'none',
+              filter: 'contrast(1.2) brightness(0.9)',
             }}
           />
-          {/* Photo → card body fade */}
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(to bottom, transparent 55%, rgba(24,24,27,0.97) 100%)' }}
-            aria-hidden="true"
-          />
+          
+          {/* Scanline overlay */}
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay opacity-50 pointer-events-none" />
 
           {/* Live status badge */}
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-950/75 border border-cyan-400/20 backdrop-blur-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" aria-hidden="true" />
-            <span className="text-[10px] font-mono text-green-300 tracking-wide">{status}</span>
+          <div className="absolute top-3 right-3 flex items-center gap-2 px-3 py-1 bg-black border border-emerald-500">
+            <span className="w-2 h-2 bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] font-heading text-emerald-400 uppercase tracking-widest">{status}</span>
           </div>
         </div>
 
         {/* ── Info ─────────────────────────────────────────────────────────── */}
-        <div className="px-6 pb-6 -mt-1">
-          <div className="mb-4">
-            <h3 className="text-xl font-bold text-white leading-tight select-none">{name}</h3>
-            <p className="text-cyan-400 text-sm font-medium mt-0.5">{title}</p>
-            <p className="text-zinc-600 text-xs font-mono mt-0.5">@{handle}</p>
+        <div className="px-2">
+          <div className="mb-6">
+            <h3 className="text-4xl font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 tracking-tighter leading-none mb-2 drop-shadow-[0_0_10px_rgba(236,72,153,0.6)]">
+              {name}
+            </h3>
+            <p className="text-orange-400 font-oswald uppercase tracking-widest text-sm drop-shadow-[0_0_5px_rgba(251,146,60,0.5)]">
+              {title}
+            </p>
+            <p className="text-pink-300/70 text-xs font-mono mt-1">ID: @{handle}</p>
           </div>
 
           {/* Quick stats */}
-          <div className="grid grid-cols-3 gap-2 mb-5 pt-4 border-t border-white/8">
+          <div className="grid grid-cols-3 gap-2 mb-6 pt-4 border-t border-pink-900/40">
             {STATS.map(({ label, value }) => (
-              <div key={label} className="text-center">
-                <p className="text-lg font-black text-white">{value}</p>
-                <p className="text-[9px] font-mono text-zinc-600 uppercase tracking-wider mt-0.5">{label}</p>
+              <div key={label} className="text-left border-l-2 border-pink-500/30 pl-2 group-hover:border-pink-400 transition-colors">
+                <p className="text-xl font-heading text-white tracking-tight">{value}</p>
+                <p className="text-[9px] font-mono text-orange-400/80 uppercase tracking-wider mt-1">{label}</p>
               </div>
             ))}
           </div>
 
           {/* Contact CTA */}
-          <motion.a
+          <a
             href="mailto:manishdesireddi@gmail.com"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            className="block w-full text-center py-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-sm font-semibold hover:bg-cyan-500/20 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400"
-            aria-label={`Send email to ${name}`}
+            className="block w-full text-center py-3 bg-pink-950/20 border border-pink-500/50 text-white font-heading uppercase tracking-widest hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-400 hover:text-black hover:border-transparent transition-all shadow-[0_0_15px_rgba(236,72,153,0)] hover:shadow-[0_0_20px_rgba(236,72,153,0.6)]"
           >
             {contactText}
-          </motion.a>
+          </a>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }

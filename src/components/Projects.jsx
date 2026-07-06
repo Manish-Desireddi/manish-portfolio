@@ -1,305 +1,247 @@
-import React, { useRef, useCallback, useState } from 'react'
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion'
+import React, { useRef, useLayoutEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { Github, ExternalLink, Download } from 'lucide-react'
 import { PROJECTS } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
 import DemoModal from './DemoModal'
 import PrivateRepoModal from './PrivateRepoModal'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-const ACCENT = {
-  cyan:    { tag: 'bg-cyan-400/10 text-cyan-300 border-cyan-400/20',       glow: 'rgba(6,182,212,0.18)',   border: 'rgba(6,182,212,0.45)',   metric: 'text-cyan-400',    shimmer: '#22d3ee' },
-  violet:  { tag: 'bg-violet-400/10 text-violet-300 border-violet-400/20', glow: 'rgba(139,92,246,0.18)',  border: 'rgba(139,92,246,0.45)',  metric: 'text-violet-400',  shimmer: '#a78bfa' },
-  indigo:  { tag: 'bg-indigo-400/10 text-indigo-300 border-indigo-400/20', glow: 'rgba(99,102,241,0.18)',  border: 'rgba(99,102,241,0.45)',  metric: 'text-indigo-400',  shimmer: '#818cf8' },
-  emerald: { tag: 'bg-emerald-400/10 text-emerald-300 border-emerald-400/20', glow: 'rgba(52,211,153,0.20)', border: 'rgba(52,211,153,0.45)', metric: 'text-emerald-400', shimmer: '#34d399' },
-}
+gsap.registerPlugin(ScrollTrigger)
 
-const TILT_SPRING = { damping: 20, stiffness: 260 }
-
-const ProjectCard = React.memo(({ project, index, onDemoClick, onGithubClick }) => {
-  const cardRef = useRef(null)
-  const [flipped, setFlipped] = useState(false)
-  const palette = ACCENT[project.accent] ?? ACCENT.cyan
-
-  const rawX = useMotionValue(0)
-  const rawY = useMotionValue(0)
-
-  const rotateY = useSpring(useTransform(rawX, [-0.5, 0.5], [-12, 12]), TILT_SPRING)
-  const rotateX = useSpring(useTransform(rawY, [-0.5, 0.5], [10, -10]), TILT_SPRING)
-
-  // Shimmer position tracks cursor for holographic effect
-  const shimmerX = useMotionValue(50)
-  const shimmerY = useMotionValue(50)
-
-  const onMouseMove = useCallback(
-    (e) => {
-      if (!cardRef.current) return
-      const { left, top, width, height } = cardRef.current.getBoundingClientRect()
-      const nx = (e.clientX - left) / width
-      const ny = (e.clientY - top) / height
-      rawX.set(nx - 0.5)
-      rawY.set(ny - 0.5)
-      shimmerX.set(nx * 100)
-      shimmerY.set(ny * 100)
-    },
-    [rawX, rawY, shimmerX, shimmerY],
-  )
-
-  const onMouseLeave = useCallback(() => {
-    rawX.set(0)
-    rawY.set(0)
-  }, [rawX, rawY])
-
-  const isDownload = project.demoKind === 'download-cloud'
-  const DemoIcon = isDownload ? Download : ExternalLink
-  const demoLabel = isDownload ? 'Download' : 'Demo'
-
-  return (
-    <motion.article
-      ref={cardRef}
-      initial={{ opacity: 0, y: 60, scale: 0.92 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.7, delay: index * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
-      style={{ rotateX, rotateY, transformPerspective: 1000 }}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      onClick={() => setFlipped((f) => !f)}
-      className="relative rounded-2xl overflow-hidden cursor-pointer group"
-      aria-label={project.title}
-    >
-      {/* Holographic shimmer border — follows cursor */}
-      <div
-        className="absolute inset-0 rounded-2xl pointer-events-none z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{
-          boxShadow: `inset 0 0 0 1.5px ${palette.border}, 0 0 30px ${palette.glow}, 0 0 60px ${palette.glow}`,
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Resting border */}
-      <div className="absolute inset-0 rounded-2xl border border-white/8 pointer-events-none z-10" />
-
-      {/* Flip container */}
-      <div className="relative w-full" style={{ minHeight: 380 }}>
-        <AnimatePresence mode="wait" initial={false}>
-          {!flipped ? (
-            /* ─── Front face ─── */
-            <motion.div
-              key="front"
-              initial={{ rotateY: -90, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              exit={{ rotateY: 90, opacity: 0 }}
-              transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-              className="relative z-10 p-7 flex flex-col"
-              style={{ minHeight: 380, backfaceVisibility: 'hidden' }}
-            >
-              {/* Glass bg */}
-              <div
-                className="absolute inset-0 rounded-2xl"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.015) 100%)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                }}
-              />
-
-              {/* Accent orb */}
-              <div
-                className="absolute -top-16 -right-16 w-48 h-48 rounded-full pointer-events-none opacity-40 group-hover:opacity-70 transition-opacity duration-700"
-                style={{
-                  background: `radial-gradient(circle, ${palette.glow} 0%, transparent 65%)`,
-                  filter: 'blur(25px)',
-                }}
-                aria-hidden="true"
-              />
-
-              <div className="relative z-10 flex flex-col h-full" style={{ minHeight: 330 }}>
-                <div className="flex items-start justify-between mb-5">
-                  <span
-                    className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center text-[11px] font-mono shrink-0"
-                    style={{ color: palette.border, background: palette.glow }}
-                  >
-                    0{index + 1}
-                  </span>
-
-                  <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      type="button"
-                      onClick={() => onGithubClick(project)}
-                      aria-label={`View ${project.title} repository`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 border border-white/10 bg-white/5 hover:border-white/25 hover:text-white hover:bg-white/10 transition-all duration-200"
-                    >
-                      <Github size={12} aria-hidden="true" />
-                      GitHub
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onDemoClick(project)}
-                      aria-label={`${demoLabel} for ${project.title}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 border border-white/10 bg-white/5 hover:border-white/25 hover:text-white hover:bg-white/10 transition-all duration-200"
-                    >
-                      <DemoIcon size={12} aria-hidden="true" />
-                      {demoLabel}
-                    </button>
-                  </div>
-                </div>
-
-                <h3 className="text-xl font-bold text-white mb-3 leading-snug">{project.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed mb-5 line-clamp-3">{project.description}</p>
-
-                {/* Tags pinned at bottom */}
-                <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
-                  {project.tags.map((tag) => (
-                    <span key={tag} className={`px-2.5 py-1 rounded-md text-xs font-mono border ${palette.tag}`}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                <p className="text-[10px] font-mono text-zinc-600 mt-4 text-center tracking-wider select-none">
-                  click to flip · details →
-                </p>
-              </div>
-            </motion.div>
-          ) : (
-            /* ─── Back face — metrics + highlights ─── */
-            <motion.div
-              key="back"
-              initial={{ rotateY: 90, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              exit={{ rotateY: -90, opacity: 0 }}
-              transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-              className="relative z-10 p-7 flex flex-col"
-              style={{ minHeight: 380, backfaceVisibility: 'hidden' }}
-            >
-              {/* Glass bg */}
-              <div
-                className="absolute inset-0 rounded-2xl"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                }}
-              />
-
-              <div className="relative z-10 flex flex-col h-full" style={{ minHeight: 330 }}>
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-white leading-snug">{project.title}</h3>
-                  <span className="text-[10px] font-mono text-zinc-500 tracking-wider select-none">← flip back</span>
-                </div>
-
-                {/* Metrics */}
-                {project.metrics && (
-                  <div className="grid grid-cols-3 gap-4 mb-6 pb-5 border-b border-white/8">
-                    {Object.entries(project.metrics).map(([key, value], i) => (
-                      <motion.div
-                        key={key}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.08, duration: 0.35 }}
-                        className="flex flex-col items-center"
-                      >
-                        <span className={`text-xl font-bold font-mono ${palette.metric}`}>{value}</span>
-                        <span className="text-[10px] font-mono text-zinc-600 uppercase tracking-wider mt-1">{key}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Highlights */}
-                {project.highlights && (
-                  <ul className="space-y-3 flex-1">
-                    {project.highlights.map((item, i) => (
-                      <motion.li
-                        key={i}
-                        initial={{ opacity: 0, x: -16 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.15 + i * 0.08, duration: 0.3 }}
-                        className="flex items-start gap-3 text-sm text-zinc-300"
-                      >
-                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: palette.border }} />
-                        {item}
-                      </motion.li>
-                    ))}
-                  </ul>
-                )}
-
-                {/* Buttons on back face */}
-                <div className="flex gap-3 mt-auto pt-4" onClick={(e) => e.stopPropagation()}>
-                  <button
-                    type="button"
-                    onClick={() => onGithubClick(project)}
-                    className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium text-zinc-300 border border-white/10 bg-white/5 hover:bg-white/10 hover:text-white transition-all duration-200"
-                  >
-                    <Github size={13} aria-hidden="true" />
-                    Source
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onDemoClick(project)}
-                    className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all duration-200"
-                    style={{ borderColor: palette.border, color: palette.shimmer, background: palette.glow }}
-                  >
-                    <DemoIcon size={13} aria-hidden="true" />
-                    {demoLabel}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.article>
-  )
-})
-
-ProjectCard.displayName = 'ProjectCard'
+const PROJECT_VIDEOS = [
+  'https://videos.pexels.com/video-files/3129595/3129595-uhd_3840_2160_30fps.mp4',
+  'https://videos.pexels.com/video-files/853889/853889-hd_1920_1080_25fps.mp4',
+  'https://videos.pexels.com/video-files/2887463/2887463-uhd_3840_2160_25fps.mp4',
+  'https://videos.pexels.com/video-files/3255275/3255275-uhd_3840_2160_25fps.mp4',
+]
 
 const Projects = () => {
+  const containerRef = useRef(null)
+  const pinRef = useRef(null)
+  const trackRef = useRef(null)
+  const titleRef = useRef(null)
+  const svgBgRef = useRef(null)
+  
   const [demoState, setDemoState] = useState({ open: false, variantId: null })
   const [repoState, setRepoState] = useState({ open: false, title: null })
 
-  const handleDemoClick = useCallback((project) => {
-    if (project.demoKind === 'download-cloud') {
-      window.location.hash = '#/downloads/ai-assistant'
-      return
+  useLayoutEffect(() => {
+    let ctx = gsap.context(() => {
+      const total = PROJECTS.length
+      
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          pin: true,
+          start: "top top",
+          end: `+=600%`,
+          scrub: true,
+        }
+      })
+      
+      // Delay: 0 to 0.5 is for fading in the content
+      gsap.set('.projects-content', { opacity: 0, y: 30 })
+      tl.to('.projects-content', { opacity: 1, y: 0, ease: "power2.out", duration: 0.5 }, 0)
+
+      // Title scale effect
+      tl.to(titleRef.current, { scale: 1.15, ease: "none", duration: total }, 0.5)
+      
+      // Horizontal Scroll Track starts at 0.5
+      tl.to(trackRef.current, {
+        xPercent: -100 * (total - 1) / total,
+        ease: "none",
+        duration: total
+      }, 0.5)
+
+      // Canvas Video Scrubbing
+      const canvas = document.getElementById('projects-canvas')
+      if (canvas) {
+        const context = canvas.getContext('2d')
+        
+        const frameCount = 600
+        const currentFrame = (index) => (
+          `/assets/projects_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
+        )
+        
+        const images = []
+        const scrubObj = { frame: 0 }
+        
+        for (let i = 0; i < frameCount; i++) {
+          const img = new Image()
+          img.src = currentFrame(i)
+          images.push(img)
+        }
+        
+        function render() {
+          const img = images[Math.floor(scrubObj.frame)]
+          if (img && img.complete && img.naturalWidth !== 0) {
+            const hRatio = canvas.width / img.width
+            const vRatio = canvas.height / img.height
+            const ratio = Math.max(hRatio, vRatio)
+            const centerShift_x = (canvas.width - img.width * ratio) / 2
+            const centerShift_y = (canvas.height - img.height * ratio) / 2
+            
+            context.clearRect(0, 0, canvas.width, canvas.height)
+            context.drawImage(img, 0, 0, img.width, img.height,
+                              centerShift_x, centerShift_y, img.width * ratio, img.height * ratio)
+          }
+        }
+
+        gsap.ticker.add(render)
+
+        const handleResize = () => {
+          canvas.width = window.innerWidth
+          canvas.height = window.innerHeight
+          render()
+        }
+        
+        handleResize()
+        window.addEventListener('resize', handleResize)
+        
+        images[0].onload = render
+
+        tl.to(scrubObj, {
+          frame: frameCount - 1,
+          snap: "frame",
+          ease: "none",
+          duration: total + 0.5,
+        }, 0)
+        
+        // Add cleanup property for GSAP context
+        tl._canvasResize = handleResize
+        tl._canvasRender = render
+      }
+
+
+      // Pop effect and dimming on individual project cards
+      const cards = gsap.utils.toArray('.project-card')
+      cards.forEach((card, i) => {
+        // Initial state for non-first cards
+        if (i > 0) {
+          gsap.set(card, { scale: 0.8, opacity: 0.2 })
+          tl.to(card, { scale: 1, opacity: 1, duration: 1, ease: "power2.out" }, i - 1)
+        }
+        
+        // Dim as it leaves
+        if (i < total - 1) {
+          tl.to(card, { scale: 0.8, opacity: 0.2, duration: 1, ease: "power2.in" }, i + 0.5) // Offset to leave later
+        }
+      })
+
+    }, containerRef)
+    
+    return () => {
+      ctx.revert()
+      const tl = ctx.data && ctx.data[0]
+      if (tl && tl._canvasResize) window.removeEventListener('resize', tl._canvasResize)
+      if (tl && tl._canvasRender) gsap.ticker.remove(tl._canvasRender)
     }
-    setDemoState({ open: true, variantId: project.demoKind })
   }, [])
-
-  const handleGithubClick = useCallback((project) => {
-    setRepoState({ open: true, title: project.title })
-  }, [])
-
-  const closeDemo = useCallback(() => setDemoState((s) => ({ ...s, open: false })), [])
-  const closeRepo = useCallback(() => setRepoState((s) => ({ ...s, open: false })), [])
 
   return (
     <>
-      <section id="projects" className="relative py-28 px-6">
-        <div className="relative z-10 max-w-6xl mx-auto">
-          <SectionHeader
-            eyebrow="03 // Projects"
-            title="What I've built."
-            subtitle="AI-first engineering across generative models, automation, and intelligent systems."
-          />
+      <section ref={containerRef} id="projects" className="relative bg-black h-screen overflow-hidden">
+        {/* Cinematic Video Background Frame-Scrubbed */}
+        <canvas id="projects-canvas" className="absolute inset-0 w-full h-full object-cover z-0" />
+        <div className="absolute inset-0 bg-black/60 pointer-events-none z-0" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {PROJECTS.map((project, idx) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                index={idx}
-                onDemoClick={handleDemoClick}
-                onGithubClick={handleGithubClick}
+        <div className="projects-content relative z-10 w-full h-full pt-32 pb-12 overflow-hidden flex flex-col justify-between">
+            
+            {/* Scroll-Expanding Header */}
+            <div ref={titleRef} className="text-center origin-top px-6 flex-shrink-0">
+              <SectionHeader
+                eyebrow={`03 // Projects`}
+                title={`ENGINEERED TO SCALE`}
+                subtitle="High-performance AI pipelines & autonomous systems."
               />
-            ))}
-          </div>
+            </div>
+
+            {/* Horizontal Scroll Track */}
+            <div 
+              ref={trackRef} 
+              className="flex h-full flex-grow items-center mt-12" 
+              style={{ width: `${PROJECTS.length * 100}vw` }}
+            >
+              {PROJECTS.map((project, idx) => (
+                <div 
+                  key={project.id}
+                  className="w-[100vw] h-full flex items-center justify-center px-6 lg:px-24"
+                >
+                  <div 
+                    className="project-card w-full max-w-6xl flex flex-col justify-start md:grid md:grid-cols-2 gap-4 md:gap-16 max-h-[60vh] md:max-h-[65vh] overflow-y-auto overflow-x-hidden md:overflow-hidden no-scrollbar"
+                    data-lenis-prevent="true"
+                  >
+                    <div className="bg-black/60 border-l-4 border-cyan-500/80 p-6 md:p-8 shadow-[inset_0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-xl flex flex-col h-full shrink-0 snap-start relative overflow-hidden group">
+                      {/* Cyberpunk corner bracket */}
+                      <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-500/50" />
+                      <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-500/50" />
+                      
+                      <h3 className="font-heading text-3xl md:text-4xl uppercase tracking-tighter text-white mb-2 shrink-0 group-hover:text-cyan-400 transition-colors">{project.title}</h3>
+                      <div className="text-zinc-300 font-sans leading-relaxed mb-6 md:mb-8 text-sm md:text-base relative z-10 overflow-y-auto flex-grow min-h-0 no-scrollbar pb-2">
+                        {project.description}
+                      </div>
+                      <div className="flex flex-wrap gap-4 mt-auto pt-4 border-t border-zinc-700/50 md:border-t-0 md:pt-0 shrink-0">
+                        <button
+                          onClick={() => {
+                            if (project.demoKind === 'download-cloud') {
+                              window.location.hash = '#/downloads/ai-assistant'
+                            } else {
+                              setDemoState({ open: true, variantId: project.demoKind })
+                            }
+                          }}
+                          className="px-4 py-2 md:px-6 md:py-3 bg-white text-black font-heading uppercase hover:bg-cyan-400 hover:text-black transition-colors text-sm md:text-base shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)]"
+                        >
+                          Explore Demo
+                        </button>
+                        <button
+                          onClick={() => setRepoState({ open: true, title: project.title })}
+                          className="px-4 py-2 md:px-6 md:py-3 border-2 border-zinc-600/80 text-white font-heading uppercase hover:bg-white/10 hover:border-white transition-colors text-sm md:text-base"
+                        >
+                          View Source
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-4 justify-start shrink-0 pb-12 md:pb-0 h-full overflow-y-auto no-scrollbar" data-lenis-prevent="true">
+                      <div className="bg-black/60 border border-zinc-700/50 p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:border-cyan-400 transition-colors backdrop-blur-xl snap-start shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]">
+                        <div className="w-12 h-12 md:w-14 md:h-14 bg-black/80 flex items-center justify-center font-heading text-cyan-400 text-xl md:text-2xl border border-cyan-500/30 shrink-0">01</div>
+                        <div>
+                          <h4 className="font-oswald uppercase text-white tracking-widest text-base md:text-lg drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">Built With</h4>
+                          <p className="text-cyan-100/70 text-xs md:text-sm font-mono mt-1">{project.tags.slice(0, 3).join(' // ')}</p>
+                        </div>
+                      </div>
+
+                      <div className="bg-black/60 border border-zinc-700/50 p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:border-violet-400 transition-colors backdrop-blur-xl snap-start shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]">
+                        <div className="w-12 h-12 md:w-14 md:h-14 bg-black/80 flex items-center justify-center font-heading text-violet-400 text-xl md:text-2xl border border-violet-500/30 shrink-0">02</div>
+                        <div>
+                          <h4 className="font-oswald uppercase text-white tracking-widest text-base md:text-lg drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">Key Feature</h4>
+                          <p className="text-violet-100/70 text-xs md:text-sm font-mono mt-1">{project.highlights[0]}</p>
+                        </div>
+                      </div>
+
+                      {project.metrics && (
+                        <div className="bg-black/60 border border-zinc-700/50 p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:border-emerald-400 transition-colors backdrop-blur-xl snap-start shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]">
+                          <div className="w-12 h-12 md:w-14 md:h-14 bg-black/80 flex items-center justify-center font-heading text-emerald-400 text-xl md:text-2xl border border-emerald-500/30 shrink-0">03</div>
+                          <div>
+                            <h4 className="font-oswald uppercase text-white tracking-widest text-base md:text-lg drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">Metrics</h4>
+                            <p className="text-emerald-100/70 text-xs md:text-sm font-mono mt-1">
+                              {Object.entries(project.metrics).map(([k, v]) => `${k.toUpperCase()}: ${v}`).join(' | ')}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
         </div>
       </section>
 
-      <DemoModal isOpen={demoState.open} onClose={closeDemo} variantId={demoState.variantId} />
-      <PrivateRepoModal isOpen={repoState.open} onClose={closeRepo} projectTitle={repoState.title} />
+      <DemoModal isOpen={demoState.open} onClose={() => setDemoState({ ...demoState, open: false })} variantId={demoState.variantId} />
+      <PrivateRepoModal isOpen={repoState.open} onClose={() => setRepoState({ ...repoState, open: false })} projectTitle={repoState.title} />
     </>
   )
 }

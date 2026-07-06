@@ -40,15 +40,20 @@ const CustomCursorInner = () => {
       {/* Glow ring — spring-lagged, larger */}
       <motion.div
         aria-hidden="true"
-        className="fixed top-0 left-0 z-[9999] pointer-events-none w-10 h-10 rounded-full border border-cyan-400/40 bg-cyan-400/4"
+        className="fixed top-0 left-0 z-[9999999] pointer-events-none w-10 h-10 rounded-full border border-pink-400/40 bg-gradient-to-tr from-pink-500/10 to-orange-400/10"
         style={{ x: glowX, y: glowY }}
       />
-      {/* Dot — snaps immediately to cursor */}
+      {/* Dot — GTA VI Style Arrow */}
       <motion.div
         aria-hidden="true"
-        className="fixed top-0 left-0 z-[9999] pointer-events-none w-2 h-2 rounded-full bg-cyan-400"
+        className="fixed top-0 left-0 z-[9999999] pointer-events-none"
         style={{ x: dotX, y: dotY }}
-      />
+      >
+        {/* SVG mimicking a thick black arrow with a white outline (GTA style) */}
+        <svg width="24" height="32" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ transform: 'translate(-4px, -4px)' }}>
+          <path d="M2 2 L9 24 L13 16 L20 16 Z" fill="black" stroke="white" strokeWidth="2" strokeLinejoin="miter"/>
+        </svg>
+      </motion.div>
     </>
   )
 }

@@ -1,33 +1,27 @@
-﻿import React, { memo } from 'react'
+import React, { memo } from 'react'
 import { motion } from 'framer-motion'
 import { TECH_STACK } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
 import ProfileCard from './ProfileCard'
 
-// Alphabetically sorted at definition time
-const SORTED_TECH = [...TECH_STACK].sort((a, b) =>
-  a.toLowerCase().localeCompare(b.toLowerCase()),
-)
-
-// Duplicate for seamless 50%-translate infinite loop
+const SORTED_TECH = [...TECH_STACK].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
 const MARQUEE_ITEMS = [...SORTED_TECH, ...SORTED_TECH]
 
 const CHIPS = [
-  { label: 'AI Models',           cls: 'text-emerald-400 border-emerald-400/25 bg-emerald-400/8' },
-  { label: 'AI Pipelines',        cls: 'text-cyan-400    border-cyan-400/25    bg-cyan-400/8'    },
-  { label: 'Automation',          cls: 'text-violet-400  border-violet-400/25  bg-violet-400/8'  },
-  { label: 'Distributed Systems', cls: 'text-indigo-400  border-indigo-400/25  bg-indigo-400/8'  },
+  { label: 'AI Models',           cls: 'text-zinc-100 border-zinc-700 bg-zinc-900' },
+  { label: 'AI Pipelines',        cls: 'text-cyan-400 border-cyan-400/30 bg-cyan-950/40'    },
+  { label: 'Automation',          cls: 'text-violet-400 border-violet-400/30 bg-violet-950/40'  },
+  { label: 'Distributed Systems', cls: 'text-zinc-100 border-zinc-700 bg-zinc-900'  },
 ]
 
 const STAT_TILES = [
   { value: '3+',  label: 'AI Projects' },
   { value: '8.2', label: 'CGPA'        },
-  { value: '9 mos+', label: 'Nokia'       },
+  { value: '11 mos', label: 'Nokia'       },
 ]
 
-// Memoized chip — avoids re-render when parent updates
 const Chip = memo(({ label, cls }) => (
-  <span className={`px-3 py-1 rounded-full text-xs font-mono font-medium border ${cls}`}>
+  <span className={`px-4 py-1.5 text-xs font-mono font-medium border uppercase tracking-wider ${cls}`}>
     {label}
   </span>
 ))
@@ -35,34 +29,33 @@ Chip.displayName = 'Chip'
 
 const About = () => {
   return (
-    <section id="about" className="relative py-28 px-6">
-      <div className="relative z-10 max-w-6xl mx-auto">
-        <SectionHeader
-          eyebrow="01 // About"
-          title="Engineer by discipline."
-          subtitle="AI architect by obsession."
-        />
+    <section id="about" className="relative py-28 px-6 bg-transparent overflow-hidden">
+      {/* HUD Scanline Overlay for entire section */}
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[length:100%_4px] z-0" />
+      
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <div className="text-center md:text-left mb-16 relative">
+          {/* HUD Targeting Box for Header */}
+          <div className="absolute -left-4 -top-4 w-8 h-8 border-t-2 border-l-2 border-cyan-500/50" />
+          <div className="absolute -right-4 -bottom-4 w-8 h-8 border-b-2 border-r-2 border-cyan-500/50" />
+          
+          <SectionHeader
+            eyebrow="SYS.LOG // About"
+            title="ENGINEER BY DISCIPLINE."
+            subtitle="> AI ARCHITECT BY OBSESSION..."
+          />
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-20 items-center">
-
-          {/* â”€â”€ Left: ProfileCard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-center">
+          
           <motion.div
-            initial={{ opacity: 0, x: -36 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.85 }}
-            className="flex items-center justify-center"
+            transition={{ duration: 0.6 }}
+            className="flex items-center justify-center lg:justify-start"
           >
-            {/*
-             * Wrapping div carries an extra ambient glow to help the card
-             * feel fused into the dark background rather than sitting on top.
-             */}
-            <div className="relative w-full max-w-sm">
-              <div
-                className="absolute -inset-10 blur-3xl opacity-15 pointer-events-none rounded-full"
-                style={{ background: 'radial-gradient(ellipse, #06b6d4 0%, transparent 70%)' }}
-                aria-hidden="true"
-              />
+            <div className="relative w-full max-w-md">
               <ProfileCard
                 name="Manish Desireddi"
                 title="AI & Automation Engineer"
@@ -70,94 +63,60 @@ const About = () => {
                 status="Open to Work"
                 contactText="Connect"
                 avatarUrl="/assets/profile-casual.jpg"
-                enableTilt={true}
-                behindGlowEnabled={true}
               />
             </div>
           </motion.div>
 
-          {/* â”€â”€ Right: Bio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <motion.div
-            initial={{ opacity: 0, x: 36 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.85, delay: 0.12 }}
-            className="flex flex-col gap-6"
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-col gap-8"
           >
-            {/* Capability chips */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
               {CHIPS.map(({ label, cls }) => (
                 <Chip key={label} label={label} cls={cls} />
               ))}
             </div>
 
-            <p className="text-zinc-300 text-lg leading-relaxed">
-              I'm a final-year B.Tech student in{' '}
-              <span className="text-white font-semibold">
-                Artificial Intelligence &amp; Data Science
-              </span>
-              , engineering production-grade AI systems that survive at scale. My work spans{' '}
-              <span className="text-cyan-400">Generative AI</span> &mdash; fine-tuning LLMs with LoRA
-              and quantization &mdash; and assembling{' '}
-              <span className="text-violet-400">agentic pipelines</span> that automate complex
-              multi-step workflows end-to-end.
+            <p className="text-zinc-300 font-sans text-xl leading-relaxed">
+              I'm a final-year B.Tech student in <span className="text-white font-heading uppercase">Artificial Intelligence &amp; Data Science</span>, engineering production-grade AI systems that survive at scale.
             </p>
 
-            <p className="text-zinc-400 text-base leading-relaxed">
-              At Nokia Solutions and Networks, I architect automation and data ingestion systems
-              using Apache Airflow and distributed event-driven patterns. I write infrastructure
-              that observes itself: Grafana dashboards, reliable DAG orchestration, and pipelines
-              with measurable SLAs.
+            <p className="text-zinc-400 font-sans text-lg leading-relaxed">
+              My work spans <span className="text-cyan-400 uppercase tracking-widest font-mono text-sm">Generative AI</span> fine-tuning LLMs with LoRA and quantization—and assembling <span className="text-violet-400 uppercase tracking-widest font-mono text-sm">agentic pipelines</span> that automate complex multi-step workflows end-to-end.
             </p>
 
-            <p className="text-zinc-400 text-base leading-relaxed">
-              Outside of work, I research distributed system design, local LLM deployments,
-              retrieval-augmented generation, and multi-modal generative models. I care about AI
-              that is efficient, explainable, and enterprise-deployable.
+            <p className="text-zinc-500 font-sans text-base leading-relaxed">
+              At Nokia Solutions and Networks, I architect automation and data ingestion systems using Apache Airflow and distributed event-driven patterns. I write infrastructure that observes itself: Grafana dashboards, reliable DAG orchestration, and pipelines with measurable SLAs.
             </p>
 
-            {/* Quick stats */}
-            <div className="mt-2 pt-6 border-t border-white/8 grid grid-cols-3 gap-4">
+            {/* Tactical stats */}
+            <div className="mt-4 pt-8 border-t border-cyan-500/20 grid grid-cols-3 gap-6 relative z-10">
               {STAT_TILES.map(({ value, label }) => (
-                <div key={label} className="text-center">
-                  <p className="text-3xl font-black text-white">{value}</p>
-                  <p className="text-[10px] text-zinc-500 mt-1 font-mono uppercase tracking-wider">
+                <div key={label} className="flex flex-col border-l-4 border-cyan-500/50 pl-4 hover:border-cyan-400 transition-colors">
+                  <span className="text-4xl font-heading text-white tracking-tighter drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">{value}</span>
+                  <span className="text-xs text-cyan-200/70 font-mono uppercase tracking-widest mt-1">
                     {label}
-                  </p>
+                  </span>
                 </div>
               ))}
             </div>
           </motion.div>
         </div>
 
-        {/* â”€â”€ Tech stack marquee â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        <div className="mt-24">
-          <p className="text-center text-[10px] font-mono text-zinc-700 tracking-[0.25em] uppercase mb-8">
-            Technologies
-          </p>
+        {/* Tech stack marquee in tactical style */}
+        <div className="mt-32 py-8 bg-transparent overflow-hidden relative backdrop-blur-sm z-10">
+          <div className="absolute left-0 top-0 h-full w-32 z-10 bg-gradient-to-r from-black/80 to-transparent pointer-events-none" />
+          <div className="absolute right-0 top-0 h-full w-32 z-10 bg-gradient-to-l from-black/80 to-transparent pointer-events-none" />
 
-          <div
-            className="marquee-wrapper overflow-hidden relative select-none"
-            aria-label="Scrolling list of technologies"
-          >
-            {/* Edge fades */}
-            <div
-              className="absolute left-0 top-0 h-full w-28 z-10 pointer-events-none"
-              style={{ background: 'linear-gradient(to right, #09090b, transparent)' }}
-              aria-hidden="true"
-            />
-            <div
-              className="absolute right-0 top-0 h-full w-28 z-10 pointer-events-none"
-              style={{ background: 'linear-gradient(to left, #09090b, transparent)' }}
-              aria-hidden="true"
-            />
-
-            {/* Duplicated items â€” hover fills with electric cyan */}
-            <div className="marquee-track items-center gap-14 py-2">
+          <div className="marquee-wrapper flex select-none" aria-label="Scrolling list of technologies">
+            <div className="marquee-track flex items-center gap-16 animate-marquee">
               {MARQUEE_ITEMS.map((tech, idx) => (
                 <span
                   key={`${tech}-${idx}`}
-                  className="text-stroke text-2xl md:text-3xl font-black tracking-tight uppercase whitespace-nowrap"
+                  className="text-stroke text-4xl sm:text-5xl font-heading tracking-tight uppercase whitespace-nowrap opacity-20 hover:opacity-100 hover:text-cyan-400 transition-all duration-300"
                 >
                   {tech}
                 </span>

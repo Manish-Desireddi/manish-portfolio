@@ -9,6 +9,11 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        heading: ['Archivo Black', 'sans-serif'],
+        oswald: ['Oswald', 'sans-serif'],
+      },
+      colors: {
+        'app-dark': 'rgb(13, 12, 26)',
       },
       keyframes: {
         'marquee-scroll': {

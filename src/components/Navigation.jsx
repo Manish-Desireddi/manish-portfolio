@@ -20,11 +20,13 @@ const Navigation = ({ onRequestHero }) => {
     setVisible(currentY < lastScrollY.current || currentY < 80)
     lastScrollY.current = currentY
 
-    const midpoint = currentY + window.innerHeight * 0.45
+    const midpoint = window.innerHeight * 0.45
     let current = 'home'
     for (const { id } of NAV_ITEMS) {
       const el = document.getElementById(id)
-      if (el && el.offsetTop <= midpoint) current = id
+      if (el && el.getBoundingClientRect().top <= midpoint) {
+        current = id
+      }
     }
     setActiveId(current)
   }, [])
@@ -36,26 +38,39 @@ const Navigation = ({ onRequestHero }) => {
 
   const goToSection = useCallback((id) => {
     if (id === 'home') {
-      onRequestHero?.()
+      if (window.lenis) {
+        window.lenis.scrollTo(0, { duration: 5.0 })
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+      setTimeout(() => {
+        onRequestHero?.()
+      }, 5000)
       return
     }
     const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (el) {
+      if (window.lenis) {
+        window.lenis.scrollTo(el, { duration: 5.0 })
+      } else {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
   }, [onRequestHero])
 
   return (
     <AnimatePresence>
       {visible && (
         <motion.nav
-          key="nav-pill"
           initial={{ y: 100, x: '-50%', opacity: 0 }}
           animate={{ y: 0, x: '-50%', opacity: 1 }}
           exit={{ y: 100, x: '-50%', opacity: 0 }}
           transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-          className="fixed bottom-5 left-1/2 z-50"
+          className="fixed bottom-6 left-1/2 z-50"
           aria-label="Primary navigation"
         >
-          <div className="flex items-center gap-0.5 px-2 sm:px-3 py-2 sm:py-2.5 rounded-2xl bg-zinc-900/85 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/60">
+          {/* Rigid Horizontal Block */}
+          <div className="flex items-center bg-black border-2 border-zinc-800 shadow-2xl">
             {NAV_ENTRIES.map(({ id, label, Icon }) => {
               const isActive = activeId === id
               return (
@@ -64,46 +79,42 @@ const Navigation = ({ onRequestHero }) => {
                   onClick={() => goToSection(id)}
                   aria-label={`Go to ${label} section`}
                   aria-current={isActive ? 'page' : undefined}
-                  className="relative flex flex-col items-center gap-0.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 group"
+                  className={`relative flex flex-col items-center justify-center w-16 h-16 transition-colors border-r border-zinc-800 last:border-r-0 hover:bg-zinc-900 group`}
                 >
+                  {/* Active highlight */}
                   {isActive && (
-                    <motion.span
-                      layoutId="nav-pill"
-                      className="absolute inset-0 rounded-xl bg-white/8"
-                      transition={{ type: 'spring', damping: 28, stiffness: 400 }}
+                    <motion.div
+                      layoutId="nav-highlight"
+                      className="absolute inset-0 border-b-4 border-cyan-400 bg-cyan-950/20"
+                      transition={{ type: 'spring', damping: 20, stiffness: 300 }}
                     />
                   )}
+                  
                   <Icon
-                    size={17}
+                    size={20}
                     className={`relative z-10 transition-colors duration-200 ${
-                      isActive ? 'text-cyan-400' : 'text-zinc-500 group-hover:text-zinc-200'
+                      isActive ? 'text-cyan-400' : 'text-zinc-500 group-hover:text-white'
                     }`}
                   />
-                  <span
-                    className={`relative z-10 text-[9px] font-mono tracking-wide transition-colors duration-200 hidden sm:block ${
-                      isActive ? 'text-cyan-400' : 'text-zinc-600 group-hover:text-zinc-400'
-                    }`}
-                  >
+                  
+                  {/* Hover tooltip */}
+                  <span className="absolute -top-10 px-2 py-1 bg-black border border-zinc-800 text-white font-mono text-[10px] uppercase opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                     {label}
                   </span>
                 </button>
               )
             })}
 
-            <div className="w-px h-6 sm:h-8 bg-white/10 mx-0.5 sm:mx-1 shrink-0" aria-hidden="true" />
-
+            {/* Resume Download Button */}
             <a
               href="/assets/resume.pdf"
               download
               aria-label="Download resume PDF"
-              className="relative flex flex-col items-center gap-0.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 group"
+              className="relative flex flex-col items-center justify-center w-16 h-16 bg-cyan-500 text-black hover:bg-cyan-400 transition-colors group"
             >
-              <Download
-                size={17}
-                className="text-zinc-500 group-hover:text-zinc-200 transition-colors duration-200"
-                aria-hidden="true"
-              />
-              <span className="text-[9px] font-mono tracking-wide text-zinc-600 group-hover:text-zinc-400 transition-colors duration-200 hidden sm:block">
+              <Download size={20} />
+              
+              <span className="absolute -top-10 px-2 py-1 bg-black border border-cyan-500 text-cyan-400 font-mono text-[10px] uppercase opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                 Resume
               </span>
             </a>

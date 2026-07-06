@@ -1,194 +1,117 @@
 import React, { useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, ArrowUp, Github, Linkedin, ChevronRight } from 'lucide-react'
-import { LEADERSHIP } from '../data/portfolioData'
-import SectionHeader from './SectionHeader'
-
-const CONTACT_EMAIL = 'manishdesireddi@gmail.com'
-
-/** Reusable bento box card with entrance animation */
-const BentoBox = ({ children, className = '', delay = 0 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: '-60px' }}
-    transition={{ duration: 0.65, delay }}
-    className={`relative overflow-hidden rounded-2xl bg-zinc-900/60 border border-white/8 backdrop-blur-sm ${className}`}
-  >
-    {children}
-  </motion.div>
-)
+import { Github, Linkedin, Instagram, ArrowUp } from 'lucide-react'
 
 const Footer = () => {
   const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (window.lenis) {
+      window.lenis.scrollTo(0, { duration: 2.5 })
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }, [])
 
   return (
-    <footer id="leadership" className="relative pt-28 pb-8 px-6">
-      <div className="relative z-10 max-w-6xl mx-auto">
-        <SectionHeader
-          eyebrow="05 // Education & Leadership"
-          title="Beyond the code."
-          subtitle="Academic excellence and community leadership at scale."
-        />
-
-        {/* ── Bento grid — Education first, Leadership second ────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-28">
-
-          {/* Box 1: Education */}
-          <BentoBox delay={0} className="min-h-[320px] p-8 flex flex-col justify-between">
-            <div>
-              <span className="inline-block px-2.5 py-1 rounded-md bg-violet-400/10 border border-violet-400/20 text-violet-400 text-[10px] font-mono tracking-wider uppercase mb-5">
-                Education
-              </span>
-              <h3 className="text-2xl font-bold text-white mb-2">
-                {LEADERSHIP.education.degree}
-              </h3>
-              <p className="text-zinc-500 text-sm font-mono">{LEADERSHIP.education.institution}</p>
-            </div>
-
-            <div>
-              {/* CGPA display */}
-              <div className="flex items-end gap-3 my-6">
-                <span className="text-6xl font-black text-white leading-none">
-                  {LEADERSHIP.education.cgpa}
-                </span>
-                <div className="mb-1.5">
-                  <p className="text-xs text-zinc-400 font-mono">CGPA</p>
-                  <p className="text-xs text-zinc-600">out of 10.0</p>
-                </div>
-              </div>
-
-              <ul className="space-y-2">
-                {LEADERSHIP.education.highlights.map((highlight, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-zinc-400">
-                    <ChevronRight size={14} className="text-violet-400 mt-0.5 shrink-0" aria-hidden="true" />
-                    <span>{highlight}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </BentoBox>
-
-          {/* Box 2: VP Student Body */}
-          <BentoBox delay={0.1} className="group min-h-[320px] p-8">
-            {/* Campus photo — desaturated, low opacity, dark overlay */}
-            <div className="absolute inset-0 overflow-hidden rounded-2xl" aria-hidden="true">
-              <img
-                src="/assets/campus.jpg"
-                alt=""
-                className="w-full h-full object-cover grayscale opacity-[0.10] scale-105 group-hover:scale-110 transition-transform duration-700"
+    <footer id="leadership" className="relative bg-zinc-950 text-white overflow-hidden border-t-4 border-zinc-900">
+      {/* Background texture for concrete/dark vibe */}
+      <div 
+        className="absolute inset-0 mix-blend-multiply opacity-30 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]"
+        aria-hidden="true"
+      />
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-12 flex flex-col gap-24">
+        
+        {/* Top Section: Connect & Propaganda */}
+        <div className="flex flex-col lg:flex-row justify-between gap-16 lg:gap-8">
+          
+          <div className="flex-1">
+            <h2 className="font-heading text-4xl sm:text-5xl md:text-6xl tracking-tight uppercase leading-none mb-6 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+              Get the latest updates &<br/>
+              Collaborations:<br/>
+              <span className="text-cyan-400">Connect with me.</span>
+            </h2>
+            
+            {/* Input fields mimicking Rockstar Propaganda sign up */}
+            <form 
+              className="mt-8 flex flex-col sm:flex-row gap-4 max-w-xl" 
+              onSubmit={(e) => {
+                e.preventDefault();
+                const email = e.target.elements[0].value;
+                if (!email) return;
+                window.open(`mailto:manishdesireddi@gmail.com?subject=Newsletter Subscription&body=Hi Manish,%0D%0A%0D%0APlease add ${email} to your updates list!`);
+                e.target.reset();
+                alert("Subscription request staged in your email client!");
+              }}
+            >
+              <input 
+                type="email" 
+                placeholder="ENTER EMAIL ADDRESS" 
+                required
+                className="flex-1 bg-black/60 border border-zinc-700 px-6 py-4 font-mono text-sm tracking-widest uppercase focus:outline-none focus:border-cyan-400 transition-colors placeholder:text-zinc-600"
               />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    'linear-gradient(135deg, rgba(9,9,11,0.97) 0%, rgba(9,9,11,0.8) 50%, rgba(9,9,11,0.94) 100%)',
-                }}
-              />
+              <button 
+                type="submit"
+                className="bg-zinc-100 text-black px-10 py-4 font-heading text-xl uppercase tracking-wider hover:bg-cyan-400 transition-colors"
+              >
+                Subscribe
+              </button>
+            </form>
+          </div>
+
+          <div className="flex flex-col gap-8 justify-end">
+            <div className="flex gap-6">
+              <a href="https://linkedin.com/in/Manish-Desireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400">
+                <Linkedin size={24} />
+              </a>
+              <a href="https://github.com/Manish-Desireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400">
+                <Github size={24} />
+              </a>
+              <a href="https://huggingface.co/manishdesireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400 group">
+                <img src="https://huggingface.co/front/assets/huggingface_logo.svg" alt="Hugging Face" className="w-6 h-6 grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
+              </a>
+              <a href="https://instagram.com/manishdesireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400">
+                <Instagram size={24} />
+              </a>
             </div>
-
-            <div className="relative z-10">
-              <span className="inline-block px-2.5 py-1 rounded-md bg-cyan-400/10 border border-cyan-400/20 text-cyan-400 text-[10px] font-mono tracking-wider uppercase mb-5">
-                Leadership
-              </span>
-              <h3 className="text-2xl font-bold text-white mb-5">{LEADERSHIP.vp.title}</h3>
-              <ul className="space-y-2.5">
-                {LEADERSHIP.vp.details.map((detail, i) => (
-                  <motion.li
-                    key={i}
-                    initial={{ opacity: 0, x: -8 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.1 + i * 0.06 }}
-                    className="flex items-start gap-2.5 text-sm text-zinc-400 leading-relaxed"
-                  >
-                    <ChevronRight size={14} className="text-cyan-400 mt-0.5 shrink-0" aria-hidden="true" />
-                    <span>{detail}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            </div>
-          </BentoBox>
-        </div>
-
-        {/* ── Contact CTA ───────────────────────────────────────────────────── */}
-        <div className="text-center mb-20">
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-[10px] font-mono tracking-[0.25em] text-zinc-600 uppercase mb-4"
-          >
-            Open to Opportunities
-          </motion.p>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="text-5xl md:text-7xl xl:text-8xl font-black text-white tracking-tighter mb-10 leading-none"
-          >
-            Let's Connect
-          </motion.h2>
-
-          <motion.a
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            whileHover={{ scale: 1.04, boxShadow: '0 0 44px rgba(6,182,212,0.35)' }}
-            whileTap={{ scale: 0.97 }}
-            href={`mailto:${CONTACT_EMAIL}`}
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-cyan-500 text-black font-semibold text-base hover:bg-cyan-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
-            aria-label={`Send email to Manish at ${CONTACT_EMAIL}`}
-          >
-            <Mail size={18} aria-hidden="true" />
-            {CONTACT_EMAIL}
-          </motion.a>
-        </div>
-
-        {/* ── Bottom bar ────────────────────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-5 pt-8 border-t border-white/8">
-          <p className="text-zinc-600 text-sm text-center sm:text-left">
-            © 2026 Manish Desireddi. Built with React, Tailwind CSS, and Framer Motion.
-          </p>
-
-          <div className="flex items-center gap-3">
-            <a
-              href="https://github.com/Manish-Desireddi"
-              aria-label="GitHub profile"
-              rel="noopener noreferrer"
-              target="_blank"
-              className="text-zinc-600 hover:text-zinc-300 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-500 rounded p-1"
-            >
-              <Github size={18} />
-            </a>
-            <a
-              href="https://linkedin.com/in/"
-              aria-label="LinkedIn profile"
-              rel="noopener noreferrer"
-              target="_blank"
-              className="text-zinc-600 hover:text-zinc-300 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-500 rounded p-1"
-            >
-              <Linkedin size={18} />
-            </a>
-
-            {/* Scroll-to-top */}
-            <motion.button
-              whileHover={{ scale: 1.12, y: -2 }}
-              whileTap={{ scale: 0.94 }}
-              onClick={scrollToTop}
-              aria-label="Scroll back to the top of the page"
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-800 border border-white/10 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ml-1"
-            >
-              <ArrowUp size={16} aria-hidden="true" />
-            </motion.button>
           </div>
         </div>
+
+        {/* Bottom Section: ESRB & Legal */}
+        <div className="flex flex-col-reverse lg:flex-row justify-between items-start lg:items-end gap-16 border-t border-zinc-800 pt-12">
+          
+          <div className="flex-1">
+            <p className="font-mono text-xs sm:text-sm text-zinc-500 leading-relaxed uppercase tracking-wider max-w-3xl">
+              COPYRIGHT © 2026 // SITE BY Manish Desireddi // DESIGNED IN HYDERABAD, INDIA // ALL TRADEMARKS BELONG TO THEIR RESPECTIVE OWNERS.
+            </p>
+          </div>
+
+          {/* Custom ESRB Box */}
+          <div className="w-[120px] shrink-0 border-4 border-white bg-black flex overflow-hidden self-start">
+            <div className="w-1/3 border-r-4 border-white flex flex-col items-center justify-center p-2 bg-white text-black">
+              <span className="font-heading text-5xl leading-none tracking-tighter">!</span>
+            </div>
+            <div className="w-2/3 flex flex-col p-2 justify-center">
+              <span className="font-oswald text-[10px] leading-tight font-bold uppercase tracking-widest text-white border-b-2 border-white pb-1 mb-1">
+                Manish<br/>Desireddi
+              </span>
+              <span className="font-oswald text-[8px] leading-tight font-bold uppercase tracking-wider text-white">
+                AI Developer
+              </span>
+            </div>
+          </div>
+
+        </div>
       </div>
+
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={scrollToTop}
+        className="absolute bottom-8 right-8 w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-white hover:border-cyan-400 z-20"
+      >
+        <ArrowUp size={20} />
+      </motion.button>
+
     </footer>
   )
 }

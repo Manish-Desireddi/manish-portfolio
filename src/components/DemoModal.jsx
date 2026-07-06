@@ -89,29 +89,29 @@ const DemoModal = ({ isOpen, onClose, variantId }) => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 12 }}
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full max-w-md pointer-events-auto rounded-2xl bg-zinc-900/92 border border-white/10 backdrop-blur-xl overflow-hidden"
+              className="relative w-full max-w-md pointer-events-auto rounded-none bg-black/95 border-2 border-cyan-400 shadow-[0_0_40px_rgba(6,182,212,0.5)] overflow-hidden"
             >
               <div
-                className="absolute top-0 left-1/4 right-1/4 h-px"
-                style={{ background: 'linear-gradient(to right, transparent, rgba(6,182,212,0.6), transparent)' }}
+                className="absolute top-0 left-0 right-0 h-1"
+                style={{ background: 'linear-gradient(90deg, #ffb03a, #e83a73, #06b6d4)' }}
                 aria-hidden="true"
               />
               <div
-                className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 blur-3xl opacity-20 pointer-events-none"
-                style={{ background: 'radial-gradient(ellipse, #06b6d4 0%, transparent 70%)' }}
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 blur-3xl opacity-20 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse, #e83a73 0%, transparent 70%)' }}
                 aria-hidden="true"
               />
 
-              <div className="relative z-10 p-8">
+              <div className="relative z-10 p-8 border-l-4 border-r-4 border-transparent">
                 <motion.button
                   ref={closeBtnRef}
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={onClose}
-                  className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400"
+                  className="absolute top-4 right-4 w-8 h-8 bg-transparent flex items-center justify-center text-cyan-400 hover:text-white transition-colors focus-visible:outline-none"
                   aria-label="Close demo modal"
                 >
-                  <X size={14} aria-hidden="true" />
+                  <X size={20} aria-hidden="true" />
                 </motion.button>
 
                 <div className="flex items-center gap-2.5 mb-6">
@@ -134,7 +134,7 @@ const DemoModal = ({ isOpen, onClose, variantId }) => {
 
                 <div className="mb-3 min-h-[2.5rem]">
                   <p
-                    className={`text-2xl font-bold font-mono text-white typing-cursor ${glitchOn ? 'glitch-text' : ''}`}
+                    className={`text-2xl font-bold font-heading text-white uppercase tracking-tight ${glitchOn ? 'glitch-text text-cyan-400' : ''}`}
                     aria-live="polite"
                   >
                     {displayed}
@@ -148,9 +148,9 @@ const DemoModal = ({ isOpen, onClose, variantId }) => {
                 <div className="space-y-2" aria-label="Training / build progress">
                   {variant.progress.map((fill, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="flex-1 h-1 rounded-full bg-zinc-800 overflow-hidden">
+                      <div className="flex-1 h-2 bg-black border border-zinc-700 overflow-hidden">
                         <motion.div
-                          className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-violet-500"
+                          className="h-full bg-gradient-to-r from-cyan-400 to-pink-500 shadow-[0_0_10px_rgba(232,58,115,0.5)]"
                           initial={{ scaleX: 0 }}
                           animate={{ scaleX: fill }}
                           transition={{ delay: 0.5 + i * 0.1, duration: 0.7, ease: 'easeOut' }}

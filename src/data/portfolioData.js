@@ -20,16 +20,17 @@ export const TECH_STACK = [
 export const EXPERIENCE = [
   {
     id: 'nokia-2025',
-    title: 'Automation Engineer Intern',
+    title: 'Student Intern',
     company: 'Nokia Solutions and Networks',
-    location: 'India',
-    date: 'Aug 2025 - Present',
+    location: 'Bengaluru, India',
+    date: 'Aug 2025 - Jun 2026',
     responsibilities: [
-      'Orchestrating DAGs in Apache Airflow for automated data workflows',
-      'Building and maintaining ESDB data ingestion pipelines',
-      'Designing Grafana dashboards for operational visibility',
-      'Improving automation reliability and monitoring workflows',
-      'Supporting scalable data-driven engineering processes',
+      'Conducted core research and developed machine learning components for a Self-Healing UI project, automating the detection and dynamic resolution of interface anomalies during performance verification.',
+      'Contributed to the design and implementation of a "Load Model AI", utilizing predictive analytics to simulate complex, high-stress network conditions and benchmark system resilience.',
+      'Developed robust data pipelines using Apache Airflow to extract and ingest telemetry metrics into Elasticsearch, feeding real-time data into AI models for continuous performance monitoring.',
+      'Integrated AI-driven testing workflows with Jenkins and Robot Framework, enhancing the automation infrastructure to reduce manual verification effort and accelerate release cycles.',
+      'Engineered Python-based utility modules to support a scalable AI test automation environment, streamlining test data management, log processing, and model configuration.',
+      'Created performance monitoring dashboards using Grafana to visualize key AI metrics and distributed database health, enabling stakeholders to rapidly identify performance bottlenecks.'
     ],
   },
 ]
