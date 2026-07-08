@@ -2,6 +2,28 @@ import React, { useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Github, Linkedin, Instagram, ArrowUp } from 'lucide-react'
 
+const HuggingFaceIcon = ({ size = 24, className = "" }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M5 15a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2" />
+    <path d="M19 15a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2" />
+    <circle cx="12" cy="12" r="9" />
+    <path d="M8 15s1.5 2 4 2 4-2 4-2" />
+    <line x1="9" y1="9" x2="9.01" y2="9" />
+    <line x1="15" y1="9" x2="15.01" y2="9" />
+  </svg>
+)
+
 const Footer = () => {
   const scrollToTop = useCallback(() => {
     if (window.lenis) {
@@ -66,8 +88,8 @@ const Footer = () => {
               <a href="https://github.com/Manish-Desireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400">
                 <Github size={24} />
               </a>
-              <a href="https://huggingface.co/manishdesireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400 group">
-                <img src="https://huggingface.co/front/assets/huggingface_logo.svg" alt="Hugging Face" className="w-6 h-6 grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
+              <a href="https://huggingface.co/manishdesireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400">
+                <HuggingFaceIcon size={24} />
               </a>
               <a href="https://instagram.com/manishdesireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400">
                 <Instagram size={24} />

@@ -35,7 +35,7 @@ const App = () => {
 
   // Initialize Lenis
   useEffect(() => {
-    if (!hasEntered) return
+    if (!hasEntered || route === DOWNLOAD_ROUTE) return
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -55,11 +55,11 @@ const App = () => {
       delete window.lenis
       lenis.destroy()
     }
-  }, [hasEntered])
+  }, [hasEntered, route])
 
   // Global Video Scrubbing logic
   useEffect(() => {
-    if (!hasEntered) return
+    if (!hasEntered || route === DOWNLOAD_ROUTE) return
     let ctx = gsap.context(() => {
       const canvas = document.getElementById('hero-canvas')
       if (!canvas) return
@@ -142,7 +142,7 @@ const App = () => {
       }
     })
     return () => ctx.revert()
-  }, [hasEntered])
+  }, [hasEntered, route])
 
   useEffect(() => {
     const lock = heroActive && route !== DOWNLOAD_ROUTE

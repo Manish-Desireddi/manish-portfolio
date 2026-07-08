@@ -153,7 +153,7 @@ const Projects = () => {
         <canvas id="projects-canvas" className="absolute inset-0 w-full h-full object-cover z-0" />
         <div className="absolute inset-0 bg-black/60 pointer-events-none z-0" />
 
-        <div className="projects-content relative z-10 w-full h-full pt-32 pb-12 overflow-hidden flex flex-col justify-between">
+        <div className="projects-content relative z-10 w-full h-full pt-16 md:pt-32 pb-4 md:pb-12 overflow-hidden flex flex-col justify-between">
             
             {/* Scroll-Expanding Header */}
             <div ref={titleRef} className="text-center origin-top px-6 flex-shrink-0">
@@ -167,7 +167,7 @@ const Projects = () => {
             {/* Horizontal Scroll Track */}
             <div 
               ref={trackRef} 
-              className="flex h-full flex-grow items-center mt-12" 
+              className="flex h-full flex-grow items-center mt-6 md:mt-12" 
               style={{ width: `${PROJECTS.length * 100}vw` }}
             >
               {PROJECTS.map((project, idx) => (
@@ -176,7 +176,7 @@ const Projects = () => {
                   className="w-[100vw] h-full flex items-center justify-center px-6 lg:px-24"
                 >
                   <div 
-                    className="project-card w-full max-w-6xl flex flex-col justify-start md:grid md:grid-cols-2 gap-4 md:gap-16 max-h-[75vh] md:max-h-[65vh] overflow-y-auto overflow-x-hidden md:overflow-hidden no-scrollbar"
+                    className="project-card w-full max-w-6xl flex flex-col justify-start md:grid md:grid-cols-2 gap-4 md:gap-16 max-h-[85vh] md:max-h-[65vh] overflow-y-auto overflow-x-hidden md:overflow-hidden no-scrollbar"
                     data-lenis-prevent="true"
                   >
                     <div className="bg-black/60 border-l-4 border-cyan-500/80 p-6 md:p-8 shadow-[inset_0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-xl flex flex-col h-auto md:h-full shrink-0 snap-start relative overflow-hidden group">
@@ -210,29 +210,29 @@ const Projects = () => {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-4 justify-start shrink-0 pb-12 md:pb-0 h-auto md:h-full overflow-y-auto no-scrollbar" data-lenis-prevent="true">
-                      <div className="bg-black/60 border border-zinc-700/50 p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:border-cyan-400 transition-colors backdrop-blur-xl snap-start shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]">
+                    <div className="flex flex-row md:flex-col gap-3 md:gap-4 justify-start shrink-0 pb-8 md:pb-0 h-auto md:h-full w-full overflow-x-auto md:overflow-y-auto md:overflow-x-hidden no-scrollbar snap-x snap-mandatory" data-lenis-prevent="true">
+                      <div className="w-[85vw] md:w-auto bg-black/60 border border-zinc-700/50 p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:border-cyan-400 transition-colors backdrop-blur-xl snap-center shrink-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]">
                         <div className="w-12 h-12 md:w-14 md:h-14 bg-black/80 flex items-center justify-center font-heading text-cyan-400 text-xl md:text-2xl border border-cyan-500/30 shrink-0">01</div>
                         <div>
                           <h4 className="font-oswald uppercase text-white tracking-widest text-base md:text-lg drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">Built With</h4>
-                          <p className="text-cyan-100/70 text-xs md:text-sm font-mono mt-1">{project.tags.slice(0, 3).join(' // ')}</p>
+                          <p className="text-cyan-100/70 text-xs md:text-sm font-mono mt-1 whitespace-normal break-words">{project.tags.slice(0, 3).join(' // ')}</p>
                         </div>
                       </div>
 
-                      <div className="bg-black/60 border border-zinc-700/50 p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:border-violet-400 transition-colors backdrop-blur-xl snap-start shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]">
+                      <div className="w-[85vw] md:w-auto bg-black/60 border border-zinc-700/50 p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:border-violet-400 transition-colors backdrop-blur-xl snap-center shrink-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]">
                         <div className="w-12 h-12 md:w-14 md:h-14 bg-black/80 flex items-center justify-center font-heading text-violet-400 text-xl md:text-2xl border border-violet-500/30 shrink-0">02</div>
                         <div>
                           <h4 className="font-oswald uppercase text-white tracking-widest text-base md:text-lg drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">Key Feature</h4>
-                          <p className="text-violet-100/70 text-xs md:text-sm font-mono mt-1">{project.highlights[0]}</p>
+                          <p className="text-violet-100/70 text-xs md:text-sm font-mono mt-1 whitespace-normal break-words">{project.highlights[0]}</p>
                         </div>
                       </div>
 
                       {project.metrics && (
-                        <div className="bg-black/60 border border-zinc-700/50 p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:border-emerald-400 transition-colors backdrop-blur-xl snap-start shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]">
+                        <div className="w-[85vw] md:w-auto bg-black/60 border border-zinc-700/50 p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:border-emerald-400 transition-colors backdrop-blur-xl snap-center shrink-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]">
                           <div className="w-12 h-12 md:w-14 md:h-14 bg-black/80 flex items-center justify-center font-heading text-emerald-400 text-xl md:text-2xl border border-emerald-500/30 shrink-0">03</div>
                           <div>
                             <h4 className="font-oswald uppercase text-white tracking-widest text-base md:text-lg drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">Metrics</h4>
-                            <p className="text-emerald-100/70 text-xs md:text-sm font-mono mt-1">
+                            <p className="text-emerald-100/70 text-xs md:text-sm font-mono mt-1 whitespace-normal break-words">
                               {Object.entries(project.metrics).map(([k, v]) => `${k.toUpperCase()}: ${v}`).join(' | ')}
                             </p>
                           </div>
