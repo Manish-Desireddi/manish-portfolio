@@ -75,6 +75,11 @@ const App = () => {
       
       for (let i = 0; i < frameCount; i++) {
         const img = new Image()
+        img.onload = () => {
+          if (Math.floor(scrubObj.frame) === i || (i === 0 && scrubObj.frame === 0)) {
+            render()
+          }
+        }
         img.src = currentFrame(i)
         images.push(img)
       }
@@ -105,7 +110,7 @@ const App = () => {
       handleResize()
       window.addEventListener('resize', handleResize)
 
-      images[0].onload = render
+
 
       gsap.to(scrubObj, {
         frame: frameCount - 1,

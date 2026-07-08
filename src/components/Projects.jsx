@@ -38,6 +38,7 @@ const Projects = () => {
           start: "top top",
           end: `+=600%`,
           scrub: true,
+          anticipatePin: 1,
         }
       })
       
@@ -70,6 +71,11 @@ const Projects = () => {
         
         for (let i = 0; i < frameCount; i++) {
           const img = new Image()
+          img.onload = () => {
+            if (Math.floor(scrubObj.frame) === i || (i === 0 && scrubObj.frame === 0)) {
+              render()
+            }
+          }
           img.src = currentFrame(i)
           images.push(img)
         }
@@ -100,7 +106,7 @@ const Projects = () => {
         handleResize()
         window.addEventListener('resize', handleResize)
         
-        images[0].onload = render
+
 
         tl.to(scrubObj, {
           frame: frameCount - 1,
@@ -170,10 +176,10 @@ const Projects = () => {
                   className="w-[100vw] h-full flex items-center justify-center px-6 lg:px-24"
                 >
                   <div 
-                    className="project-card w-full max-w-6xl flex flex-col justify-start md:grid md:grid-cols-2 gap-4 md:gap-16 max-h-[60vh] md:max-h-[65vh] overflow-y-auto overflow-x-hidden md:overflow-hidden no-scrollbar"
+                    className="project-card w-full max-w-6xl flex flex-col justify-start md:grid md:grid-cols-2 gap-4 md:gap-16 max-h-[75vh] md:max-h-[65vh] overflow-y-auto overflow-x-hidden md:overflow-hidden no-scrollbar"
                     data-lenis-prevent="true"
                   >
-                    <div className="bg-black/60 border-l-4 border-cyan-500/80 p-6 md:p-8 shadow-[inset_0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-xl flex flex-col h-full shrink-0 snap-start relative overflow-hidden group">
+                    <div className="bg-black/60 border-l-4 border-cyan-500/80 p-6 md:p-8 shadow-[inset_0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-xl flex flex-col h-auto md:h-full shrink-0 snap-start relative overflow-hidden group">
                       {/* Cyberpunk corner bracket */}
                       <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-500/50" />
                       <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-500/50" />
@@ -204,7 +210,7 @@ const Projects = () => {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-4 justify-start shrink-0 pb-12 md:pb-0 h-full overflow-y-auto no-scrollbar" data-lenis-prevent="true">
+                    <div className="flex flex-col gap-4 justify-start shrink-0 pb-12 md:pb-0 h-auto md:h-full overflow-y-auto no-scrollbar" data-lenis-prevent="true">
                       <div className="bg-black/60 border border-zinc-700/50 p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:border-cyan-400 transition-colors backdrop-blur-xl snap-start shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]">
                         <div className="w-12 h-12 md:w-14 md:h-14 bg-black/80 flex items-center justify-center font-heading text-cyan-400 text-xl md:text-2xl border border-cyan-500/30 shrink-0">01</div>
                         <div>
