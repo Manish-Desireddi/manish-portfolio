@@ -176,7 +176,7 @@ const Projects = () => {
                   className="w-[100vw] h-full flex items-center justify-center px-6 lg:px-24"
                 >
                   <div 
-                    className="project-card w-full max-w-6xl flex flex-col justify-start md:grid md:grid-cols-2 gap-4 md:gap-16 max-h-[85vh] md:max-h-[65vh] overflow-y-auto overflow-x-hidden md:overflow-hidden no-scrollbar"
+                    className="project-card w-full max-w-6xl flex flex-col-reverse justify-end md:justify-start md:grid md:grid-cols-2 gap-4 md:gap-16 max-h-[85vh] md:max-h-[65vh] overflow-y-auto overflow-x-hidden md:overflow-hidden no-scrollbar"
                     data-lenis-prevent="true"
                   >
                     <div className="bg-black/60 border-l-4 border-cyan-500/80 p-6 md:p-8 shadow-[inset_0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-xl flex flex-col h-auto md:h-full shrink-0 snap-start relative overflow-hidden group">
