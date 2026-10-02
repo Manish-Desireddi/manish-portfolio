@@ -2,10 +2,6 @@ import React, { useState, useRef, useLayoutEffect } from 'react';
 import SectionHeader from './SectionHeader';
 import { Terminal } from 'lucide-react';
 import { TECH_STACK } from '../data/portfolioData';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const InteractiveCLI = () => {
   const [history, setHistory] = useState([
@@ -13,11 +9,7 @@ const InteractiveCLI = () => {
     { type: 'system', content: 'Type "help" to see available commands.' },
   ]);
   const [input, setInput] = useState('');
-  const [cmdHistory, setCmdHistory] = useState([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  
   const containerRef = useRef(null);
-  const sectionRef = useRef(null);
 
   useLayoutEffect(() => {
     if (containerRef.current) {
@@ -25,26 +17,9 @@ const InteractiveCLI = () => {
     }
   }, [history]);
 
-  useLayoutEffect(() => {
-    let ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        pin: true,
-        pinSpacing: true,
-        start: 'top top',
-        end: '+=50%',
-        anticipatePin: 1
-      });
-    }, sectionRef);
-    return () => ctx.revert();
-  }, []);
-
   const handleCommand = (cmd) => {
     const trimmed = cmd.trim();
     if (!trimmed) return;
-
-    setCmdHistory(prev => [...prev, trimmed]);
-    setHistoryIndex(cmdHistory.length + 1);
 
     if (trimmed.toLowerCase() === 'run agent') {
       setHistory((prev) => [
@@ -99,14 +74,22 @@ const InteractiveCLI = () => {
     ]);
   };
 
+  const [commandHistory, setCommandHistory] = useState([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+
   const onSubmit = (e) => {
     e.preventDefault();
+    const trimmed = input.trim();
+    if (trimmed) {
+      setCommandHistory((prev) => [...prev, trimmed]);
+      setHistoryIndex(-1);
+    }
     handleCommand(input);
     setInput('');
   };
 
   return (
-    <section ref={sectionRef} id="cli" className="relative py-32 px-6 bg-app-dark border-t border-zinc-900">
+    <section id="cli" className="relative py-32 px-6 bg-transparent border-t border-zinc-900">
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-16">
           <SectionHeader
@@ -132,32 +115,40 @@ const InteractiveCLI = () => {
             ))}
             <form onSubmit={onSubmit} className="flex gap-2 items-center mt-4">
               <span className="text-pink-400">$</span>
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (cmdHistory.length > 0) {
-                      const newIndex = Math.max(0, historyIndex - 1);
-                      setHistoryIndex(newIndex);
-                      setInput(cmdHistory[newIndex]);
+              <div className="relative flex-1 flex items-center">
+                <span className="text-zinc-100 absolute pointer-events-none whitespace-pre font-mono">
+                  {input}<span className="inline-block w-2 h-4 bg-zinc-400 animate-pulse align-middle ml-[2px]" />
+                </span>
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'ArrowUp') {
+                      e.preventDefault();
+                      if (commandHistory.length > 0) {
+                        const nextIndex = historyIndex < commandHistory.length - 1 ? historyIndex + 1 : historyIndex;
+                        setHistoryIndex(nextIndex);
+                        setInput(commandHistory[commandHistory.length - 1 - nextIndex]);
+                      }
+                    } else if (e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      if (historyIndex > 0) {
+                        const nextIndex = historyIndex - 1;
+                        setHistoryIndex(nextIndex);
+                        setInput(commandHistory[commandHistory.length - 1 - nextIndex]);
+                      } else if (historyIndex === 0) {
+                        setHistoryIndex(-1);
+                        setInput('');
+                      }
                     }
-                  } else if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (cmdHistory.length > 0) {
-                      const newIndex = Math.min(cmdHistory.length, historyIndex + 1);
-                      setHistoryIndex(newIndex);
-                      setInput(cmdHistory[newIndex] || '');
-                    }
-                  }
-                }}
-                className="flex-1 bg-transparent outline-none text-zinc-100 placeholder:text-zinc-700"
-                autoFocus
-                spellCheck={false}
-                autoComplete="off"
-              />
+                  }}
+                  className="w-full bg-transparent outline-none text-transparent caret-transparent font-mono z-10"
+                  autoFocus
+                  spellCheck={false}
+                  autoComplete="off"
+                />
+              </div>
             </form>
           </div>
         </div>

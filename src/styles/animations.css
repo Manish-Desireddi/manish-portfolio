@@ -206,3 +206,8 @@ body {
   .aurora-blob { animation: none; }
 }
 
+
+/* --- Hardware Accel --- */
+.project-card, .TacticalCard {
+  will-change: transform, opacity;
+}

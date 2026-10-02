@@ -12,12 +12,10 @@ const Footer = () => {
   }, [])
 
   const [status, setStatus] = React.useState('idle')
-  const [errorMessage, setErrorMessage] = React.useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setStatus('loading')
-    setErrorMessage('')
     
     const formData = new FormData(e.target)
     const data = Object.fromEntries(formData.entries())
@@ -53,20 +51,14 @@ const Footer = () => {
         const errorData = await response.json()
         console.error('Formspree error:', errorData)
         setStatus('error')
-        setErrorMessage("Submission rejected by server. Please try again.")
         setTimeout(() => setStatus('idle'), 3000)
       }
     } catch (err) {
       if (err instanceof TypeError || err.message === 'Failed to fetch') {
-        setErrorMessage("Network error: Your ad-blocker might be blocking the form endpoint.")
-      } else {
-        setErrorMessage("An unexpected error occurred. Please try again.")
+        alert("Subscription failed: Your ad-blocker might be blocking the form endpoint. Please disable it and try again, or reach out at contact@example.com.")
       }
       setStatus('error')
-      setTimeout(() => {
-        setStatus('idle')
-        setErrorMessage('')
-      }, 5000)
+      setTimeout(() => setStatus('idle'), 3000)
     }
   }
 
@@ -130,12 +122,7 @@ const Footer = () => {
                   className="w-full bg-black/60 border border-zinc-700 px-6 py-4 font-mono text-sm tracking-widest uppercase focus:outline-none focus:border-pink-400 transition-colors placeholder:text-zinc-600 disabled:opacity-50 resize-none"
                 />
               </div>
-              <div className="flex flex-col sm:flex-row justify-end items-end sm:items-center gap-4">
-                {errorMessage && (
-                  <span className="font-mono text-xs text-red-400 tracking-wider">
-                    {errorMessage}
-                  </span>
-                )}
+              <div className="flex justify-end">
                 <button 
                   type="submit"
                   disabled={status === 'loading'}

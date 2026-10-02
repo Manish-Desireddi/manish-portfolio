@@ -17,92 +17,57 @@ const PROJECT_VIDEOS = [
   'https://videos.pexels.com/video-files/3255275/3255275-uhd_3840_2160_25fps.mp4',
 ]
 
-const Projects = () => {
+const Projects = ({ frames: propFrames }) => {
   const containerRef = useRef(null)
-  const pinRef = useRef(null)
+  const stickyRef = useRef(null)
   const trackRef = useRef(null)
   const titleRef = useRef(null)
   const svgBgRef = useRef(null)
+  const audioRef = useRef(null)
 
   const [demoState, setDemoState] = useState({ open: false, variantId: null })
   const [repoState, setRepoState] = useState({ open: false, title: null })
+
+  // Audio setup
+  useLayoutEffect(() => {
+    const audio = new Audio('/assets/deep-bass-rumble.mp3') // Assume this asset exists, or we can use a generated tone. 
+    // Wait, the user didn't specify an audio file path, but said "hook up a subtle, low-frequency audio cue mapped to the GSAP ScrollTrigger onEnter event for the Projects section."
+    // I'll create a synthetic oscillator audio cue inside the component to avoid missing asset errors.
+    audioRef.current = {
+      play: () => {
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext
+          if (!AudioContext) return
+          const ctx = new AudioContext()
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
+          osc.type = 'sine'
+          osc.frequency.setValueAtTime(45, ctx.currentTime) // Low frequency rumble
+          osc.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 1.5)
+          gain.gain.setValueAtTime(0, ctx.currentTime)
+          gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.1)
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.5)
+          osc.connect(gain)
+          gain.connect(ctx.destination)
+          osc.start()
+          osc.stop(ctx.currentTime + 1.5)
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+  }, [])
 
   useLayoutEffect(() => {
     let ctx;
     let isCancelled = false;
 
-    const frameCount = 600
-    const syncCount = Math.min(30, frameCount)
-    const currentFrame = index => (
-      `/assets/projects_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
-    )
+    // Use passed frames
+    const images = propFrames || []
+    if (images.length === 0) return // Wait until frames are loaded
 
-    const images = new Array(frameCount).fill(null)
-    const promises = []
     const frames = { frame: 0 }
-
-    for (let i = 0; i < syncCount; i++) {
-      const img = new Image()
-      img.decoding = 'async'
-      const promise = fetch(currentFrame(i))
-        .then(res => res.blob())
-        .then(blob => new Promise((resolve) => {
-          const objectUrl = URL.createObjectURL(blob)
-          img.onload = () => {
-            URL.revokeObjectURL(objectUrl)
-            resolve()
-          }
-          img.onerror = () => {
-            URL.revokeObjectURL(objectUrl)
-            resolve()
-          }
-          img.src = objectUrl
-        }))
-        .catch(() => Promise.resolve())
-      images[i] = img
-      promises.push(promise)
-    }
-
-    let worker;
-    if (syncCount < frameCount) {
-      const workerCode = `
-        self.onmessage = async function(e) {
-          const { start, end, template } = e.data;
-          for (let i = start; i < end; i++) {
-            try {
-              const url = template.replace('{index}', (i + 1).toString().padStart(4, '0'));
-              const res = await fetch(url);
-              const blob = await res.blob();
-              self.postMessage({ index: i, blob });
-            } catch(err) {}
-          }
-        }
-      `;
-      const workerBlob = new Blob([workerCode], { type: 'application/javascript' })
-      worker = new Worker(URL.createObjectURL(workerBlob))
-      
-      worker.onmessage = (e) => {
-        if (isCancelled) return
-        const { index, blob } = e.data
-        const requestIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1))
-        
-        requestIdle(() => {
-          const img = new Image()
-          img.decoding = 'async'
-          const objectUrl = URL.createObjectURL(blob)
-          img.onload = () => URL.revokeObjectURL(objectUrl)
-          img.onerror = () => URL.revokeObjectURL(objectUrl)
-          img.src = objectUrl
-          images[index] = img
-        })
-      }
-
-      worker.postMessage({ 
-        start: syncCount, 
-        end: frameCount, 
-        template: '/assets/projects_frames/frame_{index}.jpg' 
-      })
-    }
+    const frameCount = images.length
 
     const mm = gsap.matchMedia()
 
@@ -113,13 +78,13 @@ const Projects = () => {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
-            pin: true,
-            pinSpacing: true,
             start: 'top top',
             end: `+=${endPercent}%`,
             scrub: scrubValue,
-            anticipatePin: 1,
             invalidateOnRefresh: true,
+            onEnter: () => {
+              if (audioRef.current) audioRef.current.play()
+            }
           }
         })
 
@@ -176,30 +141,26 @@ const Projects = () => {
       }, containerRef)
     }
 
-    Promise.all(promises).then(() => {
-      if (isCancelled) return
+    mm.add('(max-width: 768px)', () => {
+      buildTimeline(400, true)
+      return () => { if (ctx) ctx.revert() }
+    })
 
-      mm.add('(max-width: 768px)', () => {
-        buildTimeline(400, true)
-        return () => { if (ctx) ctx.revert() }
-      })
-
-      mm.add('(min-width: 769px)', () => {
-        buildTimeline(800, 1.5)
-        return () => { if (ctx) ctx.revert() }
-      })
+    mm.add('(min-width: 769px)', () => {
+      buildTimeline(800, 1.5)
+      return () => { if (ctx) ctx.revert() }
     })
 
     return () => {
       isCancelled = true
-      if (worker) worker.terminate()
       mm.revert()
     }
-  }, [])
+  }, [propFrames])
 
   return (
-    <div className="relative w-full overflow-hidden">
-      <section ref={containerRef} id="projects" className="relative bg-app-dark h-[100dvh] overflow-hidden">
+    <>
+      <section ref={containerRef} id="projects" className="relative w-full h-[400vh] lg:h-[800vh]">
+        <div ref={stickyRef} className="sticky top-0 w-full h-[100dvh] overflow-hidden bg-app-dark">
         {/* Cinematic Canvas Background Frame-Scrubbed */}
         <canvas id="projects-canvas" className="absolute inset-0 w-full h-full object-cover z-0 opacity-80" />
         <div className="absolute inset-0 bg-black/60 pointer-events-none z-0" />
@@ -300,11 +261,12 @@ const Projects = () => {
             ))}
           </div>
         </div>
+        </div>
       </section>
 
       <DemoModal isOpen={demoState.open} onClose={() => setDemoState({ ...demoState, open: false })} variantId={demoState.variantId} />
       <PrivateRepoModal isOpen={repoState.open} onClose={() => setRepoState({ ...repoState, open: false })} projectTitle={repoState.title} />
-    </div>
+    </>
   )
 }
 

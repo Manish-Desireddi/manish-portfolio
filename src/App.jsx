@@ -13,13 +13,11 @@ import Footer from './components/Footer'
 import DownloadPage from './components/DownloadPage'
 import Hero from './components/Hero'
 import EnterOverlay from './components/EnterOverlay'
-import ContinuousBackground from './components/ContinuousBackground'
 import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
-ScrollTrigger.normalizeScroll(true)
 
 const DOWNLOAD_ROUTE = '#/downloads/ai-assistant'
 
@@ -39,7 +37,7 @@ const MDPreloader = () => (
         fontFamily="sans-serif"
         fontWeight="bold"
         fill="transparent"
-        stroke="#d946ef"
+        stroke="#ec4899"
         strokeWidth="2"
         initial={{ strokeDasharray: 400, strokeDashoffset: 400 }}
         animate={{ strokeDashoffset: 0 }}
@@ -60,6 +58,7 @@ const App = () => {
   const [isVideoReady, setIsVideoReady] = useState(false)
   const [isCertModalActive, setIsCertModalActive] = useState(false)
   const loadedImagesRef = useRef([])
+  const loadedProjectImagesRef = useRef([])
   // Tracks whether first canvas frame has been drawn — combined with isVideoReady to gate preloader
   const canvasReadyRef = useRef(false)
 
@@ -119,88 +118,45 @@ const App = () => {
     if (!hasEntered || route === DOWNLOAD_ROUTE) return
     let isCancelled = false
     
-    const frameCount = 592
-    const syncCount = Math.min(30, frameCount)
-    const currentFrame = index => (
-      `/assets/hero_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
-    )
+    const heroFrameCount = 592
+    const projectsFrameCount = 600
+    
+    const heroFrameUrl = index => `/assets/hero_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
+    const projectFrameUrl = index => `/assets/projects_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
 
-    const images = new Array(frameCount).fill(null)
+    const heroImages = []
+    const projectImages = []
     const promises = []
 
-    // Load first 30 frames synchronously to unblock UI
-    for (let i = 0; i < syncCount; i++) {
+    const loadFrame = (url, arrayToPush) => {
       const img = new Image()
       img.decoding = 'async'
       img.loading = 'eager'
-      const promise = fetch(currentFrame(i))
+      const promise = fetch(url)
         .then(res => res.blob())
         .then(blob => new Promise((resolve) => {
-          const objectUrl = URL.createObjectURL(blob)
-          img.onload = () => {
-            URL.revokeObjectURL(objectUrl)
-            resolve()
-          }
-          img.onerror = () => {
-            URL.revokeObjectURL(objectUrl)
-            resolve()
-          }
-          img.src = objectUrl
+          img.onload = resolve
+          img.onerror = resolve
+          img.src = URL.createObjectURL(blob)
         }))
         .catch(() => Promise.resolve())
-      images[i] = img
+      arrayToPush.push(img)
       promises.push(promise)
+    }
+
+    for (let i = 0; i < heroFrameCount; i++) {
+      loadFrame(heroFrameUrl(i), heroImages)
+    }
+
+    for (let i = 0; i < projectsFrameCount; i++) {
+      loadFrame(projectFrameUrl(i), projectImages)
     }
 
     Promise.all(promises).then(() => {
       if (isCancelled) return
-      loadedImagesRef.current = images
+      loadedImagesRef.current = heroImages
+      loadedProjectImagesRef.current = projectImages
       setImagesFetched(true)
-
-      // Offload remaining frames to Web Worker
-      if (syncCount < frameCount) {
-        const workerCode = `
-          self.onmessage = async function(e) {
-            const { start, end, template } = e.data;
-            for (let i = start; i < end; i++) {
-              try {
-                const url = template.replace('{index}', (i + 1).toString().padStart(4, '0'));
-                const res = await fetch(url);
-                const blob = await res.blob();
-                self.postMessage({ index: i, blob });
-              } catch(err) {}
-            }
-          }
-        `;
-        const workerBlob = new Blob([workerCode], { type: 'application/javascript' })
-        const workerUrl = URL.createObjectURL(workerBlob)
-        const worker = new Worker(workerUrl)
-
-        worker.onmessage = (e) => {
-          if (isCancelled) return
-          const { index, blob } = e.data
-          const requestIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1))
-          
-          requestIdle(() => {
-            const img = new Image()
-            img.decoding = 'async'
-            const objectUrl = URL.createObjectURL(blob)
-            img.onload = () => URL.revokeObjectURL(objectUrl)
-            img.onerror = () => URL.revokeObjectURL(objectUrl)
-            img.src = objectUrl
-            images[index] = img
-          })
-        }
-
-        worker.postMessage({ 
-          start: syncCount, 
-          end: frameCount, 
-          template: '/assets/hero_frames/frame_{index}.jpg' 
-        })
-
-        // Cleanup worker on unmount
-        return () => worker.terminate()
-      }
     })
 
     return () => {
@@ -266,16 +222,12 @@ const App = () => {
         onUpdate: render,
       })
 
-      // Cross-fade out the hero canvas when Projects section enters
-      gsap.to(canvas, {
-        opacity: 0,
-        ease: "none",
-        scrollTrigger: {
-          trigger: "#projects",
-          start: "top bottom",
-          end: "top top",
-          scrub: true,
-        }
+      // Phase 4: Hero Canvas Bleeding fix
+      ScrollTrigger.create({
+        trigger: "#projects",
+        start: "top bottom", // when the top of #projects hits the bottom of the viewport
+        onEnter: () => gsap.to('#hero-canvas', { opacity: 0, duration: 0.5 }),
+        onLeaveBack: () => gsap.to('#hero-canvas', { opacity: 0.9, duration: 0.5 })
       })
     })
 
@@ -358,18 +310,26 @@ const App = () => {
         {/* Texture Overlay */}
         <div className="fixed top-0 left-0 w-full h-[100dvh] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-multiply opacity-30 z-0 pointer-events-none" />
 
-        <ContinuousBackground />
-
         <main className="relative z-10">
           <div id="scrub-zone" className="relative">
             <Hero />
             <About />
             <Experience />
           </div>
-          <Projects />
-          <AIArchitecture />
-          <Certifications onModalStateChange={setIsCertModalActive} />
-          <InteractiveCLI />
+          <Projects frames={loadedProjectImagesRef.current} />
+          <div className="relative">
+            {/* Unified Background for bottom sections */}
+            <div className="absolute inset-0 z-0 bg-app-dark overflow-hidden pointer-events-none">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(217,70,239,0.05),transparent_80%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[length:64px_64px]" />
+            </div>
+            
+            <div className="relative z-10">
+              <AIArchitecture />
+              <Certifications onModalStateChange={setIsCertModalActive} />
+              <InteractiveCLI />
+            </div>
+          </div>
           <Footer />
         </main>
       </motion.div>

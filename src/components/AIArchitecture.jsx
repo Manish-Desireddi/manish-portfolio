@@ -1,10 +1,6 @@
-import React, { useRef, useLayoutEffect } from 'react'
+import React, { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import SectionHeader from './SectionHeader'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
 
 const SYSTEMS = [
   {
@@ -92,22 +88,8 @@ const TacticalCard = ({ system, index }) => {
 const AIArchitecture = () => {
   const containerRef = useRef(null)
 
-  useLayoutEffect(() => {
-    let ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: containerRef.current,
-        pin: true,
-        pinSpacing: true,
-        start: 'top top',
-        end: '+=50%',
-        anticipatePin: 1
-      })
-    }, containerRef)
-    return () => ctx.revert()
-  }, [])
-
   return (
-    <section id="architecture" className="relative py-32 px-6 bg-app-dark border-t border-zinc-900 overflow-hidden" ref={containerRef}>
+    <section id="architecture" className="relative py-32 px-6 bg-transparent border-t border-zinc-900 overflow-hidden" ref={containerRef}>
       {/* Animated Synthwave Grid Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" style={{ perspective: '1000px' }}>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(217,70,239,0.15)_0%,transparent_70%)]" />
@@ -133,7 +115,7 @@ const AIArchitecture = () => {
             ease: "linear"
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-app-dark via-transparent to-app-dark opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto">

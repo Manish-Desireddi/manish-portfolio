@@ -25,21 +25,13 @@ const DemoModal = ({ isOpen, onClose, variantId }) => {
   const closeBtnRef = useRef(null)
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      if (variantId === 'video-demo') {
-        fetch('/assets/demo.mp4')
-          .then(res => res.blob())
-          .then(blob => setVideoSrc(URL.createObjectURL(blob)))
-          .catch(err => console.error(err))
-      }
+    if (isOpen && variantId === 'video-demo') {
+      fetch('/assets/demo.mp4')
+        .then(res => res.blob())
+        .then(blob => setVideoSrc(URL.createObjectURL(blob)))
+        .catch(err => console.error(err))
     } else {
-      document.body.style.overflow = '';
-      setVideoSrc('');
-    }
-    
-    return () => {
-      document.body.style.overflow = '';
+      setVideoSrc('')
     }
   }, [isOpen, variantId])
 

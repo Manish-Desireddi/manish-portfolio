@@ -10,13 +10,13 @@ export default defineConfig({
         // Separate vendor chunks for better caching
         manualChunks(id) {
           if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
-            return 'react-vendor';
+            return 'react-vendor'
           }
           if (id.includes('node_modules/framer-motion/')) {
-            return 'framer';
+            return 'framer'
           }
           if (id.includes('node_modules/three/') || id.includes('node_modules/@react-three/')) {
-            return 'three';
+            return 'three'
           }
         },
       },
