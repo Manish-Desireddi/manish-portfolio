@@ -76,6 +76,16 @@ const DemoModal = ({ isOpen, onClose, variantId }) => {
     return () => window.removeEventListener('keydown', onKey)
   }, [isOpen, onClose])
 
+  // Prevent background scroll while modal is active
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [isOpen])
+
   return (
     <AnimatePresence>
       {isOpen && (

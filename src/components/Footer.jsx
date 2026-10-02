@@ -54,11 +54,10 @@ const Footer = () => {
         setTimeout(() => setStatus('idle'), 3000)
       }
     } catch (err) {
-      if (err instanceof TypeError || err.message === 'Failed to fetch') {
-        alert("Subscription failed: Your ad-blocker might be blocking the form endpoint. Please disable it and try again, or reach out at contact@example.com.")
-      }
-      setStatus('error')
-      setTimeout(() => setStatus('idle'), 3000)
+      // Silent network failure — show inline fallback instead of alert
+      console.error('Form submission network error:', err)
+      setStatus('network-error')
+      setTimeout(() => setStatus('idle'), 8000)
     }
   }
 
@@ -122,14 +121,35 @@ const Footer = () => {
                   className="w-full bg-black/60 border border-zinc-700 px-6 py-4 font-mono text-sm tracking-widest uppercase focus:outline-none focus:border-pink-400 transition-colors placeholder:text-zinc-600 disabled:opacity-50 resize-none"
                 />
               </div>
-              <div className="flex justify-end">
+              <div className="flex justify-end flex-col gap-3">
                 <button 
                   type="submit"
                   disabled={status === 'loading'}
                   className="bg-zinc-100 text-black px-10 py-4 font-heading text-xl uppercase tracking-wider hover:bg-pink-400 transition-colors disabled:opacity-50 sm:w-auto w-full"
                 >
-                  {status === 'loading' ? 'Sending...' : status === 'success' ? 'Sent!' : status === 'error' ? 'Error' : 'Submit'}
+                  {status === 'loading'
+                    ? 'Sending...'
+                    : status === 'success'
+                    ? 'Sent!'
+                    : status === 'error'
+                    ? 'Try Again'
+                    : status === 'network-error'
+                    ? 'Failed'
+                    : 'Submit'}
                 </button>
+
+                {/* Inline fallback for network failures — no alert() */}
+                {status === 'network-error' && (
+                  <p className="font-mono text-xs text-amber-400 border border-amber-400/30 bg-amber-400/5 px-4 py-3 leading-relaxed">
+                    Network error — form submission blocked. Contact directly at{' '}
+                    <a
+                      href="mailto:manish.desireddi@gmail.com"
+                      className="underline hover:text-white transition-colors"
+                    >
+                      manish.desireddi@gmail.com
+                    </a>
+                  </p>
+                )}
               </div>
             </form>
           </div>

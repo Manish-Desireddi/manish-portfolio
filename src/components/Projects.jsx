@@ -48,7 +48,9 @@ const Projects = () => {
         .then(blob => new Promise((resolve) => {
           img.onload = resolve
           img.onerror = resolve
-          img.src = URL.createObjectURL(blob)
+          const url = URL.createObjectURL(blob)
+          img._objectUrl = url
+          img.src = url
         }))
         .catch(() => Promise.resolve())
       images.push(img)
@@ -65,11 +67,13 @@ const Projects = () => {
           scrollTrigger: {
             trigger: containerRef.current,
             pin: true,
+            pinSpacing: true,
             start: 'top top',
             end: `+=${endPercent}%`,
             scrub: scrubValue,
             anticipatePin: 1,
             invalidateOnRefresh: true,
+            normalizeScroll: true,
           }
         })
 
@@ -87,17 +91,25 @@ const Projects = () => {
           duration: total
         }, 0.5)
 
-        // Canvas image scrubbing
+        // Canvas image scrubbing — track which frames have been drawn and revoke their URLs
         const canvas = document.getElementById('projects-canvas')
         if (canvas) {
           const context = canvas.getContext('2d')
           canvas.width = 1920
           canvas.height = 1080
+          const drawn = new Set()
 
           const render = () => {
-            if (images[Math.round(frames.frame)]) {
+            const idx = Math.round(frames.frame)
+            if (images[idx]) {
               context.clearRect(0, 0, canvas.width, canvas.height)
-              context.drawImage(images[Math.round(frames.frame)], 0, 0, canvas.width, canvas.height)
+              context.drawImage(images[idx], 0, 0, canvas.width, canvas.height)
+              // Revoke blob URL after first draw to free GPU-decoded memory
+              if (!drawn.has(idx) && images[idx]._objectUrl) {
+                URL.revokeObjectURL(images[idx]._objectUrl)
+                delete images[idx]._objectUrl
+                drawn.add(idx)
+              }
             }
           }
 

@@ -112,44 +112,72 @@ const App = () => {
     }
   }, [hasEntered, route, isAssetsLoaded])
 
-  // Phase 1: Asset Preloading logic
+  // Phase 1: Asset Preloading — eager first 30 frames, idle-deferred remainder
   useEffect(() => {
     if (!hasEntered || route === DOWNLOAD_ROUTE) return
     let isCancelled = false
-    
+
     const frameCount = 592
-    const currentFrame = index => (
+    const EAGER_COUNT = 30
+    const IDLE_BATCH_SIZE = 30
+
+    const currentFrame = index =>
       `/assets/hero_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
-    )
 
-    const images = []
-    const promises = []
+    // Pre-size the images array so indices align with frame numbers
+    const images = new Array(frameCount).fill(null)
 
-    for (let i = 0; i < frameCount; i++) {
-      const img = new Image()
-      img.decoding = 'async'
-      img.loading = 'eager'
-      const promise = fetch(currentFrame(i))
+    const loadFrame = (i) =>
+      fetch(currentFrame(i))
         .then(res => res.blob())
         .then(blob => new Promise((resolve) => {
-          img.onload = resolve
-          img.onerror = resolve
-          img.src = URL.createObjectURL(blob)
+          const img = new Image()
+          img.decoding = 'async'
+          const url = URL.createObjectURL(blob)
+          img.onload = () => {
+            // Revoke immediately after decode — frame retained in img element
+            URL.revokeObjectURL(url)
+            images[i] = img
+            resolve()
+          }
+          img.onerror = () => { URL.revokeObjectURL(url); resolve() }
+          img.src = url
         }))
         .catch(() => Promise.resolve())
-      images.push(img)
-      promises.push(promise)
-    }
 
-    Promise.all(promises).then(() => {
+    // Load first EAGER_COUNT frames — unblock preloader fast
+    const eagerPromises = Array.from({ length: EAGER_COUNT }, (_, i) => loadFrame(i))
+
+    Promise.all(eagerPromises).then(() => {
       if (isCancelled) return
       loadedImagesRef.current = images
       setImagesFetched(true)
+
+      // Defer remaining frames in idle batches — no main-thread jank
+      let cursor = EAGER_COUNT
+      const loadBatch = (deadline) => {
+        if (isCancelled) return
+        while (cursor < frameCount && (deadline.timeRemaining() > 5 || deadline.didTimeout)) {
+          loadFrame(cursor++)
+        }
+        if (cursor < frameCount) {
+          requestIdleCallback(loadBatch, { timeout: 1500 })
+        }
+      }
+
+      if (typeof requestIdleCallback !== 'undefined') {
+        requestIdleCallback(loadBatch, { timeout: 1500 })
+      } else {
+        // Fallback for Safari — spread over setTimeout
+        const safariLoad = () => {
+          for (let b = 0; b < IDLE_BATCH_SIZE && cursor < frameCount; b++) loadFrame(cursor++)
+          if (cursor < frameCount) setTimeout(safariLoad, 32)
+        }
+        setTimeout(safariLoad, 100)
+      }
     })
 
-    return () => {
-      isCancelled = true
-    }
+    return () => { isCancelled = true }
   }, [hasEntered, route])
 
   // Phase 1: Global Canvas Scrubbing initialization (runs after assets fetched)
@@ -208,6 +236,18 @@ const App = () => {
         ease: "none",
         duration: 1,
         onUpdate: render,
+      })
+
+      // Hero canvas fades out as #projects enters, reverses on scroll-back
+      gsap.to('#hero-canvas', {
+        opacity: 0,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#projects',
+          start: 'top 80%',
+          end: 'top 20%',
+          scrub: true,
+        }
       })
     })
 
