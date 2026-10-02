@@ -9,26 +9,53 @@ const Hero = () => {
   const textRef = useRef(null)
 
   useLayoutEffect(() => {
-    let ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top top",
-          end: "+=500", // 500px scroll duration as requested
-          scrub: true,
-          pin: true,
-        }
-      })
+    const mm = gsap.matchMedia()
 
-      // Text Logo: Reveals as user scrolls
-      tl.fromTo(textRef.current, 
-        { scale: 0.8, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.8, ease: "power2.out" }, 
-      0)
+    // Mobile: shorter scrub distance
+    mm.add('(max-width: 768px)', () => {
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: 'top top',
+            end: '+=500',
+            scrub: true,
+            pin: true,
+          }
+        })
+        tl.fromTo(
+          textRef.current,
+          { scale: 0.8, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.8, ease: 'power2.out' },
+          0
+        )
+      }, containerRef)
+      return () => ctx.revert()
+    })
 
-    }, containerRef)
+    // Desktop: cinematic extended scrub depth for 120hz momentum
+    mm.add('(min-width: 769px)', () => {
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: 'top top',
+            end: '+=1200',
+            scrub: 1,
+            pin: true,
+          }
+        })
+        tl.fromTo(
+          textRef.current,
+          { scale: 0.7, opacity: 0, y: 40 },
+          { scale: 1, opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
+          0
+        )
+      }, containerRef)
+      return () => ctx.revert()
+    })
 
-    return () => ctx.revert()
+    return () => mm.revert()
   }, [])
 
   return (

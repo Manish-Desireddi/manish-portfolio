@@ -55,8 +55,18 @@ const App = () => {
   const [route, setRoute]           = useState(() => window.location.hash)
   const [imagesFetched, setImagesFetched] = useState(false)
   const [isAssetsLoaded, setIsAssetsLoaded] = useState(false)
+  const [isVideoReady, setIsVideoReady] = useState(false)
   const [isCertModalActive, setIsCertModalActive] = useState(false)
   const loadedImagesRef = useRef([])
+  // Tracks whether first canvas frame has been drawn — combined with isVideoReady to gate preloader
+  const canvasReadyRef = useRef(false)
+
+  // Dual-gate: only clear preloader once BOTH canvas AND intro video are ready
+  useEffect(() => {
+    if (canvasReadyRef.current && isVideoReady) {
+      setIsAssetsLoaded(true)
+    }
+  }, [isVideoReady])
 
   // Tiny hash router so the AI Assistant page works without a router dep.
   useEffect(() => {
@@ -166,10 +176,15 @@ const App = () => {
           
           if (isFirstRender) {
             isFirstRender = false;
-            // Delaying state update slightly allows the DOM to composite the canvas
+            // Flag canvas as ready; dual-gate useEffect fires setIsAssetsLoaded once video is also ready
             requestAnimationFrame(() => {
               requestAnimationFrame(() => {
-                setIsAssetsLoaded(true);
+                canvasReadyRef.current = true;
+                // If video was already ready before canvas, resolve immediately
+                setIsVideoReady(prev => {
+                  if (prev) setIsAssetsLoaded(true)
+                  return prev
+                })
               });
             });
           }
@@ -183,7 +198,7 @@ const App = () => {
           trigger: "#scrub-zone",
           start: "top top",
           end: "bottom bottom",
-          scrub: 0.5,
+          scrub: 1,
         }
       })
 
@@ -262,7 +277,7 @@ const App = () => {
         <AnimatePresence
           onExitComplete={() => window.scrollTo({ top: 0, behavior: 'instant' })}
         >
-          {heroActive && <Intro key="intro" onVideoEnd={handleVideoEnd} />}
+          {heroActive && <Intro key="intro" onVideoEnd={handleVideoEnd} onVideoReady={() => setIsVideoReady(true)} />}
         </AnimatePresence>
 
         <div id="home" aria-hidden="true" />

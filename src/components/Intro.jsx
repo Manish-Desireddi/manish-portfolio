@@ -18,7 +18,7 @@ const TAGLINE_LINES = [
  *   3. Register one-shot user interaction listener to restore audio silently.
  *   4. Show "Tap to enable sound" hint only while blocked.
  */
-const Intro = ({ onVideoEnd }) => {
+const Intro = ({ onVideoEnd, onVideoReady }) => {
   const videoRef = useRef(null)
   const [muted, setMuted] = useState(false)
 
@@ -85,6 +85,7 @@ const Intro = ({ onVideoEnd }) => {
         playsInline
         loop={false}
         onEnded={handleVideoEnd}
+        onCanPlayThrough={onVideoReady}
         onContextMenu={(e) => e.preventDefault()}
         draggable={false}
         className="absolute inset-0 w-full h-full object-cover"

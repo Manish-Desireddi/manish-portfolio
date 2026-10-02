@@ -55,9 +55,9 @@ const Projects = () => {
       promises.push(promise)
     }
 
-    Promise.all(promises).then(() => {
-      if (isCancelled) return;
+    const mm = gsap.matchMedia()
 
+    const buildTimeline = (endPercent, scrubValue) => {
       ctx = gsap.context(() => {
         const total = PROJECTS.length
 
@@ -65,29 +65,29 @@ const Projects = () => {
           scrollTrigger: {
             trigger: containerRef.current,
             pin: true,
-            start: "top top",
-            end: `+=600%`,
-            scrub: true,
+            start: 'top top',
+            end: `+=${endPercent}%`,
+            scrub: scrubValue,
             anticipatePin: 1,
             invalidateOnRefresh: true,
           }
         })
 
-        // Delay: 0 to 0.5 is for fading in the content
+        // Fade in content
         gsap.set('.projects-content', { opacity: 0, y: 30 })
-        tl.to('.projects-content', { opacity: 1, y: 0, ease: "power2.out", duration: 0.5 }, 0)
+        tl.to('.projects-content', { opacity: 1, y: 0, ease: 'power2.out', duration: 0.5 }, 0)
 
         // Title scale effect
-        tl.to(titleRef.current, { scale: 1.15, ease: "none", duration: total }, 0.5)
+        tl.to(titleRef.current, { scale: 1.15, ease: 'none', duration: total }, 0.5)
 
-        // Horizontal Scroll Track starts at 0.5
+        // Horizontal scroll track
         tl.to(trackRef.current, {
           x: () => -(trackRef.current.scrollWidth - window.innerWidth),
-          ease: "none",
+          ease: 'none',
           duration: total
         }, 0.5)
 
-        // Canvas Image Scrubbing
+        // Canvas image scrubbing
         const canvas = document.getElementById('projects-canvas')
         if (canvas) {
           const context = canvas.getContext('2d')
@@ -101,37 +101,48 @@ const Projects = () => {
             }
           }
 
-          render() // Initial render
+          render()
 
           tl.to(frames, {
             frame: frameCount - 1,
-            snap: "frame",
-            ease: "none",
+            snap: 'frame',
+            ease: 'none',
             duration: total + 0.5,
             onUpdate: render,
           }, 0)
         }
 
-        // Pop effect and dimming on individual project cards
+        // Pop/dim per card
         const cards = gsap.utils.toArray('.project-card')
         cards.forEach((card, i) => {
-          // Initial state for non-first cards
           if (i > 0) {
             gsap.set(card, { scale: 0.8, opacity: 0.2 })
-            tl.to(card, { scale: 1, opacity: 1, duration: 1, ease: "power2.out" }, i - 1)
+            tl.to(card, { scale: 1, opacity: 1, duration: 1, ease: 'power2.out' }, i - 1)
           }
-
-          // Dim as it leaves
           if (i < total - 1) {
-            tl.to(card, { scale: 0.8, opacity: 0.2, duration: 1, ease: "power2.in" }, i + 0.5) // Offset to leave later
+            tl.to(card, { scale: 0.8, opacity: 0.2, duration: 1, ease: 'power2.in' }, i + 0.5)
           }
         })
       }, containerRef)
+    }
+
+    Promise.all(promises).then(() => {
+      if (isCancelled) return
+
+      mm.add('(max-width: 768px)', () => {
+        buildTimeline(400, true)
+        return () => { if (ctx) ctx.revert() }
+      })
+
+      mm.add('(min-width: 769px)', () => {
+        buildTimeline(800, 1.5)
+        return () => { if (ctx) ctx.revert() }
+      })
     })
 
     return () => {
-      isCancelled = true;
-      if (ctx) ctx.revert()
+      isCancelled = true
+      mm.revert()
     }
   }, [])
 

@@ -58,7 +58,6 @@ const CertificationModal = ({ allCerts, onClose }) => {
   const { scrollYProgress } = useScroll({ container: modalRef })
   const trackWidthVw = (allCerts.length - 1) * 100
   const x = useTransform(scrollYProgress, [0, 1], ["0%", `-${trackWidthVw}vw`])
-  const parallaxX = useTransform(scrollYProgress, [0, 1], ["0%", `${(allCerts.length - 1) * 20}vw`])
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     setActiveIndex(Math.round(latest * (allCerts.length - 1)))
@@ -102,18 +101,17 @@ const CertificationModal = ({ allCerts, onClose }) => {
                 <motion.div key={cert.id} className="max-w-[90vw] w-auto overflow-hidden h-[100dvh] shrink-0 flex flex-col md:flex-row border-r border-zinc-900">
                   
                   {/* Left Column (50%) - Media */}
-                  <div className="w-full md:w-1/2 h-[50vh] md:h-[100vh] flex flex-col bg-zinc-950 overflow-hidden border-b md:border-b-0 border-zinc-900 shrink-0 relative">
-                    <motion.div style={{ x: parallaxX }} className="w-full h-full flex flex-col">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/5 to-amber-500/5 pointer-events-none" />
-                      <div className="w-full h-full flex items-center justify-center p-4 md:p-12 z-10">
-                        <SecureCanvasImage 
-                          src={`/assets/certs/${cert.id}.png`} 
-                          alt={cert.title}
-                          className="w-full h-full object-contain filter drop-shadow-[0_0_30px_rgba(217,70,239,0.15)] pointer-events-none"
-                        />
-                      </div>
-                    </motion.div>
-                    <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none" />
+                  <div className="w-full md:w-1/2 h-[50vh] md:h-full flex items-center justify-center p-6 md:p-12 relative bg-zinc-950 border-b md:border-b-0 border-zinc-900 shrink-0 overflow-hidden">
+                    {/* Ambient gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/5 to-amber-500/5 pointer-events-none" />
+                    {/* Scanline overlay */}
+                    <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none z-10" />
+                    {/* Certificate image — fills flex box, respects natural aspect ratio */}
+                    <SecureCanvasImage 
+                      src={`/assets/certs/${cert.id}.png`} 
+                      alt={cert.title}
+                      className="relative z-[5] max-w-full max-h-full object-contain filter drop-shadow-[0_0_30px_rgba(217,70,239,0.15)] pointer-events-none"
+                    />
                   </div>
 
                   {/* Right Column (50%) - Data */}
