@@ -80,6 +80,7 @@ const CertificationModal = ({ allCerts, onClose }) => {
       <motion.div
         layoutId="cert-container"
         ref={modalRef}
+        data-lenis-prevent="true"
         className="relative w-full h-[100dvh] overflow-y-auto overflow-x-hidden bg-black no-scrollbar"
       >
         <div className="fixed top-0 left-0 w-full p-6 md:p-8 flex justify-between items-center z-50 pointer-events-none">
@@ -101,14 +102,16 @@ const CertificationModal = ({ allCerts, onClose }) => {
                 <motion.div key={cert.id} className="max-w-[90vw] w-auto overflow-hidden h-[100dvh] shrink-0 flex flex-col md:flex-row border-r border-zinc-900">
                   
                   {/* Left Column (50%) - Media */}
-                  <div className="relative w-full md:w-1/2 max-h-[35vh] md:max-h-none md:h-full bg-zinc-950 overflow-hidden border-b md:border-b-0 border-zinc-900 shrink-0">
-                    <motion.div style={{ x: parallaxX }} className="w-full h-full relative flex items-center justify-center p-8 md:p-12">
+                  <div className="relative basis-full md:basis-1/2 min-h-[40vh] bg-zinc-950 overflow-hidden border-b md:border-b-0 border-zinc-900 shrink-0">
+                    <motion.div style={{ x: parallaxX }} className="w-full h-full absolute inset-0">
                       <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/5 to-amber-500/5 pointer-events-none" />
-                      <SecureCanvasImage 
-                        src={`/assets/certs/${cert.id}.png`} 
-                        alt={cert.title}
-                        className="w-full h-full object-contain filter drop-shadow-[0_0_30px_rgba(217,70,239,0.15)] pointer-events-none"
-                      />
+                      <div className="absolute inset-8 flex items-center justify-center">
+                        <SecureCanvasImage 
+                          src={`/assets/certs/${cert.id}.png`} 
+                          alt={cert.title}
+                          className="w-full h-full object-contain filter drop-shadow-[0_0_30px_rgba(217,70,239,0.15)] pointer-events-none"
+                        />
+                      </div>
                     </motion.div>
                     <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none" />
                   </div>

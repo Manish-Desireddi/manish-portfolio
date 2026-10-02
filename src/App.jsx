@@ -21,20 +21,20 @@ gsap.registerPlugin(ScrollTrigger)
 
 const DOWNLOAD_ROUTE = '#/downloads/ai-assistant'
 
-const MDPreloader = () => (
+const MDPreloader = ({ isAssetsLoaded }) => (
   <motion.div
     initial={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
+    animate={{ opacity: isAssetsLoaded ? 0 : 1 }}
     transition={{ duration: 0.8, ease: "easeInOut" }}
-    className="fixed inset-0 z-[200] bg-app-dark flex items-center justify-center pointer-events-none"
+    className={`fixed inset-0 z-[9999] bg-app-dark flex items-center justify-center ${isAssetsLoaded ? 'pointer-events-none' : ''}`}
   >
-    <motion.img 
-      src="/favicon.svg"
-      alt="MD Logo"
-      animate={{ scale: [1, 1.05, 1], opacity: [0.5, 1, 0.5] }}
-      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-      className="w-24 h-24 md:w-32 md:h-32"
-    />
+    <motion.div 
+      animate={{ rotate: 360 }}
+      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+      className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-t-transparent border-pink-500 drop-shadow-[0_0_20px_rgba(217,70,239,0.8)] flex items-center justify-center"
+    >
+      <img src="/favicon.svg" alt="MD Logo" className="w-12 h-12 md:w-16 md:h-16 animate-pulse" />
+    </motion.div>
   </motion.div>
 )
 
@@ -156,7 +156,11 @@ const App = () => {
           if (isFirstRender) {
             isFirstRender = false;
             // Delaying state update slightly allows the DOM to composite the canvas
-            requestAnimationFrame(() => setIsAssetsLoaded(true));
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                setIsAssetsLoaded(true);
+              });
+            });
           }
         }
       }
@@ -232,46 +236,46 @@ const App = () => {
     <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
       <CustomCursor />
       
-      <AnimatePresence>
-        {!isAssetsLoaded && <MDPreloader key="preloader" />}
-      </AnimatePresence>
+      <MDPreloader isAssetsLoaded={isAssetsLoaded} />
 
-      <AnimatePresence>
-        {imagesFetched && (
-          <motion.div key="main-app" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
-            {!heroActive && <Navigation onRequestHero={handleRequestHero} isModalActive={isCertModalActive} />}
+      <motion.div 
+        key="main-app" 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: isAssetsLoaded ? 1 : 0 }} 
+        transition={{ duration: 0.8 }}
+        className={!imagesFetched ? "hidden" : ""}
+      >
+        {!heroActive && <Navigation onRequestHero={handleRequestHero} isModalActive={isCertModalActive} />}
 
-            <AnimatePresence
-              onExitComplete={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-            >
-              {heroActive && <Intro key="intro" onVideoEnd={handleVideoEnd} />}
-            </AnimatePresence>
+        <AnimatePresence
+          onExitComplete={() => window.scrollTo({ top: 0, behavior: 'instant' })}
+        >
+          {heroActive && <Intro key="intro" onVideoEnd={handleVideoEnd} />}
+        </AnimatePresence>
 
-            <div id="home" aria-hidden="true" />
+        <div id="home" aria-hidden="true" />
 
-            {/* Global Background Canvas spanning NewHero to Experience */}
-            <canvas
-              id="hero-canvas"
-              className="fixed top-0 left-0 w-full h-[100dvh] object-cover z-0 mix-blend-screen pointer-events-none opacity-90"
-            />
-            {/* Texture Overlay */}
-            <div className="fixed top-0 left-0 w-full h-[100dvh] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-multiply opacity-30 z-0 pointer-events-none" />
+        {/* Global Background Canvas spanning NewHero to Experience */}
+        <canvas
+          id="hero-canvas"
+          className="fixed top-0 left-0 w-full h-[100dvh] object-cover z-0 mix-blend-screen pointer-events-none opacity-90"
+        />
+        {/* Texture Overlay */}
+        <div className="fixed top-0 left-0 w-full h-[100dvh] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-multiply opacity-30 z-0 pointer-events-none" />
 
-            <main className="relative z-10">
-              <div id="scrub-zone" className="relative">
-                <Hero />
-                <About />
-                <Experience />
-              </div>
-              <Projects />
-              <AIArchitecture />
-              <Certifications onModalStateChange={setIsCertModalActive} />
-              <InteractiveCLI />
-              <Footer />
-            </main>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <main className="relative z-10">
+          <div id="scrub-zone" className="relative">
+            <Hero />
+            <About />
+            <Experience />
+          </div>
+          <Projects />
+          <AIArchitecture />
+          <Certifications onModalStateChange={setIsCertModalActive} />
+          <InteractiveCLI />
+          <Footer />
+        </main>
+      </motion.div>
     </div>
   )
 }

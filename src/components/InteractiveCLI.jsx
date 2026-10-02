@@ -96,7 +96,7 @@ const InteractiveCLI = () => {
             <Terminal size={16} className="text-pink-500" />
             <span className="font-mono text-xs text-zinc-400">guest@manish-os ~</span>
           </div>
-          <div ref={containerRef} className="p-6 h-[400px] overflow-y-auto font-mono text-sm">
+          <div ref={containerRef} className="p-6 h-[400px] overflow-y-auto no-scrollbar font-mono text-sm">
             {history.map((line, i) => (
               <div
                 key={i}
@@ -111,6 +111,15 @@ const InteractiveCLI = () => {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (containerRef.current) containerRef.current.scrollTop -= 50;
+                  } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (containerRef.current) containerRef.current.scrollTop += 50;
+                  }
+                }}
                 className="flex-1 bg-transparent outline-none text-zinc-100 placeholder:text-zinc-700"
                 autoFocus
                 spellCheck={false}
