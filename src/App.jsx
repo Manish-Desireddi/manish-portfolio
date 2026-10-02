@@ -13,11 +13,13 @@ import Footer from './components/Footer'
 import DownloadPage from './components/DownloadPage'
 import Hero from './components/Hero'
 import EnterOverlay from './components/EnterOverlay'
+import ContinuousBackground from './components/ContinuousBackground'
 import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
+ScrollTrigger.normalizeScroll(true)
 
 const DOWNLOAD_ROUTE = '#/downloads/ai-assistant'
 
@@ -112,72 +114,98 @@ const App = () => {
     }
   }, [hasEntered, route, isAssetsLoaded])
 
-  // Phase 1: Asset Preloading — eager first 30 frames, idle-deferred remainder
+  // Phase 1: Asset Preloading logic
   useEffect(() => {
     if (!hasEntered || route === DOWNLOAD_ROUTE) return
     let isCancelled = false
-
+    
     const frameCount = 592
-    const EAGER_COUNT = 30
-    const IDLE_BATCH_SIZE = 30
-
-    const currentFrame = index =>
+    const syncCount = Math.min(30, frameCount)
+    const currentFrame = index => (
       `/assets/hero_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
+    )
 
-    // Pre-size the images array so indices align with frame numbers
     const images = new Array(frameCount).fill(null)
+    const promises = []
 
-    const loadFrame = (i) =>
-      fetch(currentFrame(i))
+    // Load first 30 frames synchronously to unblock UI
+    for (let i = 0; i < syncCount; i++) {
+      const img = new Image()
+      img.decoding = 'async'
+      img.loading = 'eager'
+      const promise = fetch(currentFrame(i))
         .then(res => res.blob())
         .then(blob => new Promise((resolve) => {
-          const img = new Image()
-          img.decoding = 'async'
-          const url = URL.createObjectURL(blob)
+          const objectUrl = URL.createObjectURL(blob)
           img.onload = () => {
-            // Revoke immediately after decode — frame retained in img element
-            URL.revokeObjectURL(url)
-            images[i] = img
+            URL.revokeObjectURL(objectUrl)
             resolve()
           }
-          img.onerror = () => { URL.revokeObjectURL(url); resolve() }
-          img.src = url
+          img.onerror = () => {
+            URL.revokeObjectURL(objectUrl)
+            resolve()
+          }
+          img.src = objectUrl
         }))
         .catch(() => Promise.resolve())
+      images[i] = img
+      promises.push(promise)
+    }
 
-    // Load first EAGER_COUNT frames — unblock preloader fast
-    const eagerPromises = Array.from({ length: EAGER_COUNT }, (_, i) => loadFrame(i))
-
-    Promise.all(eagerPromises).then(() => {
+    Promise.all(promises).then(() => {
       if (isCancelled) return
       loadedImagesRef.current = images
       setImagesFetched(true)
 
-      // Defer remaining frames in idle batches — no main-thread jank
-      let cursor = EAGER_COUNT
-      const loadBatch = (deadline) => {
-        if (isCancelled) return
-        while (cursor < frameCount && (deadline.timeRemaining() > 5 || deadline.didTimeout)) {
-          loadFrame(cursor++)
-        }
-        if (cursor < frameCount) {
-          requestIdleCallback(loadBatch, { timeout: 1500 })
-        }
-      }
+      // Offload remaining frames to Web Worker
+      if (syncCount < frameCount) {
+        const workerCode = `
+          self.onmessage = async function(e) {
+            const { start, end, template } = e.data;
+            for (let i = start; i < end; i++) {
+              try {
+                const url = template.replace('{index}', (i + 1).toString().padStart(4, '0'));
+                const res = await fetch(url);
+                const blob = await res.blob();
+                self.postMessage({ index: i, blob });
+              } catch(err) {}
+            }
+          }
+        `;
+        const workerBlob = new Blob([workerCode], { type: 'application/javascript' })
+        const workerUrl = URL.createObjectURL(workerBlob)
+        const worker = new Worker(workerUrl)
 
-      if (typeof requestIdleCallback !== 'undefined') {
-        requestIdleCallback(loadBatch, { timeout: 1500 })
-      } else {
-        // Fallback for Safari — spread over setTimeout
-        const safariLoad = () => {
-          for (let b = 0; b < IDLE_BATCH_SIZE && cursor < frameCount; b++) loadFrame(cursor++)
-          if (cursor < frameCount) setTimeout(safariLoad, 32)
+        worker.onmessage = (e) => {
+          if (isCancelled) return
+          const { index, blob } = e.data
+          const requestIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1))
+          
+          requestIdle(() => {
+            const img = new Image()
+            img.decoding = 'async'
+            const objectUrl = URL.createObjectURL(blob)
+            img.onload = () => URL.revokeObjectURL(objectUrl)
+            img.onerror = () => URL.revokeObjectURL(objectUrl)
+            img.src = objectUrl
+            images[index] = img
+          })
         }
-        setTimeout(safariLoad, 100)
+
+        worker.postMessage({ 
+          start: syncCount, 
+          end: frameCount, 
+          template: '/assets/hero_frames/frame_{index}.jpg' 
+        })
+
+        // Cleanup worker on unmount
+        return () => worker.terminate()
       }
     })
 
-    return () => { isCancelled = true }
+    return () => {
+      isCancelled = true
+    }
   }, [hasEntered, route])
 
   // Phase 1: Global Canvas Scrubbing initialization (runs after assets fetched)
@@ -238,14 +266,14 @@ const App = () => {
         onUpdate: render,
       })
 
-      // Hero canvas fades out as #projects enters, reverses on scroll-back
-      gsap.to('#hero-canvas', {
+      // Cross-fade out the hero canvas when Projects section enters
+      gsap.to(canvas, {
         opacity: 0,
-        ease: 'none',
+        ease: "none",
         scrollTrigger: {
-          trigger: '#projects',
-          start: 'top 80%',
-          end: 'top 20%',
+          trigger: "#projects",
+          start: "top bottom",
+          end: "top top",
           scrub: true,
         }
       })
@@ -329,6 +357,8 @@ const App = () => {
         />
         {/* Texture Overlay */}
         <div className="fixed top-0 left-0 w-full h-[100dvh] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-multiply opacity-30 z-0 pointer-events-none" />
+
+        <ContinuousBackground />
 
         <main className="relative z-10">
           <div id="scrub-zone" className="relative">

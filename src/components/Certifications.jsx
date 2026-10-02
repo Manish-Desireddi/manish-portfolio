@@ -51,29 +51,24 @@ const SecureCanvasImage = ({ src, alt, className }) => {
   return <canvas ref={canvasRef} className={className} aria-label={alt} />
 }
 
-const CertSlide = ({ cert, index, total, scrollYProgress }) => {
-  const focal = index / Math.max(total - 1, 1)
-  const spread = 1 / Math.max(total - 1, 1)
-
-  // Each slide is fully visible only at its focal point; fades/scales as user scrolls away
-  const scale   = useTransform(scrollYProgress, [focal - spread, focal, focal + spread], [0.85, 1, 0.85])
-  const opacity = useTransform(scrollYProgress, [focal - spread, focal, focal + spread], [0.3, 1, 0.3])
+const FocalCard = ({ cert, index, totalCerts, progress }) => {
+  const centerPoint = totalCerts > 1 ? index / (totalCerts - 1) : 0;
+  const range = totalCerts > 1 ? 1 / (totalCerts - 1) : 1;
+  
+  const scale = useTransform(progress, [centerPoint - range, centerPoint, centerPoint + range], [0.85, 1.0, 0.85]);
+  const opacity = useTransform(progress, [centerPoint - range, centerPoint, centerPoint + range], [0.3, 1.0, 0.3]);
 
   return (
-    <motion.div
-      key={cert.id}
-      style={{ scale, opacity }}
-      className="max-w-[90vw] w-auto overflow-hidden h-[100dvh] shrink-0 flex flex-col md:flex-row border-r border-zinc-900"
-    >
+    <motion.div style={{ scale, opacity }} className="w-[100vw] overflow-hidden h-[100dvh] shrink-0 flex flex-col md:flex-row border-r border-zinc-900 origin-center">
       {/* Left Column (50%) - Media */}
       <div className="w-full md:w-1/2 h-[50vh] md:h-full flex items-center justify-center p-6 md:p-12 relative bg-zinc-950 border-b md:border-b-0 border-zinc-900 shrink-0 overflow-hidden">
         {/* Ambient gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/5 to-amber-500/5 pointer-events-none" />
         {/* Scanline overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none z-10" />
-        {/* Certificate image — fills flex box, respects natural aspect ratio */}
-        <SecureCanvasImage
-          src={`/assets/certs/${cert.id}.png`}
+        {/* Certificate image */}
+        <SecureCanvasImage 
+          src={`/assets/certs/${cert.id}.png`} 
           alt={cert.title}
           className="relative z-[5] max-w-full max-h-full object-contain filter drop-shadow-[0_0_30px_rgba(217,70,239,0.15)] pointer-events-none"
         />
@@ -82,7 +77,7 @@ const CertSlide = ({ cert, index, total, scrollYProgress }) => {
       {/* Right Column (50%) - Data */}
       <div className="w-full md:w-1/2 flex-1 overflow-y-auto md:overflow-visible md:h-full bg-black p-8 md:p-16 flex flex-col justify-center relative">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-pink-500" />
-
+        
         <div className="flex items-center gap-4 mb-6 shrink-0">
           <ShieldCheck className="text-pink-500" size={32} />
           <span className="font-mono text-xs text-zinc-500 border border-zinc-800 px-3 py-1 bg-zinc-950">
@@ -105,12 +100,12 @@ const CertSlide = ({ cert, index, total, scrollYProgress }) => {
               ACTIVE / VERIFIED
             </p>
           </div>
-
+          
           <div className="bg-zinc-950 border border-zinc-900 p-6 shadow-inner">
             <p className="text-xs font-mono text-zinc-600 mb-2">CREDENTIAL ID</p>
             <p className="text-xl font-mono text-pink-400 tracking-widest">{cert.idBadge}</p>
           </div>
-
+          
           <div className="bg-zinc-950 border border-zinc-900 p-6 shadow-inner">
             <p className="text-xs font-mono text-zinc-600 mb-2">CATEGORY</p>
             <p className="text-sm font-oswald text-zinc-300 uppercase tracking-wider">{cert.category}</p>
@@ -124,7 +119,7 @@ const CertSlide = ({ cert, index, total, scrollYProgress }) => {
 const CertificationModal = ({ allCerts, onClose }) => {
   const modalRef = useRef(null)
   const [activeIndex, setActiveIndex] = useState(0)
-
+  
   const { scrollYProgress } = useScroll({ container: modalRef })
   const trackWidthVw = (allCerts.length - 1) * 100
   const x = useTransform(scrollYProgress, [0, 1], ["0%", `-${trackWidthVw}vw`])
@@ -153,7 +148,7 @@ const CertificationModal = ({ allCerts, onClose }) => {
         className="relative w-full h-[100dvh] overflow-y-auto bg-black no-scrollbar"
       >
         <div className="fixed top-0 left-0 w-full p-6 md:p-8 flex justify-between items-center z-50 pointer-events-none">
-          <button
+          <button 
             onClick={onClose}
             className="pointer-events-auto flex items-center gap-2 text-white/60 hover:text-white transition-colors bg-black/80 px-4 py-3 border border-zinc-800 hover:border-pink-500 backdrop-blur-md"
           >
@@ -167,14 +162,8 @@ const CertificationModal = ({ allCerts, onClose }) => {
         <div style={{ height: `${allCerts.length * 100}vh` }} className="w-full relative">
           <div className="sticky top-0 h-[100dvh] w-full overflow-hidden">
             <motion.div style={{ x }} className="flex h-full w-max">
-              {allCerts.map((cert, i) => (
-                <CertSlide
-                  key={cert.id}
-                  cert={cert}
-                  index={i}
-                  total={allCerts.length}
-                  scrollYProgress={scrollYProgress}
-                />
+              {allCerts.map((cert, index) => (
+                <FocalCard key={cert.id} cert={cert} index={index} totalCerts={allCerts.length} progress={scrollYProgress} />
               ))}
             </motion.div>
           </div>

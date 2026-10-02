@@ -25,13 +25,21 @@ const DemoModal = ({ isOpen, onClose, variantId }) => {
   const closeBtnRef = useRef(null)
 
   useEffect(() => {
-    if (isOpen && variantId === 'video-demo') {
-      fetch('/assets/demo.mp4')
-        .then(res => res.blob())
-        .then(blob => setVideoSrc(URL.createObjectURL(blob)))
-        .catch(err => console.error(err))
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      if (variantId === 'video-demo') {
+        fetch('/assets/demo.mp4')
+          .then(res => res.blob())
+          .then(blob => setVideoSrc(URL.createObjectURL(blob)))
+          .catch(err => console.error(err))
+      }
     } else {
-      setVideoSrc('')
+      document.body.style.overflow = '';
+      setVideoSrc('');
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
     }
   }, [isOpen, variantId])
 
@@ -75,16 +83,6 @@ const DemoModal = ({ isOpen, onClose, variantId }) => {
     if (isOpen) window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [isOpen, onClose])
-
-  // Prevent background scroll while modal is active
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => { document.body.style.overflow = '' }
-  }, [isOpen])
 
   return (
     <AnimatePresence>

@@ -1,7 +1,11 @@
-import React, { useState, useRef, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import SectionHeader from './SectionHeader';
 import { Terminal } from 'lucide-react';
 import { TECH_STACK } from '../data/portfolioData';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const InteractiveCLI = () => {
   const [history, setHistory] = useState([
@@ -9,11 +13,11 @@ const InteractiveCLI = () => {
     { type: 'system', content: 'Type "help" to see available commands.' },
   ]);
   const [input, setInput] = useState('');
-  // Stores all commands the user has run — up/down arrows cycle through this
-  const cmdHistoryRef = useRef([]);
-  // -1 means "no selection" (current fresh input)
-  const historyIdxRef = useRef(-1);
+  const [cmdHistory, setCmdHistory] = useState([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  
   const containerRef = useRef(null);
+  const sectionRef = useRef(null);
 
   useLayoutEffect(() => {
     if (containerRef.current) {
@@ -21,13 +25,26 @@ const InteractiveCLI = () => {
     }
   }, [history]);
 
-  const handleCommand = useCallback((cmd) => {
+  useLayoutEffect(() => {
+    let ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        pin: true,
+        pinSpacing: true,
+        start: 'top top',
+        end: '+=50%',
+        anticipatePin: 1
+      });
+    }, sectionRef);
+    return () => ctx.revert();
+  }, []);
+
+  const handleCommand = (cmd) => {
     const trimmed = cmd.trim();
     if (!trimmed) return;
 
-    // Push to command history and reset pointer
-    cmdHistoryRef.current = [trimmed, ...cmdHistoryRef.current];
-    historyIdxRef.current = -1;
+    setCmdHistory(prev => [...prev, trimmed]);
+    setHistoryIndex(cmdHistory.length + 1);
 
     if (trimmed.toLowerCase() === 'run agent') {
       setHistory((prev) => [
@@ -80,7 +97,7 @@ const InteractiveCLI = () => {
       { type: 'user', content: `$ ${trimmed}` },
       { type: 'system', content: response },
     ]);
-  }, []);
+  };
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -88,30 +105,8 @@ const InteractiveCLI = () => {
     setInput('');
   };
 
-  const handleKeyDown = (e) => {
-    const cmds = cmdHistoryRef.current;
-    if (!cmds.length) return;
-
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      const nextIdx = Math.min(historyIdxRef.current + 1, cmds.length - 1);
-      historyIdxRef.current = nextIdx;
-      setInput(cmds[nextIdx]);
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      if (historyIdxRef.current <= 0) {
-        historyIdxRef.current = -1;
-        setInput('');
-      } else {
-        const nextIdx = historyIdxRef.current - 1;
-        historyIdxRef.current = nextIdx;
-        setInput(cmds[nextIdx]);
-      }
-    }
-  };
-
   return (
-    <section id="cli" className="relative py-32 px-6 bg-app-dark border-t border-zinc-900">
+    <section ref={sectionRef} id="cli" className="relative py-32 px-6 bg-app-dark border-t border-zinc-900">
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-16">
           <SectionHeader
@@ -141,12 +136,27 @@ const InteractiveCLI = () => {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (cmdHistory.length > 0) {
+                      const newIndex = Math.max(0, historyIndex - 1);
+                      setHistoryIndex(newIndex);
+                      setInput(cmdHistory[newIndex]);
+                    }
+                  } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (cmdHistory.length > 0) {
+                      const newIndex = Math.min(cmdHistory.length, historyIndex + 1);
+                      setHistoryIndex(newIndex);
+                      setInput(cmdHistory[newIndex] || '');
+                    }
+                  }
+                }}
                 className="flex-1 bg-transparent outline-none text-zinc-100 placeholder:text-zinc-700"
                 autoFocus
                 spellCheck={false}
                 autoComplete="off"
-                aria-label="Terminal input"
               />
             </form>
           </div>

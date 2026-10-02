@@ -82,7 +82,7 @@
 .gradient-orb {
   animation: orb-drift 12s ease-in-out infinite;
   will-change: transform;
-  /* blur(90px) makes orbs invisible — use a tighter blur for visibility */
+  /* blur(90px) makes orbs invisible ï¿½ use a tighter blur for visibility */
   filter: blur(60px);
   pointer-events: none;
 }
@@ -205,3 +205,4 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .aurora-blob { animation: none; }
 }
+

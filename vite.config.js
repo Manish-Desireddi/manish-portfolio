@@ -8,10 +8,16 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Separate vendor chunks for better caching
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'framer': ['framer-motion'],
-          'three': ['three', '@react-three/fiber'],
+        manualChunks(id) {
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/framer-motion/')) {
+            return 'framer';
+          }
+          if (id.includes('node_modules/three/') || id.includes('node_modules/@react-three/')) {
+            return 'three';
+          }
         },
       },
     },

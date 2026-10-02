@@ -1,6 +1,10 @@
-import React, { useRef } from 'react'
+import React, { useRef, useLayoutEffect } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import SectionHeader from './SectionHeader'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const SYSTEMS = [
   {
@@ -87,6 +91,20 @@ const TacticalCard = ({ system, index }) => {
 
 const AIArchitecture = () => {
   const containerRef = useRef(null)
+
+  useLayoutEffect(() => {
+    let ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: containerRef.current,
+        pin: true,
+        pinSpacing: true,
+        start: 'top top',
+        end: '+=50%',
+        anticipatePin: 1
+      })
+    }, containerRef)
+    return () => ctx.revert()
+  }, [])
 
   return (
     <section id="architecture" className="relative py-32 px-6 bg-app-dark border-t border-zinc-900 overflow-hidden" ref={containerRef}>

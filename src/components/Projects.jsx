@@ -32,29 +32,76 @@ const Projects = () => {
     let isCancelled = false;
 
     const frameCount = 600
+    const syncCount = Math.min(30, frameCount)
     const currentFrame = index => (
       `/assets/projects_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
     )
 
-    const images = []
+    const images = new Array(frameCount).fill(null)
     const promises = []
     const frames = { frame: 0 }
 
-    for (let i = 0; i < frameCount; i++) {
+    for (let i = 0; i < syncCount; i++) {
       const img = new Image()
       img.decoding = 'async'
       const promise = fetch(currentFrame(i))
         .then(res => res.blob())
         .then(blob => new Promise((resolve) => {
-          img.onload = resolve
-          img.onerror = resolve
-          const url = URL.createObjectURL(blob)
-          img._objectUrl = url
-          img.src = url
+          const objectUrl = URL.createObjectURL(blob)
+          img.onload = () => {
+            URL.revokeObjectURL(objectUrl)
+            resolve()
+          }
+          img.onerror = () => {
+            URL.revokeObjectURL(objectUrl)
+            resolve()
+          }
+          img.src = objectUrl
         }))
         .catch(() => Promise.resolve())
-      images.push(img)
+      images[i] = img
       promises.push(promise)
+    }
+
+    let worker;
+    if (syncCount < frameCount) {
+      const workerCode = `
+        self.onmessage = async function(e) {
+          const { start, end, template } = e.data;
+          for (let i = start; i < end; i++) {
+            try {
+              const url = template.replace('{index}', (i + 1).toString().padStart(4, '0'));
+              const res = await fetch(url);
+              const blob = await res.blob();
+              self.postMessage({ index: i, blob });
+            } catch(err) {}
+          }
+        }
+      `;
+      const workerBlob = new Blob([workerCode], { type: 'application/javascript' })
+      worker = new Worker(URL.createObjectURL(workerBlob))
+      
+      worker.onmessage = (e) => {
+        if (isCancelled) return
+        const { index, blob } = e.data
+        const requestIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1))
+        
+        requestIdle(() => {
+          const img = new Image()
+          img.decoding = 'async'
+          const objectUrl = URL.createObjectURL(blob)
+          img.onload = () => URL.revokeObjectURL(objectUrl)
+          img.onerror = () => URL.revokeObjectURL(objectUrl)
+          img.src = objectUrl
+          images[index] = img
+        })
+      }
+
+      worker.postMessage({ 
+        start: syncCount, 
+        end: frameCount, 
+        template: '/assets/projects_frames/frame_{index}.jpg' 
+      })
     }
 
     const mm = gsap.matchMedia()
@@ -73,7 +120,6 @@ const Projects = () => {
             scrub: scrubValue,
             anticipatePin: 1,
             invalidateOnRefresh: true,
-            normalizeScroll: true,
           }
         })
 
@@ -91,25 +137,17 @@ const Projects = () => {
           duration: total
         }, 0.5)
 
-        // Canvas image scrubbing — track which frames have been drawn and revoke their URLs
+        // Canvas image scrubbing
         const canvas = document.getElementById('projects-canvas')
         if (canvas) {
           const context = canvas.getContext('2d')
           canvas.width = 1920
           canvas.height = 1080
-          const drawn = new Set()
 
           const render = () => {
-            const idx = Math.round(frames.frame)
-            if (images[idx]) {
+            if (images[Math.round(frames.frame)]) {
               context.clearRect(0, 0, canvas.width, canvas.height)
-              context.drawImage(images[idx], 0, 0, canvas.width, canvas.height)
-              // Revoke blob URL after first draw to free GPU-decoded memory
-              if (!drawn.has(idx) && images[idx]._objectUrl) {
-                URL.revokeObjectURL(images[idx]._objectUrl)
-                delete images[idx]._objectUrl
-                drawn.add(idx)
-              }
+              context.drawImage(images[Math.round(frames.frame)], 0, 0, canvas.width, canvas.height)
             }
           }
 
@@ -154,12 +192,13 @@ const Projects = () => {
 
     return () => {
       isCancelled = true
+      if (worker) worker.terminate()
       mm.revert()
     }
   }, [])
 
   return (
-    <>
+    <div className="relative w-full overflow-hidden">
       <section ref={containerRef} id="projects" className="relative bg-app-dark h-[100dvh] overflow-hidden">
         {/* Cinematic Canvas Background Frame-Scrubbed */}
         <canvas id="projects-canvas" className="absolute inset-0 w-full h-full object-cover z-0 opacity-80" />
@@ -265,7 +304,7 @@ const Projects = () => {
 
       <DemoModal isOpen={demoState.open} onClose={() => setDemoState({ ...demoState, open: false })} variantId={demoState.variantId} />
       <PrivateRepoModal isOpen={repoState.open} onClose={() => setRepoState({ ...repoState, open: false })} projectTitle={repoState.title} />
-    </>
+    </div>
   )
 }
 
