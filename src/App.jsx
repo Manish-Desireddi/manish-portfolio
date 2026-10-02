@@ -21,20 +21,31 @@ gsap.registerPlugin(ScrollTrigger)
 
 const DOWNLOAD_ROUTE = '#/downloads/ai-assistant'
 
-const MDPreloader = ({ isAssetsLoaded }) => (
+const MDPreloader = () => (
   <motion.div
     initial={{ opacity: 1 }}
-    animate={{ opacity: isAssetsLoaded ? 0 : 1 }}
-    transition={{ duration: 0.8, ease: "easeInOut" }}
-    className={`fixed inset-0 z-[9999] bg-app-dark flex items-center justify-center ${isAssetsLoaded ? 'pointer-events-none' : ''}`}
+    exit={{ opacity: 0, transition: { duration: 1.2, delay: 0.5 } }}
+    className="fixed inset-0 z-[9999] bg-app-dark flex items-center justify-center pointer-events-none"
   >
-    <motion.div 
-      animate={{ rotate: 360 }}
-      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-      className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-t-transparent border-pink-500 drop-shadow-[0_0_20px_rgba(217,70,239,0.8)] flex items-center justify-center"
-    >
-      <img src="/favicon.svg" alt="MD Logo" className="w-12 h-12 md:w-16 md:h-16 animate-pulse" />
-    </motion.div>
+    <svg width="200" height="200" viewBox="0 0 200 200" className="filter drop-shadow-[0_0_10px_rgba(217,70,239,0.8)]">
+      <motion.text
+        x="50%"
+        y="50%"
+        dominantBaseline="middle"
+        textAnchor="middle"
+        fontSize="80"
+        fontFamily="sans-serif"
+        fontWeight="bold"
+        fill="transparent"
+        stroke="#d946ef"
+        strokeWidth="2"
+        initial={{ strokeDasharray: 400, strokeDashoffset: 400 }}
+        animate={{ strokeDashoffset: 0 }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatType: "mirror" }}
+      >
+        MD
+      </motion.text>
+    </svg>
   </motion.div>
 )
 
@@ -236,14 +247,15 @@ const App = () => {
     <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
       <CustomCursor />
       
-      <MDPreloader isAssetsLoaded={isAssetsLoaded} />
+      <AnimatePresence>
+        {!isAssetsLoaded && <MDPreloader key="preloader" />}
+      </AnimatePresence>
 
       <motion.div 
         key="main-app" 
         initial={{ opacity: 0 }} 
         animate={{ opacity: isAssetsLoaded ? 1 : 0 }} 
         transition={{ duration: 0.8 }}
-        className={!imagesFetched ? "hidden" : ""}
       >
         {!heroActive && <Navigation onRequestHero={handleRequestHero} isModalActive={isCertModalActive} />}
 

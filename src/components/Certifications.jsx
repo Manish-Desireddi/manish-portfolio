@@ -81,7 +81,7 @@ const CertificationModal = ({ allCerts, onClose }) => {
         layoutId="cert-container"
         ref={modalRef}
         data-lenis-prevent="true"
-        className="relative w-full h-[100dvh] overflow-y-auto overflow-x-hidden bg-black no-scrollbar"
+        className="relative w-full h-[100dvh] overflow-y-auto bg-black no-scrollbar"
       >
         <div className="fixed top-0 left-0 w-full p-6 md:p-8 flex justify-between items-center z-50 pointer-events-none">
           <button 
@@ -102,10 +102,10 @@ const CertificationModal = ({ allCerts, onClose }) => {
                 <motion.div key={cert.id} className="max-w-[90vw] w-auto overflow-hidden h-[100dvh] shrink-0 flex flex-col md:flex-row border-r border-zinc-900">
                   
                   {/* Left Column (50%) - Media */}
-                  <div className="relative basis-full md:basis-1/2 min-h-[40vh] bg-zinc-950 overflow-hidden border-b md:border-b-0 border-zinc-900 shrink-0">
-                    <motion.div style={{ x: parallaxX }} className="w-full h-full absolute inset-0">
+                  <div className="w-full md:w-1/2 h-[50vh] md:h-[100vh] flex flex-col bg-zinc-950 overflow-hidden border-b md:border-b-0 border-zinc-900 shrink-0 relative">
+                    <motion.div style={{ x: parallaxX }} className="w-full h-full flex flex-col">
                       <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/5 to-amber-500/5 pointer-events-none" />
-                      <div className="absolute inset-8 flex items-center justify-center">
+                      <div className="w-full h-full flex items-center justify-center p-4 md:p-12 z-10">
                         <SecureCanvasImage 
                           src={`/assets/certs/${cert.id}.png`} 
                           alt={cert.title}
