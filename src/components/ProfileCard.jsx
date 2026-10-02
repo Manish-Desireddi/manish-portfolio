@@ -1,18 +1,18 @@
 import React from 'react'
 
 const STATS = [
-  { label: 'Age', value: '21+' },
+  { label: 'Age', value: '22' },
   { label: 'Location', value: 'Hyd, IN' },
   { label: 'Clearance', value: 'Active' },
 ]
 
 const ProfileCard = ({
-  name         = 'Manish Desireddi',
-  title        = 'AI & Automation Engineer',
-  handle       = 'manishdesireddi',
-  status       = 'Open to Work',
-  contactText  = 'Connect',
-  avatarUrl    = '/assets/profile-casual.jpg',
+  name = 'Manish Desireddi',
+  title = 'AI & Automation Engineer',
+  handle = 'manishdesireddi',
+  status = 'Open to Work',
+  contactText = 'Connect',
+  avatarUrl = '/assets/profile-casual.jpg',
 }) => {
   return (
     <div className="relative w-full max-w-sm mx-auto group">
@@ -31,7 +31,7 @@ const ProfileCard = ({
               filter: 'contrast(1.2) brightness(0.9)',
             }}
           />
-          
+
           {/* Scanline overlay */}
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-overlay opacity-50 pointer-events-none" />
 

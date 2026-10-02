@@ -11,6 +11,57 @@ const Footer = () => {
     }
   }, [])
 
+  const [status, setStatus] = React.useState('idle')
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setStatus('loading')
+    
+    const formData = new FormData(e.target)
+    const data = Object.fromEntries(formData.entries())
+    
+    // Sanitize string data
+    for (const key in data) {
+      if (typeof data[key] === 'string') {
+        data[key] = data[key].trim()
+      }
+    }
+
+    if (!data.email || !data.name || !data.phone || !data.message) {
+      setStatus('idle')
+      return
+    }
+
+    try {
+      // User must create a form on formspree.io and add VITE_FORMSPREE_ID to .env
+      const response = await fetch(`https://formspree.io/f/${import.meta.env.VITE_FORMSPREE_ID}`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json' 
+        },
+        body: JSON.stringify(data)
+      })
+
+      if (response.ok) {
+        setStatus('success')
+        e.target.reset()
+        setTimeout(() => setStatus('idle'), 5000)
+      } else {
+        const errorData = await response.json()
+        console.error('Formspree error:', errorData)
+        setStatus('error')
+        setTimeout(() => setStatus('idle'), 3000)
+      }
+    } catch (err) {
+      if (err instanceof TypeError || err.message === 'Failed to fetch') {
+        alert("Subscription failed: Your ad-blocker might be blocking the form endpoint. Please disable it and try again, or reach out at contact@example.com.")
+      }
+      setStatus('error')
+      setTimeout(() => setStatus('idle'), 3000)
+    }
+  }
+
   return (
     <footer id="leadership" className="relative bg-zinc-950 text-white overflow-hidden border-t-4 border-zinc-900">
       {/* Background texture for concrete/dark vibe */}
@@ -19,54 +70,79 @@ const Footer = () => {
         aria-hidden="true"
       />
       
-      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-12 flex flex-col gap-24">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-28 sm:pb-12 flex flex-col gap-24">
         
         {/* Top Section: Connect & Propaganda */}
         <div className="flex flex-col lg:flex-row justify-between gap-16 lg:gap-8">
           
           <div className="flex-1">
             <h2 className="font-heading text-4xl sm:text-5xl md:text-6xl tracking-tight uppercase leading-none mb-6 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-              Get the latest updates &<br/>
-              Collaborations:<br/>
-              <span className="text-cyan-400">Connect with me.</span>
+              Interested in my work or<br/>
+              have an opportunity?<br/>
+              <span className="text-pink-400">Let's talk.</span>
             </h2>
             
-            {/* Input fields mimicking Rockstar Propaganda sign up */}
             <form 
-              className="mt-8 flex flex-col sm:flex-row gap-4 max-w-xl" 
-              onSubmit={(e) => {
-                e.preventDefault();
-                const email = e.target.elements[0].value;
-                if (!email) return;
-                window.open(`mailto:manishdesireddi@gmail.com?subject=Newsletter Subscription&body=Hi Manish,%0D%0A%0D%0APlease add ${email} to your updates list!`);
-                e.target.reset();
-                alert("Subscription request staged in your email client!");
-              }}
+              className="mt-8 flex flex-col gap-4 max-w-xl" 
+              onSubmit={handleSubmit}
             >
-              <input 
-                type="email" 
-                placeholder="ENTER EMAIL ADDRESS" 
-                required
-                className="flex-1 bg-black/60 border border-zinc-700 px-6 py-4 font-mono text-sm tracking-widest uppercase focus:outline-none focus:border-cyan-400 transition-colors placeholder:text-zinc-600"
-              />
-              <button 
-                type="submit"
-                className="bg-zinc-100 text-black px-10 py-4 font-heading text-xl uppercase tracking-wider hover:bg-cyan-400 transition-colors"
-              >
-                Subscribe
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <input 
+                  type="text" 
+                  name="name"
+                  placeholder="ENTER NAME" 
+                  required
+                  disabled={status === 'loading'}
+                  className="flex-1 bg-black/60 border border-zinc-700 px-6 py-4 font-mono text-sm tracking-widest uppercase focus:outline-none focus:border-pink-400 transition-colors placeholder:text-zinc-600 disabled:opacity-50"
+                />
+                <input 
+                  type="tel" 
+                  name="phone"
+                  placeholder="ENTER PHONE" 
+                  required
+                  disabled={status === 'loading'}
+                  className="flex-1 bg-black/60 border border-zinc-700 px-6 py-4 font-mono text-sm tracking-widest uppercase focus:outline-none focus:border-pink-400 transition-colors placeholder:text-zinc-600 disabled:opacity-50"
+                />
+              </div>
+              <div className="flex flex-col gap-4">
+                <input 
+                  type="email" 
+                  name="email"
+                  placeholder="ENTER EMAIL ADDRESS" 
+                  required
+                  disabled={status === 'loading'}
+                  className="w-full bg-black/60 border border-zinc-700 px-6 py-4 font-mono text-sm tracking-widest uppercase focus:outline-none focus:border-pink-400 transition-colors placeholder:text-zinc-600 disabled:opacity-50"
+                />
+                <textarea
+                  name="message"
+                  placeholder="ENTER MESSAGE"
+                  required
+                  disabled={status === 'loading'}
+                  rows="4"
+                  className="w-full bg-black/60 border border-zinc-700 px-6 py-4 font-mono text-sm tracking-widest uppercase focus:outline-none focus:border-pink-400 transition-colors placeholder:text-zinc-600 disabled:opacity-50 resize-none"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button 
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="bg-zinc-100 text-black px-10 py-4 font-heading text-xl uppercase tracking-wider hover:bg-pink-400 transition-colors disabled:opacity-50 sm:w-auto w-full"
+                >
+                  {status === 'loading' ? 'Sending...' : status === 'success' ? 'Sent!' : status === 'error' ? 'Error' : 'Submit'}
+                </button>
+              </div>
             </form>
           </div>
 
           <div className="flex flex-col gap-8 justify-end">
             <div className="flex gap-6">
-              <a href="https://linkedin.com/in/Manish-Desireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400">
+              <a href="https://linkedin.com/in/Manish-Desireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400">
                 <Linkedin size={24} />
               </a>
-              <a href="https://github.com/Manish-Desireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400">
+              <a href="https://github.com/Manish-Desireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400">
                 <Github size={24} />
               </a>
-              <a href="https://huggingface.co/manishdesireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400">
+              <a href="https://huggingface.co/manishdesireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400">
                 <div 
                   className="w-6 h-6 bg-current transition-colors"
                   style={{
@@ -81,7 +157,7 @@ const Footer = () => {
                   }}
                 />
               </a>
-              <a href="https://instagram.com/manishdesireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-zinc-400 hover:text-cyan-400">
+              <a href="https://instagram.com/manishdesireddi" target="_blank" rel="noreferrer" className="w-14 h-14 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400">
                 <Instagram size={24} />
               </a>
             </div>
@@ -119,7 +195,7 @@ const Footer = () => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={scrollToTop}
-        className="absolute bottom-8 right-8 w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-white hover:border-cyan-400 z-20"
+        className="absolute bottom-8 right-8 w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-white hover:border-pink-400 z-[60]"
       >
         <ArrowUp size={20} />
       </motion.button>

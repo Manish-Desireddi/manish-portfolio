@@ -8,16 +8,16 @@ const SORTED_TECH = [...TECH_STACK].sort((a, b) => a.toLowerCase().localeCompare
 const MARQUEE_ITEMS = [...SORTED_TECH, ...SORTED_TECH]
 
 const CHIPS = [
-  { label: 'AI Models',           cls: 'text-zinc-100 border-zinc-700 bg-zinc-900' },
-  { label: 'AI Pipelines',        cls: 'text-cyan-400 border-cyan-400/30 bg-cyan-950/40'    },
-  { label: 'Automation',          cls: 'text-violet-400 border-violet-400/30 bg-violet-950/40'  },
-  { label: 'Distributed Systems', cls: 'text-zinc-100 border-zinc-700 bg-zinc-900'  },
+  { label: 'AI Models', cls: 'text-zinc-100 border-zinc-700 bg-zinc-900' },
+  { label: 'AI Pipelines', cls: 'text-pink-400 border-pink-400/30 bg-pink-950/40' },
+  { label: 'Automation', cls: 'text-orange-400 border-orange-400/30 bg-violet-950/40' },
+  { label: 'Distributed Systems', cls: 'text-zinc-100 border-zinc-700 bg-zinc-900' },
 ]
 
 const STAT_TILES = [
-  { value: '3+',  label: 'AI Projects' },
-  { value: '8.2', label: 'CGPA'        },
-  { value: '11 mos', label: 'Nokia'       },
+  { value: '4+', label: 'AI Projects' },
+  { value: '8.65', label: 'CGPA' },
+  { value: '11 mos', label: 'Nokia' },
 ]
 
 const Chip = memo(({ label, cls }) => (
@@ -31,14 +31,14 @@ const About = () => {
   return (
     <section id="about" className="relative py-28 px-6 bg-transparent overflow-hidden">
       {/* HUD Scanline Overlay for entire section */}
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(6,182,212,0.03)_1px,transparent_1px)] bg-[length:100%_4px] z-0" />
-      
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(217,70,239,0.03)_1px,transparent_1px)] bg-[length:100%_4px] z-0" />
+
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="text-center md:text-left mb-16 relative">
           {/* HUD Targeting Box for Header */}
-          <div className="absolute -left-4 -top-4 w-8 h-8 border-t-2 border-l-2 border-cyan-500/50" />
-          <div className="absolute -right-4 -bottom-4 w-8 h-8 border-b-2 border-r-2 border-cyan-500/50" />
-          
+          <div className="absolute -left-4 -top-4 w-8 h-8 border-t-2 border-l-2 border-pink-500/50" />
+          <div className="absolute -right-4 -bottom-4 w-8 h-8 border-b-2 border-r-2 border-pink-500/50" />
+
           <SectionHeader
             eyebrow="SYS.LOG // About"
             title="ENGINEER BY DISCIPLINE."
@@ -47,7 +47,7 @@ const About = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-center">
-          
+
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -81,11 +81,11 @@ const About = () => {
             </div>
 
             <p className="text-zinc-300 font-sans text-xl leading-relaxed">
-              I'm a final-year B.Tech student in <span className="text-white font-heading uppercase">Artificial Intelligence &amp; Data Science</span>, engineering production-grade AI systems that survive at scale.
+              I'm a Recent B.Tech Graduate in <span className="text-white font-heading uppercase">Artificial Intelligence &amp; Data Science</span>, engineering production-grade AI systems that survive at scale.
             </p>
 
             <p className="text-zinc-400 font-sans text-lg leading-relaxed">
-              My work spans <span className="text-cyan-400 uppercase tracking-widest font-mono text-sm">Generative AI</span> fine-tuning LLMs with LoRA and quantization—and assembling <span className="text-violet-400 uppercase tracking-widest font-mono text-sm">agentic pipelines</span> that automate complex multi-step workflows end-to-end.
+              My work spans <span className="text-pink-400 uppercase tracking-widest font-mono text-sm">Generative AI</span> fine-tuning LLMs with LoRA and quantization—and assembling <span className="text-orange-400 uppercase tracking-widest font-mono text-sm">agentic pipelines</span> that automate complex multi-step workflows end-to-end.
             </p>
 
             <p className="text-zinc-500 font-sans text-base leading-relaxed">
@@ -93,11 +93,11 @@ const About = () => {
             </p>
 
             {/* Tactical stats */}
-            <div className="mt-4 pt-8 border-t border-cyan-500/20 grid grid-cols-3 gap-6 relative z-10">
+            <div className="mt-4 pt-8 border-t border-pink-500/20 grid grid-cols-3 gap-6 relative z-10">
               {STAT_TILES.map(({ value, label }) => (
-                <div key={label} className="flex flex-col border-l-4 border-cyan-500/50 pl-4 hover:border-cyan-400 transition-colors">
+                <div key={label} className="flex flex-col border-l-4 border-pink-500/50 pl-4 hover:border-pink-400 transition-colors">
                   <span className="text-4xl font-heading text-white tracking-tighter drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">{value}</span>
-                  <span className="text-xs text-cyan-200/70 font-mono uppercase tracking-widest mt-1">
+                  <span className="text-xs text-pink-200/70 font-mono uppercase tracking-widest mt-1">
                     {label}
                   </span>
                 </div>
@@ -116,7 +116,7 @@ const About = () => {
               {MARQUEE_ITEMS.map((tech, idx) => (
                 <span
                   key={`${tech}-${idx}`}
-                  className="text-stroke text-4xl sm:text-5xl font-heading tracking-tight uppercase whitespace-nowrap opacity-20 hover:opacity-100 hover:text-cyan-400 transition-all duration-300"
+                  className="text-stroke text-4xl sm:text-5xl font-heading tracking-tight uppercase whitespace-nowrap opacity-20 hover:opacity-100 hover:text-pink-400 transition-all duration-300"
                 >
                   {tech}
                 </span>

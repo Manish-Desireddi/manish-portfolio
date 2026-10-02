@@ -1,14 +1,7 @@
 import React, { useEffect, useCallback } from 'react'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 
-let globalMouseX = -200;
-let globalMouseY = -200;
-if (typeof window !== 'undefined') {
-  window.addEventListener('mousemove', (e) => {
-    globalMouseX = e.clientX;
-    globalMouseY = e.clientY;
-  }, { passive: true });
-}
+
 
 const GLOW_SPRING = { damping: 28, stiffness: 160, mass: 0.6 }
 
@@ -18,8 +11,8 @@ const GLOW_SPRING = { damping: 28, stiffness: 160, mass: 0.6 }
  * Disabled entirely on touch/pointer-coarse devices.
  */
 const CustomCursorInner = () => {
-  const mouseX = useMotionValue(globalMouseX)
-  const mouseY = useMotionValue(globalMouseY)
+  const mouseX = useMotionValue(-200)
+  const mouseY = useMotionValue(-200)
 
   // Spring-smoothed position for the glow ring (creates the lag effect)
   const springX = useSpring(mouseX, GLOW_SPRING)

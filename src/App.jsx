@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import CustomCursor from './components/CustomCursor'
 import Navigation from './components/Navigation'
 import Intro from './components/Intro'
@@ -7,6 +7,8 @@ import About from './components/About'
 import Experience from './components/Experience'
 import Projects from './components/Projects'
 import AIArchitecture from './components/AIArchitecture'
+import Certifications from './components/Certifications'
+import InteractiveCLI from './components/InteractiveCLI'
 import Footer from './components/Footer'
 import DownloadPage from './components/DownloadPage'
 import Hero from './components/Hero'
@@ -19,10 +21,31 @@ gsap.registerPlugin(ScrollTrigger)
 
 const DOWNLOAD_ROUTE = '#/downloads/ai-assistant'
 
+const MDPreloader = () => (
+  <motion.div
+    initial={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.8, ease: "easeInOut" }}
+    className="fixed inset-0 z-[200] bg-app-dark flex items-center justify-center pointer-events-none"
+  >
+    <motion.img 
+      src="/favicon.svg"
+      alt="MD Logo"
+      animate={{ scale: [1, 1.05, 1], opacity: [0.5, 1, 0.5] }}
+      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      className="w-24 h-24 md:w-32 md:h-32"
+    />
+  </motion.div>
+)
+
 const App = () => {
   const [hasEntered, setHasEntered] = useState(false)
   const [heroActive, setHeroActive] = useState(true)
   const [route, setRoute]           = useState(() => window.location.hash)
+  const [imagesFetched, setImagesFetched] = useState(false)
+  const [isAssetsLoaded, setIsAssetsLoaded] = useState(false)
+  const [isCertModalActive, setIsCertModalActive] = useState(false)
+  const loadedImagesRef = useRef([])
 
   // Tiny hash router so the AI Assistant page works without a router dep.
   useEffect(() => {
@@ -31,11 +54,9 @@ const App = () => {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
-
-
   // Initialize Lenis
   useEffect(() => {
-    if (!hasEntered || route === DOWNLOAD_ROUTE) return
+    if (!hasEntered || route === DOWNLOAD_ROUTE || !isAssetsLoaded) return
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -49,100 +70,121 @@ const App = () => {
     })
     gsap.ticker.lagSmoothing(0)
 
+    ScrollTrigger.refresh()
+
     window.lenis = lenis // Expose for Navigation components
 
+    let resizeTimer;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 200);
+    };
+    window.addEventListener('resize', handleResize);
+
     return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimer);
       delete window.lenis
       lenis.destroy()
     }
-  }, [hasEntered, route])
+  }, [hasEntered, route, isAssetsLoaded])
 
-  // Global Video Scrubbing logic
+  // Phase 1: Asset Preloading logic
   useEffect(() => {
     if (!hasEntered || route === DOWNLOAD_ROUTE) return
+    let isCancelled = false
+    
+    const frameCount = 592
+    const currentFrame = index => (
+      `/assets/hero_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
+    )
+
+    const images = []
+    const promises = []
+
+    for (let i = 0; i < frameCount; i++) {
+      const img = new Image()
+      img.decoding = 'async'
+      img.loading = 'eager'
+      const promise = fetch(currentFrame(i))
+        .then(res => res.blob())
+        .then(blob => new Promise((resolve) => {
+          img.onload = resolve
+          img.onerror = resolve
+          img.src = URL.createObjectURL(blob)
+        }))
+        .catch(() => Promise.resolve())
+      images.push(img)
+      promises.push(promise)
+    }
+
+    Promise.all(promises).then(() => {
+      if (isCancelled) return
+      loadedImagesRef.current = images
+      setImagesFetched(true)
+    })
+
+    return () => {
+      isCancelled = true
+    }
+  }, [hasEntered, route])
+
+  // Phase 1: Global Canvas Scrubbing initialization (runs after assets fetched)
+  useEffect(() => {
+    if (!hasEntered || !imagesFetched || route === DOWNLOAD_ROUTE) return
+    
+    const canvas = document.getElementById('hero-canvas')
+    if (!canvas) return
+    
+    const context = canvas.getContext('2d')
+    canvas.width = 1920
+    canvas.height = 1080
+
+    const images = loadedImagesRef.current
+    const frames = { frame: 0 }
+    
+    let isFirstRender = true;
+
     let ctx = gsap.context(() => {
-      const canvas = document.getElementById('hero-canvas')
-      if (!canvas) return
-      const context = canvas.getContext('2d')
-      
-      const frameCount = 592
-      const currentFrame = (index) => (
-        `/assets/hero_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
-      )
-      
-      const images = []
-      const scrubObj = { frame: 0 }
-      
-      for (let i = 0; i < frameCount; i++) {
-        const img = new Image()
-        img.onload = () => {
-          if (Math.floor(scrubObj.frame) === i || (i === 0 && scrubObj.frame === 0)) {
-            render()
+      const render = () => {
+        if (images[Math.round(frames.frame)]) {
+          context.clearRect(0, 0, canvas.width, canvas.height)
+          context.drawImage(images[Math.round(frames.frame)], 0, 0, canvas.width, canvas.height)
+          
+          if (isFirstRender) {
+            isFirstRender = false;
+            // Delaying state update slightly allows the DOM to composite the canvas
+            requestAnimationFrame(() => setIsAssetsLoaded(true));
           }
         }
-        img.src = currentFrame(i)
-        images.push(img)
-      }
-      
-      function render() {
-        const img = images[Math.floor(scrubObj.frame)]
-        if (img && img.complete && img.naturalWidth !== 0) {
-          const hRatio = canvas.width / img.width
-          const vRatio = canvas.height / img.height
-          const ratio = Math.max(hRatio, vRatio)
-          const centerShift_x = (canvas.width - img.width * ratio) / 2
-          const centerShift_y = (canvas.height - img.height * ratio) / 2
-          
-          context.clearRect(0, 0, canvas.width, canvas.height)
-          context.drawImage(img, 0, 0, img.width, img.height,
-                            centerShift_x, centerShift_y, img.width * ratio, img.height * ratio)
-        }
       }
 
-      gsap.ticker.add(render)
+      render() // Initial render
 
-      const handleResize = () => {
-        canvas.width = window.innerWidth
-        canvas.height = window.innerHeight
-        render()
-      }
-      
-      handleResize()
-      window.addEventListener('resize', handleResize)
-
-
-
-      gsap.to(scrubObj, {
-        frame: frameCount - 1,
-        snap: "frame",
-        ease: "none",
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: "#scrub-zone",
           start: "top top",
-          end: "bottom 80%",
-          scrub: true, // Perfect sync for GTA VI style scrubbing
-        },
-      })
-      
-      // Fade out canvas when reaching projects
-      gsap.to(canvas, {
-        opacity: 0,
-        ease: "none",
-        scrollTrigger: {
-          trigger: "#projects",
-          start: "top 50%",
-          end: "top top",
-          scrub: true,
+          end: "bottom bottom",
+          scrub: 0.5,
         }
       })
-      
-      return () => {
-        gsap.ticker.remove(render)
-        window.removeEventListener('resize', handleResize)
-      }
+
+      tl.to(frames, {
+        frame: images.length - 1,
+        snap: "frame",
+        ease: "none",
+        duration: 1,
+        onUpdate: render,
+      })
     })
-    return () => ctx.revert()
-  }, [hasEntered, route])
+
+    return () => {
+      if (ctx) ctx.revert()
+    }
+  }, [hasEntered, imagesFetched, route])
 
   useEffect(() => {
     const lock = heroActive && route !== DOWNLOAD_ROUTE
@@ -170,7 +212,7 @@ const App = () => {
 
   if (route === DOWNLOAD_ROUTE) {
     return (
-      <div className="relative min-h-screen overflow-x-hidden bg-app-dark">
+      <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
         <CustomCursor />
         <DownloadPage />
       </div>
@@ -187,37 +229,49 @@ const App = () => {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-app-dark">
+    <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
       <CustomCursor />
-
-      {!heroActive && <Navigation onRequestHero={handleRequestHero} />}
-
-      <AnimatePresence
-        onExitComplete={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-      >
-        {heroActive && <Intro key="intro" onVideoEnd={handleVideoEnd} />}
+      
+      <AnimatePresence>
+        {!isAssetsLoaded && <MDPreloader key="preloader" />}
       </AnimatePresence>
 
-      <div id="home" aria-hidden="true" />
+      <AnimatePresence>
+        {imagesFetched && (
+          <motion.div key="main-app" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+            {!heroActive && <Navigation onRequestHero={handleRequestHero} isModalActive={isCertModalActive} />}
 
-      {/* Global Background Canvas spanning NewHero to Experience */}
-      <canvas
-        id="hero-canvas"
-        className="fixed top-0 left-0 w-full h-screen z-0 mix-blend-screen pointer-events-none opacity-90"
-      />
-      {/* Texture Overlay */}
-      <div className="fixed top-0 left-0 w-full h-screen bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-multiply opacity-30 z-0 pointer-events-none" />
+            <AnimatePresence
+              onExitComplete={() => window.scrollTo({ top: 0, behavior: 'instant' })}
+            >
+              {heroActive && <Intro key="intro" onVideoEnd={handleVideoEnd} />}
+            </AnimatePresence>
 
-      <main className="relative z-10">
-        <div id="scrub-zone">
-          <Hero />
-          <About />
-          <Experience />
-        </div>
-        <Projects />
-        <AIArchitecture />
-        <Footer />
-      </main>
+            <div id="home" aria-hidden="true" />
+
+            {/* Global Background Canvas spanning NewHero to Experience */}
+            <canvas
+              id="hero-canvas"
+              className="fixed top-0 left-0 w-full h-[100dvh] object-cover z-0 mix-blend-screen pointer-events-none opacity-90"
+            />
+            {/* Texture Overlay */}
+            <div className="fixed top-0 left-0 w-full h-[100dvh] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-multiply opacity-30 z-0 pointer-events-none" />
+
+            <main className="relative z-10">
+              <div id="scrub-zone" className="relative">
+                <Hero />
+                <About />
+                <Experience />
+              </div>
+              <Projects />
+              <AIArchitecture />
+              <Certifications onModalStateChange={setIsCertModalActive} />
+              <InteractiveCLI />
+              <Footer />
+            </main>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

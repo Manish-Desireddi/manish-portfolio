@@ -106,7 +106,7 @@ const Intro = ({ onVideoEnd }) => {
       <div
         className="absolute top-1/4 left-0 w-[450px] h-[450px] rounded-full z-[1] pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse, rgba(6,182,212,0.07) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse, rgba(217,70,239,0.07) 0%, transparent 70%)',
           filter: 'blur(80px)',
         }}
         aria-hidden="true"
@@ -120,9 +120,9 @@ const Intro = ({ onVideoEnd }) => {
           initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.55, delay: 0.3 }}
-          className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-950/80 border border-cyan-400/30 text-cyan-400 text-xs font-mono tracking-wide backdrop-blur-md shadow-[0_0_10px_rgba(6,182,212,0.2)] w-fit"
+          className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-950/80 border border-pink-400/30 text-pink-400 text-xs font-mono tracking-wide backdrop-blur-md shadow-[0_0_10px_rgba(217,70,239,0.2)] w-fit"
         >
-          <span className="w-1.5 h-1.5 bg-cyan-400 animate-pulse" aria-hidden="true" />
+          <span className="w-1.5 h-1.5 bg-pink-400 animate-pulse" aria-hidden="true" />
           ex-Student Intern · Nokia Solutions and Networks
         </motion.div>
 
@@ -151,7 +151,7 @@ const Intro = ({ onVideoEnd }) => {
           animate={{ scaleX: 1 }}
           transition={{ duration: 1.1, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
           style={{ originX: 0 }}
-          className="mb-10 w-72 md:w-96 h-1 bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.8)]"
+          className="mb-10 w-72 md:w-96 h-1 bg-pink-400 shadow-[0_0_10px_rgba(217,70,239,0.8)]"
           aria-hidden="true"
         />
 
@@ -185,7 +185,7 @@ const Intro = ({ onVideoEnd }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.8 }}
           onClick={skipIntro}
-          className="group mt-4 inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-heading uppercase text-sm hover:bg-cyan-400 hover:text-black transition-colors w-fit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)]"
+          className="group mt-4 inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-heading uppercase text-sm hover:bg-pink-400 hover:text-black transition-colors w-fit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)]"
           aria-label="Skip intro and go to portfolio"
         >
           SKIP INTRO
@@ -203,7 +203,7 @@ const Intro = ({ onVideoEnd }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
         onClick={toggleAudio}
-        className="absolute bottom-8 right-8 z-[3] flex items-center gap-3 px-6 py-3 bg-white text-black font-heading uppercase text-sm border-2 border-transparent hover:bg-black hover:text-cyan-400 hover:border-cyan-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+        className="absolute bottom-8 right-8 z-[3] flex items-center gap-3 px-6 py-3 bg-white text-black font-heading uppercase text-sm border-2 border-transparent hover:bg-black hover:text-pink-400 hover:border-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
         aria-label={muted ? 'Unmute audio' : 'Mute audio'}
       >
         {muted ? (

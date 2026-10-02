@@ -32,12 +32,12 @@ const Hero = () => {
   }, [])
 
   return (
-    <section ref={containerRef} className="relative w-full h-screen overflow-hidden bg-transparent flex items-center justify-center">
+    <section ref={containerRef} className="relative w-full h-[100dvh] overflow-hidden bg-transparent flex items-center justify-center">
       
       {/* Layer D: Typography (Behind Avatar) */}
       <div ref={textRef} className="relative z-10 flex flex-col items-center text-center px-6 mt-[-10vh] pointer-events-none">
         <h1 className="font-heading text-[12vw] sm:text-[130px] leading-[0.8] text-white tracking-tighter uppercase drop-shadow-2xl">
-          <span className="block text-cyan-400 opacity-90">Portfolio</span>
+          <span className="block text-pink-400 opacity-90">Portfolio</span>
           <span className="block mt-2">Manish Desireddi</span>
         </h1>
       </div>

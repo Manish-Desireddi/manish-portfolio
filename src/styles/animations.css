@@ -1,4 +1,4 @@
-﻿/* --- Marquee ---------------------------------------------------------------- */
+/* --- Marquee ---------------------------------------------------------------- */
 @keyframes marquee-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -23,7 +23,7 @@
 }
 
 .text-stroke:hover {
-  color: #06b6d4;
+  color: #d946ef;
   -webkit-text-stroke-color: transparent;
 }
 
@@ -37,7 +37,7 @@
   content: '|';
   display: inline-block;
   margin-left: 2px;
-  color: #06b6d4;
+  color: #d946ef;
   animation: cursor-blink 1s step-end infinite;
 }
 
@@ -47,11 +47,11 @@
   font-size: clamp(3.2rem, 9vw, 7.5rem);
   font-weight: 700;
   line-height: 1.05;
-  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 25%, #67e8f9 55%, #a5b4fc 80%, #c084fc 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 25%, #d946ef 55%, #f97316 80%, #fbbf24 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 28px rgba(6, 182, 212, 0.28));
+  filter: drop-shadow(0 0 28px rgba(217, 70, 239, 0.28));
   user-select: none;
   -webkit-user-select: none;
 }
@@ -82,20 +82,20 @@
 .gradient-orb {
   animation: orb-drift 12s ease-in-out infinite;
   will-change: transform;
-  /* blur(90px) makes orbs invisible — use a tighter blur for visibility */
+  /* blur(90px) makes orbs invisible � use a tighter blur for visibility */
   filter: blur(60px);
   pointer-events: none;
 }
 
 /* --- Timeline gradient line ------------------------------------------------- */
 .timeline-gradient {
-  background: linear-gradient(to bottom, #06b6d4, #7c3aed);
+  background: linear-gradient(to bottom, #d946ef, #f97316);
 }
 
 /* --- Glow pulse ------------------------------------------------------------- */
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 16px rgba(6, 182, 212, 0.3); }
-  50%       { box-shadow: 0 0 32px rgba(6, 182, 212, 0.6); }
+  0%, 100% { box-shadow: 0 0 16px rgba(217, 70, 239, 0.3); }
+  50%       { box-shadow: 0 0 32px rgba(217, 70, 239, 0.6); }
 }
 
 .glow-pulse-cyan {
@@ -140,7 +140,7 @@ video {
 .signature-underline {
   display: block;
   height: 2px;
-  background: linear-gradient(to right, #06b6d4, #a855f7, transparent);
+  background: linear-gradient(to right, #d946ef, #f97316, transparent);
   border-radius: 1px;
   transform-origin: left;
 }

@@ -1,19 +1,46 @@
-﻿// --- Navigation -------------------------------------------------------------
+// --- Navigation -------------------------------------------------------------
 // Icon names are resolved to lucide-react components inside Navigation.jsx
 // to avoid storing JSX in data.
 export const NAV_ITEMS = [
-  { id: 'home',       label: 'Home',       icon: 'Home'      },
-  { id: 'about',      label: 'About',      icon: 'User'      },
+  { id: 'home', label: 'Home', icon: 'Home' },
+  { id: 'about', label: 'About', icon: 'User' },
   { id: 'experience', label: 'Experience', icon: 'Briefcase' },
-  { id: 'projects',   label: 'Projects',   icon: 'Code2'     },
-  { id: 'leadership', label: 'Leadership', icon: 'Trophy'    },
+  { id: 'projects', label: 'Projects', icon: 'Code2' },
+  { id: 'architecture', label: 'Expertise', icon: 'Cpu' },
+  { id: 'certifications', label: 'Accreditations', icon: 'Award' },
+  { id: 'cli', label: 'Terminal', icon: 'Terminal' },
 ]
+
+export const CERTIFICATIONS = [
+  {
+    category: "Cloud & Enterprise Architecture",
+    items: [
+      { id: "cert1", title: "AWS Certified Solutions Architect", issuer: "Amazon Web Services", date: "2024", idBadge: "AWS-CSA-PRO" },
+      { id: "cert2", title: "Azure Security Engineer", issuer: "Microsoft", date: "2023", idBadge: "AZ-500" },
+      { id: "cert3", title: "GCP Professional Cloud Architect", issuer: "Google Cloud", date: "2023", idBadge: "GCP-PCA" }
+    ]
+  },
+  {
+    category: "Autonomous AI & Intelligent Systems",
+    items: [
+      { id: "cert4", title: "Deep Learning Specialization", issuer: "DeepLearning.AI", date: "2023", idBadge: "DL-AI-01" },
+      { id: "cert5", title: "Generative AI Fundamentals", issuer: "Google", date: "2024", idBadge: "GEN-AI-01" },
+      { id: "cert6", title: "AI Engineering Professional", issuer: "IBM", date: "2023", idBadge: "IBM-AI-01" }
+    ]
+  },
+  {
+    category: "Core Engineering & Industry Experience",
+    items: [
+      { id: "cert7", title: "Certified Kubernetes Administrator", issuer: "CNCF", date: "2024", idBadge: "CKA-01" },
+      { id: "cert8", title: "Full-Stack Web Development", issuer: "Meta", date: "2022", idBadge: "META-FS-01" },
+      { id: "cert9", title: "Advanced React Patterns", issuer: "Frontend Masters", date: "2023", idBadge: "FM-REACT-01" }
+    ]
+  }
+];
 
 // --- Tech Stack -------------------------------------------------------------
 export const TECH_STACK = [
-  'Python', 'PyTorch', 'LoRA', 'React', 'FastAPI',
-  'Docker', 'Airflow', 'RAG', 'FAISS', 'Redis',
-  'RabbitMQ', 'Grafana', 'Mistral', 'Llama-3',
+  'Python', 'C++', 'SQL', 'OOP', 'Data Structures & Algorithms', 'Machine Learning', 'Deep Learning', 'LLMs', 'Agentic AI', 'NLP', 'Predictive Modeling', 'REST APIs', 'SDLC', 'Git', 'MLOps', 'System Design', 'PyTorch', 'Flask', 'FastAPI', 'Pandas', 'NumPy', 'spaCy', 'NLTK', 'CUDA', 'Apache Airflow', 'LangChain', 'Docker'
 ]
 
 // --- Experience -------------------------------------------------------------
@@ -36,10 +63,27 @@ export const EXPERIENCE = [
 ]
 
 // --- Projects ---------------------------------------------------------------
-// accent: 'cyan' | 'violet' | 'indigo' | 'emerald'
+// accent: 'pink' | 'orange' | 'fuchsia' | 'amber'
 // demoKind: 'modal-3d' | 'download-cloud' | 'modal-storefront' | 'modal-commercial'
 // githubKind: 'private' (default) | 'public-url'
 export const PROJECTS = [
+  {
+    id: 'subq-audio-engine',
+    title: 'Sub-Quadratic Audio Transformer',
+    description:
+      'A bare-metal, lock-free O(N) linear attention engine for infinite continuous audio streaming. Implements an analytical reverse adjoint backward pass with exact PyTorch TRL integration. Built entirely in C++ with custom CUDA/HIP macros to bypass the standard O(N²) memory barriers of traditional transformers.',
+    highlights: [
+      'O(1) memory causal attention via associative scan',
+      'Zero-copy PyBind11 polymorphic tensor interoperability',
+      'Cross-compiles to AMD ROCm/HIP and NVIDIA CUDA',
+      'Lock-free SPSC ring ingestion for WebSocket audio',
+    ],
+    metrics: { memory: 'O(1)', throughput: '>200k tok/s', bounds: '< 256MB VRAM' },
+    tags: ['C++', 'CUDA', 'PyTorch', 'PyBind11', 'CMake', 'GSAP'],
+    github: 'https://github.com/Manish-Desireddi/Sub-Quadratic-Audio-Transformer-Engine',
+    demoKind: 'video-demo',
+    accent: 'pink',
+  },
   {
     id: 'text-to-3d',
     title: 'Text to 3D Generative AI',
@@ -55,24 +99,41 @@ export const PROJECTS = [
     tags: ['Deep Learning', 'LoRA', 'GANs', 'ShapeNet', 'FAISS', 'RAG'],
     github: 'https://github.com/Manish-Desireddi',
     demoKind: 'modal-3d',
-    accent: 'cyan',
+    accent: 'pink',
   },
   {
-    id: 'agentic-desktop-classic',
-    title: 'Agentic Desktop AI Assistant - Classic',
+    id: 'agentic-commerce',
+    title: 'Agentic Commerce Platform',
     description:
-      'Multi-GPU offline desktop AI. Qwen2.5-14B + Whisper large-v3 on AMD via Vulkan, XTTS v2 + IndicF5 on NVIDIA via CUDA / DeepSpeed. 8-node LangGraph DAG with 5-level risk gating, Human-in-the-Loop confirmation, and 54 governed tools. ChromaDB RAG with cross-encoder reranking and 6-algorithm Reciprocal Rank Fusion. React 18 + Tauri v2 frontend.',
+      'A multi-tier autonomous commerce architecture featuring LangGraph StateGraphs and dynamic ReAct tool-calling loops. It orchestrates specialized agents—including a Negotiator, Critic, and Resolution Planner—to handle dynamic pricing, Dual-RAG FAISS semantic search, and post-purchase reverse logistics via JSON-RPC. Built for robust, fail-forward execution using Celery and Redis.',
     highlights: [
-      'Dual-GPU inference: AMD Vulkan + NVIDIA CUDA',
-      '8-node LangGraph DAG with 5-level risk gating',
-      '54 governed tools with HITL confirmation',
-      '6-algorithm Reciprocal Rank Fusion RAG',
+      'LangGraph orchestrator for dynamic, multi-agent paradigm routing',
+      'Dual-RAG hydration using FAISS and PostgreSQL',
+      'Agent-to-Agent (A2A) negotiation via JSON-RPC over Redis',
+      'Cryptographic idempotency for autonomous mandates',
     ],
-    metrics: { tools: '54', latency: '<2s', mode: 'Offline' },
-    tags: ['Qwen2.5-14B', 'LangGraph', 'XTTS v2', 'Whisper', 'ChromaDB', 'Vulkan', 'Tauri'],
-    github: 'https://github.com/Manish-Desireddi',
+    metrics: { agents: '15 Active', db: 'FAISS & Postgres', protocol: 'JSON-RPC' },
+    tags: ['Python', 'LangGraph', 'FAISS', 'Redis', 'Celery', 'Next.js'],
+    github: 'https://github.com/Manish-Desireddi', // Update with actual repo if public
+    demoKind: 'modal-storefront',
+    accent: 'fuchsia',
+  },
+  {
+    id: 'self-healing-ui',
+    title: 'Self-Healing UI Automation Engine',
+    description:
+      'An intent-free, embedding-based self-healing element locator for UI automation. It intercepts failed Selenium find_element calls, parsing broken selectors to infer intent, and matches them against a growing DOM baseline. Uses a 7-factor weighted scoring ensemble (including BM25 and structural tree edit distance) to dynamically heal tests in real-time, rewriting automation scripts on disk.',
+    highlights: [
+      'Zero-hallucination semantic DOM matching via ONNX embeddings',
+      '7-factor scoring ensemble (Semantic, Spatial, Structural, etc.)',
+      'Robust iframe, shadow DOM, and React portal traversal',
+      'Context-aware bug identification and reporting system',
+    ],
+    metrics: { factors: '7-Weight Scoring', backend: 'ONNX/FastEmbed', fallback: 'BM25' },
+    tags: ['Python', 'Selenium', 'ONNX', 'FAISS', 'DOM Analysis', 'XPath'],
+    github: 'https://github.com/Manish-Desireddi', // Update with actual repo if public
     demoKind: 'modal-commercial',
-    accent: 'violet',
+    accent: 'orange',
   },
   {
     id: 'agentic-desktop-cloud',
@@ -89,24 +150,7 @@ export const PROJECTS = [
     tags: ['Llama-3.3-70B', 'Gemini 2.0', 'LangGraph', 'ChromaDB', 'FastAPI', 'Render', 'Tauri'],
     github: 'https://github.com/Manish-Desireddi',
     demoKind: 'download-cloud',
-    accent: 'emerald',
-  },
-  {
-    id: 'ai-pc-platform',
-    title: 'AI PC Building Platform',
-    description:
-      'AI-powered PC configuration and recommendation platform. React frontend backed by FastAPI, Llama-3 recommendation intelligence, Redis + Celery for background orchestration - built for scalable buyer guidance.',
-    highlights: [
-      'Llama-3 recommendation engine for components',
-      'Celery workers for async inference tasks',
-      'Redis caching + session management',
-      'Streaming model responses with real-time UI',
-    ],
-    metrics: { model: 'Llama-3', cache: 'Redis', workers: 'Celery' },
-    tags: ['React', 'FastAPI', 'Llama-3', 'Redis', 'Celery'],
-    github: 'https://github.com/Manish-Desireddi',
-    demoKind: 'modal-storefront',
-    accent: 'indigo',
+    accent: 'amber',
   },
 ]
 
@@ -124,7 +168,7 @@ export const LEADERSHIP = {
   education: {
     degree: 'B.Tech - Artificial Intelligence & Data Science',
     institution: 'KL University',
-    cgpa: '8.2',
+    cgpa: '8.65',
     highlights: [
       'Focus on AI/ML, data systems, and software engineering',
       'Scalable automation research and distributed computing',
@@ -146,7 +190,7 @@ export const DEMO_VARIANTS = {
   },
   'modal-commercial': {
     title: 'Available on commercial license.',
-    body: 'The Classic build runs fully offline on multi-GPU hardware and is being prepared for commercial release. Reach out for a private trial, demo, or licensing conversation.',
+    body: 'The Classic build runs fully offline on multi-GPU(AMD Radeon AI Pro r9700 32 GB+ NVIDIA RTX 3060 12 GB OC) hardware and is being prepared for commercial release. Reach out for a private trial, demo, or licensing conversation.',
     progress: [1, 1, 1, 0.85, 0.6],
   },
 }

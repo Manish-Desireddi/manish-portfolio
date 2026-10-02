@@ -13,7 +13,7 @@ export default {
         oswald: ['Oswald', 'sans-serif'],
       },
       colors: {
-        'app-dark': 'rgb(13, 12, 26)',
+        'app-dark': '#0B0914',
       },
       keyframes: {
         'marquee-scroll': {

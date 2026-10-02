@@ -14,7 +14,7 @@ const SectionHeader = React.memo(({ eyebrow, title, subtitle }) => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.5 }}
-          className="text-[10px] md:text-xs font-mono tracking-[0.2em] text-cyan-400 uppercase mb-2 md:mb-4"
+          className="text-[10px] md:text-xs font-mono tracking-[0.2em] text-pink-400 uppercase mb-2 md:mb-4"
         >
           {eyebrow}
         </motion.p>

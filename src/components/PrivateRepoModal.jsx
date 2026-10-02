@@ -31,47 +31,47 @@ const PrivateRepoModal = ({ isOpen, onClose, projectTitle }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22 }}
-            className="fixed inset-0 z-[70] bg-zinc-950/80 backdrop-blur-md"
+            className="fixed inset-0 z-[70] bg-zinc-950/90 backdrop-blur-2xl"
             onClick={onClose}
             aria-hidden="true"
           />
 
-          <div className="fixed inset-0 z-[71] flex items-center justify-center p-4 pointer-events-none">
+          <div className="fixed inset-0 z-[71] flex items-center justify-center pointer-events-none">
             <motion.div
               key="repo-panel"
               role="dialog"
               aria-modal="true"
               aria-label="Repository is private"
-              initial={{ opacity: 0, scale: 0.88, y: 24 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 12 }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full max-w-md pointer-events-auto rounded-none bg-black/95 border-2 border-pink-500 shadow-[0_0_40px_rgba(232,58,115,0.5)] overflow-hidden"
+              exit={{ opacity: 0, scale: 0.98, y: 10 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full h-[100dvh] pointer-events-auto rounded-none bg-black/80 border-t-2 border-b-2 border-pink-500/50 shadow-[inset_0_0_100px_rgba(232,58,115,0.15)] overflow-y-auto flex flex-col items-center justify-center p-4 md:p-12"
             >
               {/* Top accent line */}
               <div
                 className="absolute top-0 left-0 right-0 h-1"
-                style={{ background: 'linear-gradient(90deg, #06b6d4, #e83a73, #ffb03a)' }}
+                style={{ background: 'linear-gradient(90deg, #d946ef, #e83a73, #ffb03a)' }}
                 aria-hidden="true"
               />
 
               {/* Ambient glow */}
               <div
-                className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 blur-3xl opacity-25 pointer-events-none"
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[50vh] blur-[100px] opacity-25 pointer-events-none"
                 style={{ background: 'radial-gradient(ellipse, #e83a73 0%, transparent 70%)' }}
                 aria-hidden="true"
               />
 
-              <div className="relative z-10 p-8 border-l-4 border-r-4 border-transparent">
+              <div className="relative z-10 w-full max-w-2xl flex flex-col items-center text-center">
                 <motion.button
                   ref={closeBtnRef}
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={onClose}
-                  className="absolute top-4 right-4 w-8 h-8 bg-transparent flex items-center justify-center text-pink-400 hover:text-white transition-colors focus-visible:outline-none"
+                  className="fixed top-6 right-6 md:top-10 md:right-10 w-12 h-12 bg-black/50 border border-pink-500/30 flex items-center justify-center text-pink-400 hover:text-white hover:bg-pink-500/20 transition-colors focus-visible:outline-none backdrop-blur-md z-50"
                   aria-label="Close"
                 >
-                  <X size={20} aria-hidden="true" />
+                  <X size={24} aria-hidden="true" />
                 </motion.button>
 
                 {/* Lock icon medallion */}
@@ -100,18 +100,18 @@ const PrivateRepoModal = ({ isOpen, onClose, projectTitle }) => {
                   privately.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6 w-full">
                   <a
                     href="mailto:manishdesireddi@gmail.com?subject=Repository%20walkthrough%20request"
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-pink-500 text-black text-sm font-heading uppercase hover:bg-white transition-colors border border-transparent hover:border-pink-500"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-pink-500 text-black text-sm font-heading uppercase hover:bg-white transition-colors border border-transparent hover:border-pink-500 w-full sm:w-auto"
                   >
-                    <Mail size={16} aria-hidden="true" />
+                    <Mail size={18} aria-hidden="true" />
                     Request Access
                   </a>
                   <button
                     type="button"
                     onClick={onClose}
-                    className="inline-flex items-center justify-center px-4 py-2.5 bg-black border border-zinc-600 text-white font-heading uppercase hover:border-cyan-400 transition-colors"
+                    className="inline-flex items-center justify-center px-8 py-4 bg-black border border-zinc-600 text-white font-heading uppercase hover:border-pink-400 transition-colors w-full sm:w-auto text-sm"
                   >
                     Dismiss
                   </button>
