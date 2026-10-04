@@ -6,33 +6,33 @@ const SYSTEMS = [
   {
     id: 'generative',
     label: '01',
-    title: 'Generative AI Pipelines',
-    body: 'Fine-tuned LLMs (Mistral-7B, Llama-3) with LoRA and QLoRA adapters for domain-specific tasks. Text-to-3D generation over ShapeNet with GAN-based geometry modelling and FAISS-powered RAG for retrieval context injection.',
-    tags: ['LoRA / QLoRA', 'GANs', 'Text-to-3D', 'FAISS RAG'],
+    title: 'Generative AI & LLMs',
+    body: 'Designing and deploying tailored language models and semantic search solutions. Expertise in optimizing model inference, prompt engineering, and building robust Retrieval-Augmented Generation (RAG) pipelines for accurate, context-aware AI outputs.',
+    tags: ['LLMs', 'RAG', 'Prompt Engineering', 'Vector Search'],
     accent: 'pink',
   },
   {
     id: 'agentic',
     label: '02',
-    title: 'Agentic Automation Systems',
-    body: 'Multi-step autonomous pipelines built on local LLMs with real-time voice input via Distil-Whisper. RabbitMQ dispatches asynchronous task queues — fully offline, zero cloud dependencies, complete data privacy.',
-    tags: ['Agentic AI', 'Distil-Whisper', 'RabbitMQ', 'Local LLM'],
+    title: 'Agentic Workflows',
+    body: 'Architecting multi-agent systems capable of dynamic reasoning and tool execution. Focused on building autonomous, event-driven loops that handle complex API integrations, data processing, and stateful decision-making without manual intervention.',
+    tags: ['Autonomous Agents', 'Workflow Orchestration', 'Event-Driven', 'Tool Calling'],
     accent: 'orange',
   },
   {
     id: 'infra',
     label: '03',
-    title: 'Data & Automation Infra',
-    body: 'Enterprise-grade Apache Airflow DAG orchestration, event-sourced ESDB ingestion pipelines, Redis caching layers, and Grafana observability dashboards tuned to measurable SLA thresholds.',
-    tags: ['Apache Airflow', 'ESDB', 'Redis', 'Grafana'],
+    title: 'Data Infra & MLOps',
+    body: 'Building resilient ETL pipelines and orchestrating scheduled data workflows. Experienced in implementing comprehensive telemetry, logging, and observability dashboards to maintain strict performance SLAs and system health.',
+    tags: ['Data Pipelines', 'CI/CD', 'ETL', 'Observability'],
     accent: 'fuchsia',
   },
   {
     id: 'fullstack',
     label: '04',
-    title: 'AI-Powered Full-Stack',
-    body: 'React + FastAPI products where AI is the core value: LLM recommendation engines, Celery-backed async inference workers, Redis session management, and streaming model responses with real-time feedback.',
-    tags: ['FastAPI', 'React', 'Celery', 'Streaming AI'],
+    title: 'Full-Stack Architecture',
+    body: 'Developing complete end-to-end applications where AI is the core engine. Skilled in designing scalable REST APIs, managing asynchronous background workers, and building responsive user interfaces for seamless human-computer interaction.',
+    tags: ['Backend Systems', 'API Design', 'Async Processing', 'UI/UX'],
     accent: 'amber',
   },
 ]
@@ -85,45 +85,18 @@ const TacticalCard = ({ system, index }) => {
   )
 }
 
-const AIArchitecture = () => {
+const Expertise = () => {
   const containerRef = useRef(null)
 
   return (
     <section id="architecture" className="relative py-32 px-6 bg-transparent border-t border-zinc-900 overflow-hidden" ref={containerRef}>
-      {/* Animated Synthwave Grid Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" style={{ perspective: '1000px' }}>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(217,70,239,0.15)_0%,transparent_70%)]" />
-        <motion.div
-          className="absolute w-[200vw] h-[200vh] left-[-50vw] top-[10vh] opacity-30"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(217,70,239,0.6) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(217,70,239,0.6) 1px, transparent 1px)
-            `,
-            backgroundSize: '60px 60px',
-            transformOrigin: 'top center',
-          }}
-          animate={{
-            transform: [
-              'rotateX(75deg) translateY(0px)',
-              'rotateX(75deg) translateY(60px)'
-            ]
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 1.5,
-            ease: "linear"
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90" />
-      </div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="text-center mb-20">
           <SectionHeader
             eyebrow="SYS.LOG // Expertise"
             title="TECHNICAL MASTERY"
-            subtitle="A multidisciplinary foundation across AI model fine-tuning, distributed automation, and full-stack engineering."
+            subtitle="> A multidisciplinary foundation across software engineering."
           />
         </div>
 
@@ -137,4 +110,4 @@ const AIArchitecture = () => {
   )
 }
 
-export default AIArchitecture
+export default Expertise

@@ -1,7 +1,12 @@
 /* --- Marquee ---------------------------------------------------------------- */
 @keyframes marquee-scroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .marquee-track {
@@ -23,21 +28,28 @@
 }
 
 .text-stroke:hover {
-  color: #d946ef;
+  color: #ec4899;
   -webkit-text-stroke-color: transparent;
 }
 
 /* --- Typing cursor ---------------------------------------------------------- */
 @keyframes cursor-blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
 }
 
 .typing-cursor::after {
   content: '|';
   display: inline-block;
   margin-left: 2px;
-  color: #d946ef;
+  color: #ec4899;
   animation: cursor-blink 1s step-end infinite;
 }
 
@@ -47,10 +59,10 @@
   font-size: clamp(3.2rem, 9vw, 7.5rem);
   font-weight: 700;
   line-height: 1.05;
-  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 25%, #d946ef 55%, #f97316 80%, #fbbf24 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #ec4899;
+
+
+
   filter: drop-shadow(0 0 28px rgba(217, 70, 239, 0.28));
   user-select: none;
   -webkit-user-select: none;
@@ -58,25 +70,31 @@
 
 /* --- Profile image mask (CSS blend fused into bg) --------------------------- */
 .profile-blend-mask {
-  -webkit-mask-image: radial-gradient(
-    ellipse 75% 85% at 50% 45%,
-    black 35%,
-    rgba(0, 0, 0, 0.5) 60%,
-    transparent 100%
-  );
-  mask-image: radial-gradient(
-    ellipse 75% 85% at 50% 45%,
-    black 35%,
-    rgba(0, 0, 0, 0.5) 60%,
-    transparent 100%
-  );
+  -webkit-mask-image: radial-gradient(ellipse 75% 85% at 50% 45%,
+      black 35%,
+      rgba(0, 0, 0, 0.5) 60%,
+      transparent 100%);
+  mask-image: radial-gradient(ellipse 75% 85% at 50% 45%,
+      black 35%,
+      rgba(0, 0, 0, 0.5) 60%,
+      transparent 100%);
 }
 
 /* --- Gradient orb ambient float --------------------------------------------- */
 @keyframes orb-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%       { transform: translate(40px, -30px) scale(1.06); }
-  66%       { transform: translate(-25px, 22px) scale(0.94); }
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(40px, -30px) scale(1.06);
+  }
+
+  66% {
+    transform: translate(-25px, 22px) scale(0.94);
+  }
 }
 
 .gradient-orb {
@@ -89,13 +107,20 @@
 
 /* --- Timeline gradient line ------------------------------------------------- */
 .timeline-gradient {
-  background: linear-gradient(to bottom, #d946ef, #f97316);
+  color: #ec4899;
 }
 
 /* --- Glow pulse ------------------------------------------------------------- */
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 16px rgba(217, 70, 239, 0.3); }
-  50%       { box-shadow: 0 0 32px rgba(217, 70, 239, 0.6); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 16px rgba(217, 70, 239, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 32px rgba(217, 70, 239, 0.6);
+  }
 }
 
 .glow-pulse-cyan {
@@ -103,28 +128,7 @@
 }
 
 /* --- Glitch animation (DemoModal) ------------------------------------------- */
-@keyframes glitch-shift {
-  0%, 100% {
-    transform: translate(0) skewX(0deg);
-    filter: brightness(1);
-  }
-  15% {
-    transform: translate(-3px, 1px) skewX(-1.5deg);
-    filter: brightness(1.4) hue-rotate(30deg);
-  }
-  30% {
-    transform: translate(3px, -1px) skewX(1deg);
-    filter: brightness(0.9) hue-rotate(-20deg);
-  }
-  50% {
-    transform: translate(-1px, 2px);
-    filter: brightness(1.2);
-  }
-  70% {
-    transform: translate(2px, -2px) skewX(-0.5deg);
-    filter: brightness(1);
-  }
-}
+
 
 .glitch-text {
   animation: glitch-shift 0.18s linear 1;
@@ -140,15 +144,24 @@ video {
 .signature-underline {
   display: block;
   height: 2px;
-  background: linear-gradient(to right, #d946ef, #f97316, transparent);
+  color: #ec4899;
   border-radius: 1px;
   transform-origin: left;
 }
 
 /* --- Neural node pulse ------------------------------------------------------ */
 @keyframes neural-pulse {
-  0%, 100% { opacity: 0.2;  transform: scale(1);   }
-  50%       { opacity: 0.75; transform: scale(1.55); }
+
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.75;
+    transform: scale(1.55);
+  }
 }
 
 .neural-node {
@@ -160,10 +173,7 @@ video {
 }
 
 /* --- Floating particle (vertical drift) ------------------------------------- */
-@keyframes float-y {
-  0%, 100% { transform: translateY(0px);  }
-  50%       { transform: translateY(-20px); }
-}
+
 
 .particle-float {
   animation: float-y 7s ease-in-out infinite;
@@ -171,10 +181,7 @@ video {
 }
 
 /* --- Orbit ring spin -------------------------------------------------------- */
-@keyframes orbit-spin {
-  from { transform: rotate(0deg);   }
-  to   { transform: rotate(360deg); }
-}
+
 
 .orbit-ring {
   animation: orbit-spin 22s linear infinite;
@@ -189,12 +196,7 @@ body {
 }
 
 /* --- Aurora background blob drift ------------------------------------------ */
-@keyframes aurora-drift {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  25%      { transform: translate3d(6%, -4%, 0) scale(1.08); }
-  50%      { transform: translate3d(-4%, 5%, 0) scale(0.94); }
-  75%      { transform: translate3d(-6%, -3%, 0) scale(1.04); }
-}
+
 
 .aurora-blob {
   animation: aurora-drift 28s ease-in-out infinite;
@@ -203,11 +205,14 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .aurora-blob { animation: none; }
+  .aurora-blob {
+    animation: none;
+  }
 }
 
 
 /* --- Hardware Accel --- */
-.project-card, .TacticalCard {
+.project-card,
+.TacticalCard {
   will-change: transform, opacity;
 }

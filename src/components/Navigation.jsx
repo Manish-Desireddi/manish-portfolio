@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, User, Briefcase, Code2, Trophy, Download, Microscope, Terminal, Cpu, Award } from 'lucide-react'
+import { Home, User, Briefcase, Code2, Trophy, Microscope, Terminal, Cpu, Award, Target } from 'lucide-react'
 import { NAV_ITEMS } from '../data/portfolioData'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-const ICON_MAP = { Home, User, Briefcase, Code2, Trophy, Microscope, Terminal, Cpu, Award }
+const ICON_MAP = { Home, User, Briefcase, Code2, Trophy, Microscope, Terminal, Cpu, Award, Target }
 
 const NAV_ENTRIES = NAV_ITEMS.map((item) => ({
   ...item,
@@ -54,7 +54,7 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
   const goToSection = useCallback((id) => {
     if (id === 'home') {
       if (window.lenis) {
-        window.lenis.scrollTo(0, { duration: 1.2 })
+        window.lenis.scrollTo(0, { duration: 3.5, easing: (t) => 1 - Math.pow(1 - t, 4) })
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' })
       }
@@ -63,10 +63,10 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
       }, 1200)
       return
     }
-    
+
     const targetScroll = getScrollOffset(id)
     if (window.lenis) {
-      window.lenis.scrollTo(targetScroll, { duration: 1.2, offset: 0 })
+      window.lenis.scrollTo(targetScroll, { duration: 3.5, offset: 0, easing: (t) => 1 - Math.pow(1 - t, 4) })
     } else {
       window.scrollTo({ top: targetScroll, behavior: 'smooth' })
     }
@@ -84,7 +84,7 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
           aria-label="Primary navigation"
         >
           {/* Rigid Horizontal Block */}
-          <div className="flex items-center bg-black border-2 border-zinc-800 shadow-2xl overflow-x-auto no-scrollbar max-w-[95vw]">
+          <div className="flex items-center bg-black border-2 border-zinc-800 shadow-2xl flex-nowrap overflow-x-auto no-scrollbar max-w-[95vw]">
             {NAV_ENTRIES.map(({ id, label, Icon }) => {
               const isActive = activeId === id
               return (
@@ -118,19 +118,6 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
               )
             })}
 
-            {/* Resume Download Button */}
-            <a
-              href="/assets/resume.pdf"
-              download
-              aria-label="Download resume PDF"
-              className="relative shrink-0 flex flex-col items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-pink-500 text-black hover:bg-pink-400 transition-colors group"
-            >
-              <Download size={20} />
-
-              <span className="absolute -top-10 px-2 py-1 bg-black border border-pink-500 text-pink-400 font-mono text-[10px] uppercase opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                Resume
-              </span>
-            </a>
           </div>
         </motion.nav>
       )}

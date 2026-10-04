@@ -11,6 +11,23 @@ const PrivateRepoModal = ({ isOpen, onClose, projectTitle }) => {
   const closeBtnRef = useRef(null)
 
   useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+      document.body.style.touchAction = 'none'
+      window.lenis?.stop()
+    } else {
+      document.body.style.overflow = ''
+      document.body.style.touchAction = ''
+      window.lenis?.start()
+    }
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.touchAction = ''
+      window.lenis?.start()
+    }
+  }, [isOpen])
+
+  useEffect(() => {
     if (!isOpen) return
     const t = setTimeout(() => closeBtnRef.current?.focus(), 80)
     const onKey = (e) => { if (e.key === 'Escape') onClose() }

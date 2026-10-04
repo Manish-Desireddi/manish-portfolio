@@ -1,5 +1,6 @@
 import React, { memo } from 'react'
 import { motion } from 'framer-motion'
+import { Download } from 'lucide-react'
 import { TECH_STACK } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
 import ProfileCard from './ProfileCard'
@@ -8,15 +9,15 @@ const SORTED_TECH = [...TECH_STACK].sort((a, b) => a.toLowerCase().localeCompare
 const MARQUEE_ITEMS = [...SORTED_TECH, ...SORTED_TECH]
 
 const CHIPS = [
-  { label: 'AI Models', cls: 'text-zinc-100 border-zinc-700 bg-zinc-900' },
-  { label: 'AI Pipelines', cls: 'text-pink-400 border-pink-400/30 bg-pink-950/40' },
-  { label: 'Automation', cls: 'text-orange-400 border-orange-400/30 bg-violet-950/40' },
-  { label: 'Distributed Systems', cls: 'text-zinc-100 border-zinc-700 bg-zinc-900' },
+  { label: 'Software Development', cls: 'text-pink-400 border-pink-400/30 bg-pink-950/40' },
+  { label: 'AI/ML', cls: 'text-orange-400 border-orange-400/30 bg-orange-950/40' },
+  { label: 'DevOps', cls: 'text-fuchsia-400 border-fuchsia-400/30 bg-fuchsia-950/40' },
+  { label: 'Testing', cls: 'text-amber-400 border-amber-400/30 bg-amber-950/40' },
 ]
 
 const STAT_TILES = [
-  { value: '4+', label: 'AI Projects' },
-  { value: '8.65', label: 'CGPA' },
+  { value: '5', label: 'Projects' },
+  { value: 'AI/ML', label: 'Field' },
   { value: '11 mos', label: 'Nokia' },
 ]
 
@@ -85,11 +86,11 @@ const About = () => {
             </p>
 
             <p className="text-zinc-400 font-sans text-lg leading-relaxed">
-              My work spans <span className="text-pink-400 uppercase tracking-widest font-mono text-sm">Generative AI</span> fine-tuning LLMs with LoRA and quantization—and assembling <span className="text-orange-400 uppercase tracking-widest font-mono text-sm">agentic pipelines</span> that automate complex multi-step workflows end-to-end.
+              My technical scope centers on <span className="text-pink-400 uppercase tracking-widest font-mono text-sm">Generative AI &amp; Agentic Automation</span>. I specialize in integrating <span className="text-orange-400 uppercase tracking-widest font-mono text-sm">Large Language Models (LLMs),</span> designing <span className="text-amber-400 uppercase tracking-widest font-mono text-sm">Retrieval-Augmented Generation (RAG) architectures</span>, and orchestrating multi-agent workflows that can autonomously execute complex, multi-step decision processes.
             </p>
 
             <p className="text-zinc-500 font-sans text-base leading-relaxed">
-              At Nokia Solutions and Networks, I architect automation and data ingestion systems using Apache Airflow and distributed event-driven patterns. I write infrastructure that observes itself: Grafana dashboards, reliable DAG orchestration, and pipelines with measurable SLAs.
+              At Nokia Solutions and Networks, I gained hands-on experience with enterprise-grade infrastructure. I build automated data ingestion pipelines, manage distributed task orchestration, and implement robust system observability to ensure that AI applications remain highly available, resilient, and performant under load.
             </p>
 
             {/* Tactical stats */}
@@ -102,6 +103,18 @@ const About = () => {
                   </span>
                 </div>
               ))}
+            </div>
+
+            {/* Resume CTA */}
+            <div className="mt-6 flex justify-start">
+              <a
+                href="/assets/Manish_Desireddi_Resume.pdf"
+                download
+                className="inline-flex items-center gap-2 px-8 py-4 bg-pink-500 text-black font-heading uppercase tracking-widest hover:bg-white transition-colors border border-transparent hover:border-pink-500"
+              >
+                <Download size={20} />
+                Download Resume
+              </a>
             </div>
           </motion.div>
         </div>

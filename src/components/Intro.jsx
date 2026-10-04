@@ -18,11 +18,13 @@ const TAGLINE_LINES = [
  *   3. Register one-shot user interaction listener to restore audio silently.
  *   4. Show "Tap to enable sound" hint only while blocked.
  */
-const Intro = ({ onVideoEnd, onVideoReady }) => {
+const Intro = ({ onVideoEnd, onVideoReady, isPreloaderDismissed }) => {
   const videoRef = useRef(null)
   const [muted, setMuted] = useState(false)
 
   useEffect(() => {
+    if (!isPreloaderDismissed) return;
+
     // Attempt autoplay. We set muted=false explicitly.
     // If the browser blocks it, it will throw an error, which we catch.
     const video = videoRef.current
@@ -40,7 +42,7 @@ const Intro = ({ onVideoEnd, onVideoReady }) => {
         // Since the video is the background, it might just show the first frame.
         // Actually, if we want it to at least play the video silently if unmuted fails:
         video.muted = true
-        video.play().catch(() => {})
+        video.play().catch(() => { })
         setMuted(true)
 
         const unlock = () => {
@@ -52,7 +54,7 @@ const Intro = ({ onVideoEnd, onVideoReady }) => {
         document.addEventListener('click', unlock, { once: true })
         document.addEventListener('touchstart', unlock, { once: true, passive: true })
       })
-  }, [])
+  }, [isPreloaderDismissed])
 
   const toggleAudio = useCallback(() => {
     const video = videoRef.current
@@ -72,6 +74,7 @@ const Intro = ({ onVideoEnd, onVideoReady }) => {
       id="home"
       className="fixed inset-0 z-[60] bg-zinc-950 overflow-hidden"
       initial={{ y: 0 }}
+
       exit={{ y: '-100%', opacity: 0 }}
       transition={{ duration: 0.85, ease: [0.76, 0, 0.24, 1] }}
       aria-label="Intro section"
@@ -80,7 +83,6 @@ const Intro = ({ onVideoEnd, onVideoReady }) => {
       <video
         ref={videoRef}
         src="/assets/avatar-intro.mp4"
-        autoPlay
         muted={false}
         playsInline
         loop={false}
@@ -119,7 +121,7 @@ const Intro = ({ onVideoEnd, onVideoReady }) => {
         {/* Status badge */}
         <motion.div
           initial={{ opacity: 0, x: -24 }}
-          animate={{ opacity: 1, x: 0 }}
+          animate={isPreloaderDismissed ? { opacity: 1, x: 0 } : { opacity: 0, x: -24 }}
           transition={{ duration: 0.55, delay: 0.3 }}
           className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-950/80 border border-pink-400/30 text-pink-400 text-xs font-mono tracking-wide backdrop-blur-md shadow-[0_0_10px_rgba(217,70,239,0.2)] w-fit"
         >
@@ -133,7 +135,7 @@ const Intro = ({ onVideoEnd, onVideoReady }) => {
             <motion.span
               key={word}
               initial={{ opacity: 0, x: -50, filter: 'blur(16px)' }}
-              animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+              animate={isPreloaderDismissed ? { opacity: 1, x: 0, filter: 'blur(0px)' } : { opacity: 0, x: -50, filter: 'blur(16px)' }}
               transition={{
                 duration: 1.05,
                 delay: 0.35 + i * 0.22,
@@ -149,7 +151,7 @@ const Intro = ({ onVideoEnd, onVideoReady }) => {
         {/* Animated underline drawn after name appears */}
         <motion.div
           initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
+          animate={isPreloaderDismissed ? { scaleX: 1 } : { scaleX: 0 }}
           transition={{ duration: 1.1, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
           style={{ originX: 0 }}
           className="mb-10 w-72 md:w-96 h-1 bg-pink-400 shadow-[0_0_10px_rgba(217,70,239,0.8)]"
@@ -162,7 +164,7 @@ const Intro = ({ onVideoEnd, onVideoReady }) => {
             <div key={i} className="overflow-hidden">
               <motion.p
                 initial={{ y: '110%', opacity: 0 }}
-                animate={{ y: '0%', opacity: 1 }}
+                animate={isPreloaderDismissed ? { y: '0%', opacity: 1 } : { y: '110%', opacity: 0 }}
                 transition={{
                   duration: 0.72,
                   delay: 1.1 + i * 0.2,
@@ -183,7 +185,7 @@ const Intro = ({ onVideoEnd, onVideoReady }) => {
         {/* Skip intro - Brutalist Button */}
         <motion.button
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={isPreloaderDismissed ? { opacity: 1 } : { opacity: 0 }}
           transition={{ delay: 1.8 }}
           onClick={skipIntro}
           className="group mt-4 inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-heading uppercase text-sm hover:bg-pink-400 hover:text-black transition-colors w-fit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)]"
@@ -201,7 +203,7 @@ const Intro = ({ onVideoEnd, onVideoReady }) => {
       {/* ── Persistent audio toggle — brutalist style ────────────────────── */}
       <motion.button
         initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={isPreloaderDismissed ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
         transition={{ delay: 0.8 }}
         onClick={toggleAudio}
         className="absolute bottom-8 right-8 z-[3] flex items-center gap-3 px-6 py-3 bg-white text-black font-heading uppercase text-sm border-2 border-transparent hover:bg-black hover:text-pink-400 hover:border-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"

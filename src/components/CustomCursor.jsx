@@ -65,18 +65,7 @@ const CustomCursor = () => {
   if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) {
     return null
   }
-  return (
-    <>
-      <style>{`
-        @media (pointer: fine) {
-          input, textarea, .cli-window {
-            cursor: auto !important;
-          }
-        }
-      `}</style>
-      <CustomCursorInner />
-    </>
-  )
+  return <CustomCursorInner />
 }
 
 export default CustomCursor

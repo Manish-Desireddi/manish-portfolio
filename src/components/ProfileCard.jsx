@@ -45,7 +45,7 @@ const ProfileCard = ({
         {/* ── Info ─────────────────────────────────────────────────────────── */}
         <div className="px-2">
           <div className="mb-6">
-            <h3 className="text-4xl font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 tracking-tighter leading-none mb-2 drop-shadow-[0_0_10px_rgba(236,72,153,0.6)]">
+            <h3 className="text-4xl font-heading text-pink-500 tracking-tighter leading-none mb-2 drop-shadow-[0_0_10px_rgba(236,72,153,0.6)]">
               {name}
             </h3>
             <p className="text-orange-400 font-oswald uppercase tracking-widest text-sm drop-shadow-[0_0_5px_rgba(251,146,60,0.5)]">
@@ -67,7 +67,7 @@ const ProfileCard = ({
           {/* Contact CTA */}
           <a
             href="mailto:manishdesireddi@gmail.com"
-            className="block w-full text-center py-3 bg-pink-950/20 border border-pink-500/50 text-white font-heading uppercase tracking-widest hover:bg-gradient-to-r hover:from-pink-500 hover:to-orange-400 hover:text-black hover:border-transparent transition-all shadow-[0_0_15px_rgba(236,72,153,0)] hover:shadow-[0_0_20px_rgba(236,72,153,0.6)]"
+            className="block w-full text-center py-3 bg-pink-950/20 border border-pink-500/50 text-white font-heading uppercase tracking-widest hover:bg-pink-500 hover:border-pink-500 hover:text-black transition-all shadow-[0_0_15px_rgba(236,72,153,0)] hover:shadow-[0_0_20px_rgba(236,72,153,0.6)]"
           >
             {contactText}
           </a>

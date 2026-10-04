@@ -35,7 +35,7 @@ export default {
         },
       },
       animation: {
-        'marquee': 'marquee-scroll 32s linear infinite',
+        'marquee': 'marquee-scroll 120s linear infinite',
         'cursor-blink': 'cursor-blink 1s step-end infinite',
         'orb-drift': 'orb-drift 10s ease-in-out infinite',
         'scroll-bounce': 'scroll-bounce 2s ease-in-out infinite',
