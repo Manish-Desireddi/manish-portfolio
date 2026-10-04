@@ -4,7 +4,7 @@ import { Github, Linkedin, Instagram, ArrowUp } from 'lucide-react'
 import { useForm, ValidationError } from '@formspree/react'
 
 const ContactForm = ({ onSuccess }) => {
-  const [state, handleSubmit] = useForm(import.meta.env.VITE_FORMSPREE_ID)
+  const [state, handleSubmit] = useForm(import.meta.env.FORMSPREE_ID)
 
   useEffect(() => {
     if (state.succeeded) {
