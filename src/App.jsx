@@ -136,9 +136,7 @@ const App = () => {
 
     const frameCount = 592
     const currentFrame = index => {
-      const isMobile = window.matchMedia('(max-width: 768px)').matches
-      const frameDir = isMobile ? 'hero_frames_mobile' : 'hero_frames'
-      return `/assets/${frameDir}/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
+      return `/assets/hero_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
     }
 
     const images = Array(frameCount).fill(null)
@@ -204,7 +202,8 @@ const App = () => {
     let ctx = gsap.context(() => {
       const render = () => {
         const img = images[Math.round(frames.frame)]
-        if (img) {
+        // Add naturalWidth > 0 to verify the image is not broken
+        if (img && img.naturalWidth > 0) {
           context.clearRect(0, 0, canvas.width, canvas.height)
           context.drawImage(img, 0, 0, canvas.width, canvas.height)
         }

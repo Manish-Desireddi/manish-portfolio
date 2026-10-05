@@ -121,7 +121,8 @@ const Projects = () => {
 
         const render = () => {
           const img = imagesRef.current[Math.round(frames.frame)]
-          if (img && img.complete) {
+          // Replace img.complete with naturalWidth > 0
+          if (img && img.naturalWidth > 0) {
             context.clearRect(0, 0, canvas.width, canvas.height)
             context.drawImage(img, 0, 0, canvas.width, canvas.height)
           }
