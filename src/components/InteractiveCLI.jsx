@@ -205,7 +205,6 @@ const InteractiveCLI = () => {
                     }
                   }}
                   className="absolute opacity-0 pointer-events-none w-[1px] h-[1px]"
-                  autoFocus
                   spellCheck={false}
                   autoComplete="off"
                 />

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react'
-import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent, useSpring } from 'framer-motion'
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent, useSpring, useInView } from 'framer-motion'
 import { X, Award, ShieldCheck, ChevronRight, ExternalLink, AlertTriangle, XCircle } from 'lucide-react'
 import { CERTIFICATIONS } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
@@ -7,7 +7,10 @@ import SectionHeader from './SectionHeader'
 const SecureCanvasImage = ({ src, alt, className }) => {
   const canvasRef = useRef(null)
 
+  const isInView = useInView(canvasRef, { once: true, margin: "200px" })
+
   useEffect(() => {
+    if (!isInView) return;
     let objectUrl = ''
     fetch(src)
       .then(res => res.blob())
@@ -46,7 +49,7 @@ const SecureCanvasImage = ({ src, alt, className }) => {
         URL.revokeObjectURL(objectUrl)
       }
     }
-  }, [src])
+  }, [src, isInView])
 
   return <canvas ref={canvasRef} className={className} aria-label={alt} />
 }

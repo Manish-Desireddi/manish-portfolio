@@ -135,9 +135,11 @@ const App = () => {
     let isCancelled = false
 
     const frameCount = 592
-    const currentFrame = index => (
-      `/assets/hero_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
-    )
+    const currentFrame = index => {
+      const isMobile = window.matchMedia('(max-width: 768px)').matches
+      const frameDir = isMobile ? 'hero_frames_mobile' : 'hero_frames'
+      return `/assets/${frameDir}/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
+    }
 
     const images = Array(frameCount).fill(null)
     loadedImagesRef.current = images

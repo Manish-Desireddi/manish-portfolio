@@ -23,8 +23,8 @@ const Background = () => {
       />
 
       {/* Ambient glows */}
-      <div className="absolute top-1/4 left-1/4 w-[40vw] h-[40vw] bg-pink-500/10 rounded-full blur-[120px] mix-blend-screen" />
-      <div className="absolute bottom-1/4 right-1/4 w-[50vw] h-[50vw] bg-amber-500/5 rounded-full blur-[150px] mix-blend-screen" />
+      <div className="hidden md:block absolute top-1/4 left-1/4 w-[40vw] h-[40vw] bg-pink-500/10 rounded-full blur-[120px] mix-blend-screen" />
+      <div className="hidden md:block absolute bottom-1/4 right-1/4 w-[50vw] h-[50vw] bg-amber-500/5 rounded-full blur-[150px] mix-blend-screen" />
 
       <style>{`
         @keyframes drift {

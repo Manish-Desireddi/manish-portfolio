@@ -33,8 +33,8 @@ const Projects = () => {
           const osc = ctx.createOscillator()
           const gain = ctx.createGain()
           osc.type = 'sine'
-          osc.frequency.setValueAtTime(45, ctx.currentTime)
-          osc.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 1.5)
+          osc.frequency.setValueAtTime(180, ctx.currentTime)
+          osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 1.5)
           gain.gain.setValueAtTime(0, ctx.currentTime)
           gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.1)
           gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.5)
@@ -53,11 +53,13 @@ const Projects = () => {
     const frameCount = 600
     imagesRef.current = Array(frameCount).fill(null)
 
-    const fetchAll = async () => {
+      const fetchAll = async () => {
+      const isMobile = window.matchMedia('(max-width: 768px)').matches
+      const frameDir = isMobile ? 'projects_frames_mobile' : 'projects_frames'
       const promises = []
       for (let i = 0; i < frameCount; i++) {
         const img = new Image()
-        const promise = fetch(`/assets/projects_frames/frame_${(i + 1).toString().padStart(4, '0')}.jpg`)
+        const promise = fetch(`/assets/${frameDir}/frame_${(i + 1).toString().padStart(4, '0')}.jpg`)
           .then(res => res.blob())
           .then(blob => new Promise((resolve) => {
             img.onload = resolve
