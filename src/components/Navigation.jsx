@@ -54,7 +54,8 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
   const goToSection = useCallback((id) => {
     if (id === 'home') {
       if (window.lenis) {
-        window.lenis.scrollTo(0, { duration: 3.5, easing: (t) => 1 - Math.pow(1 - t, 4) })
+        const dur = Math.max(Math.abs(window.scrollY - 0) / 2000, 1.5);
+        window.lenis.scrollTo(0, { duration: dur, easing: (t) => 1 - Math.pow(1 - t, 4) })
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' })
       }
@@ -66,7 +67,8 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
 
     const targetScroll = getScrollOffset(id)
     if (window.lenis) {
-      window.lenis.scrollTo(targetScroll, { duration: 3.5, offset: 0, easing: (t) => 1 - Math.pow(1 - t, 4) })
+      const dur = Math.max(Math.abs(window.scrollY - targetScroll) / 2000, 1.5);
+      window.lenis.scrollTo(targetScroll, { duration: dur, offset: 0, easing: (t) => 1 - Math.pow(1 - t, 4) })
     } else {
       window.scrollTo({ top: targetScroll, behavior: 'smooth' })
     }

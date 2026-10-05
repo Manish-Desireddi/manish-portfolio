@@ -53,11 +53,12 @@ const Projects = () => {
     const frameCount = 600
     imagesRef.current = Array(frameCount).fill(null)
 
-      const fetchAll = async () => {
+    const fetchChunk = async (start, chunkSize) => {
       const isMobile = window.matchMedia('(max-width: 768px)').matches
       const frameDir = isMobile ? 'projects_frames_mobile' : 'projects_frames'
+      const end = Math.min(start + chunkSize, frameCount)
       const promises = []
-      for (let i = 0; i < frameCount; i++) {
+      for (let i = start; i < end; i++) {
         const img = new Image()
         const promise = fetch(`/assets/${frameDir}/frame_${(i + 1).toString().padStart(4, '0')}.jpg`)
           .then(res => res.blob())
@@ -69,14 +70,21 @@ const Projects = () => {
           .catch(() => Promise.resolve())
         imagesRef.current[i] = img
         promises.push(promise)
-
       }
 
       await Promise.all(promises)
-      if (!isCancelled) setIsAllLoaded(true)
+      if (isCancelled) return
+      
+      if (start === 0) {
+        setIsAllLoaded(true)
+      }
+
+      if (end < frameCount) {
+        setTimeout(() => fetchChunk(end, 50), 200)
+      }
     }
 
-    fetchAll()
+    fetchChunk(0, 30)
 
     return () => { isCancelled = true }
   }, [])
@@ -123,7 +131,6 @@ const Projects = () => {
           const img = imagesRef.current[Math.round(frames.frame)]
           // Replace img.complete with naturalWidth > 0
           if (img && img.naturalWidth > 0) {
-            context.clearRect(0, 0, canvas.width, canvas.height)
             context.drawImage(img, 0, 0, canvas.width, canvas.height)
           }
         }
