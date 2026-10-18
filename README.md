@@ -1,56 +1,48 @@
-﻿# Manish Desireddi — Developer Portfolio
+# Manish Desireddi — Developer Portfolio
 
-> **AI & Automation Engineer** | Nokia Solutions and Networks · KL University  
-> A premium, futuristic single-page portfolio designed to showcase deep-tech projects, professional experience, and technical breadth — built to impress recruiter, hiring manager, and peer engineer alike.
+> **AI & Automation Engineer** | B.Tech Graduate in AI & Data Science · KL University · ex-Nokia Intern  
+> A high-performance, cyberpunk HUD single-page portfolio engineered for deep-tech systems, autonomous agent architectures, and production automation pipelines.
 
-[![React](https://img.shields.io/badge/React-18.3-61dafb?style=flat-square&logo=react)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite-5.3-646cff?style=flat-square&logo=vite)](https://vitejs.dev)
+[![React](https://img.shields.io/badge/React-19.0-61dafb?style=flat-square&logo=react)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-8.3-646cff?style=flat-square&logo=vite)](https://vitejs.dev)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-ff0055?style=flat-square)](https://www.framer.com/motion/)
+[![GSAP](https://img.shields.io/badge/GSAP-3.15-88ce02?style=flat-square)](https://greensock.com/)
+[![Lenis](https://img.shields.io/badge/Lenis-1.3-black?style=flat-square)](https://lenis.darkroom.engineering/)
+[![Version](https://img.shields.io/badge/Version-v0.1.0-teal?style=flat-square)](package.json)
 
 ---
 
 ## Overview
 
-A fully custom, performance-first React portfolio demonstrating advanced frontend engineering alongside AI/automation expertise. Every section uses GPU-composited animations, Framer Motion spring physics, and a coordinated dark/cyan/violet design language.
-
-**Design philosophy:** No template. No UI library. Every pixel is handcrafted in Tailwind CSS with purpose.
+A production-grade, performance-hardened React 19 application demonstrating frontier AI systems, bare-metal C++/CUDA inference, and distributed automation pipelines. Architected with strict memory safety, zero-leak bitmap object URL cleanup, dynamic DPR-clamped canvas backing stores, native momentum scroll physics, and comprehensive WCAG 2.2 AA accessibility.
 
 ---
 
-## Features
+## Architectural Highlights
 
-| Feature | Detail |
+| Subsystem | Engineering Specification |
 |---|---|
-| **Hero intro overlay** | Full-screen animated intro with avatar video, typewriter taglines, and audio ambience. Exits with spring-physics slide-up transition |
-| **3D tilt ProfileCard** | Cursor-following perspective tilt + atmospheric behind-glow + surface light reflection — all via Framer MotionValues (zero React re-renders) |
-| **Neural network backgrounds** | SVG dot graphs with CSS-pulsing nodes and gradient orbs in every section — unique colour palette per section |
-| **Scroll-driven timeline** | useScroll fills the experience timeline line precisely as the user scrolls |
-| **3D project cards** | Hardware-accelerated tilt with per-card glow, demo modal, GitHub/demo links |
-| **AI Architecture section** | Four system cards describing real production-grade AI work |
-| **Education / Leadership bento** | Responsive bento grid for academic credentials and student leadership roles |
-| **Tech marquee** | Infinite smooth horizontal scroll of 20+ technologies — pure CSS, no JS |
-| **Floating bottom nav** | Spring-animated pill that hides on scroll down; icon-only on mobile |
-| **Resume download** | One-click PDF download from the nav bar |
-| **Keyboard / accessibility** | Focus rings, aria-label, aria-current, semantic HTML throughout |
-| **Cursor orb** | Ambient cursor trail rendered on a canvas — GPU composited |
-| **Performance** | MotionValues for cursor/tilt (no setState), memo() on pure components, manual Vite chunk splitting |
+| **Memory & GPU Thermals** | Immediate `URL.revokeObjectURL` bitmap recycling, named GSAP ticker RAF listener cleanup, dynamic DPR-clamped (1.5x mobile / 2.0x desktop) canvas stores, portrait focal-crop mathematics. |
+| **Scroll Engine** | Lenis smooth scroll synchronized with GSAP ScrollTrigger via named ticker update. Scoped `#scrub-zone` prevents sequence stalling across work history. |
+| **Accreditation Carousel** | Snapped 1-card-per-swipe horizontal gallery featuring touch swipe gestures, keyboard arrow navigation, and clearance categorization. |
+| **Interactive Terminal CLI** | Embedded terminal shell supporting custom commands (`whoami`, `cat skills.txt`, `run agent`, `clear`) with history traversal and mobile keyboard accessibility. |
+| **Telemetry & Privacy** | GDPR-compliant cookie consent system gating modular event dispatches in `src/utils/analytics.js` with structured offline HUD banners and top-right toast alerts. |
+| **SEO & Standards** | Complete Open Graph (1200x630), Twitter Cards, canonical link tags, and JSON-LD `Person` + `SoftwareApplication` structured schemas. |
 
 ---
 
 ## Tech Stack
 
 ```
-React 18.3.1           – UI layer, function components, hooks
-Vite 5.3.1             – Build tool, HMR, ESM dev server
-Tailwind CSS 3.4.4     – Utility-first styling (JIT mode)
-Framer Motion 11.3.0   – Animations, spring physics, MotionValues
-lucide-react 0.400.0   – SVG icon set
-PostCSS / Autoprefixer – CSS processing
-Google Fonts           – Inter · JetBrains Mono · Caveat
+React 19.0.0           – Modern concurrent UI layer
+Vite 8.3.2             – ES module bundler & optimized asset pipeline
+Tailwind CSS 3.4.4     – Semantic tokens and responsive design system
+GSAP 3.15.0            – ScrollTrigger timeline orchestration
+Lenis 1.3.25           – Smooth inertia scrolling physics
+Framer Motion 11.3.0   – Micro-interactions & modal spring physics
+Lucide React 0.400.0   – Vector UI icons
+Formspree React 3.0.0  – Encrypted contact dispatch
 ```
-
-**Zero runtime dependencies beyond the above list.**
 
 ---
 
@@ -59,175 +51,75 @@ Google Fonts           – Inter · JetBrains Mono · Caveat
 ```
 portfolio/
 ├── public/
-│   └── assets/
-│       ├── avatar-intro.mp4      ← Hero background video
-│       ├── profile-casual.jpg    ← ProfileCard portrait photo
-│       ├── campus.jpg            ← Optional background image
-│       └── resume.pdf            ← Downloadable resume
-│
+│   ├── assets/
+│   │   ├── certs/                 ← High-resolution accreditation certificates
+│   │   ├── hero_frames/           ← 592-frame scrubbing sequence
+│   │   ├── projects_frames/       ← Desktop project showcase frames
+│   │   ├── projects_frames_mobile/← Mobile portrait-optimized frame sequence
+│   │   ├── og-banner.jpg          ← Social sharing Open Graph card
+│   │   ├── cubes.png              ← Localized geometric overlay pattern
+│   │   ├── black-paper.png        ← Localized paper grain texture
+│   │   ├── huggingface_logo.svg   ← Localized vector mark
+│   │   └── Manish_Desireddi_Resume.pdf ← Verified resume asset
+│   └── downloads/
+│       └── AUTOS-Cloud-Setup-v0.1.0.exe ← Autonomous desktop assistant client
 ├── src/
-│   ├── components/
-│   │   ├── AnimatedBackground.jsx  ← Reusable neural SVG + orbs backdrop
-│   │   ├── Hero.jsx                ← Full-screen intro overlay
-│   │   ├── Navigation.jsx          ← Bottom floating nav pill
-│   │   ├── About.jsx               ← Bio + ProfileCard + tech marquee
-│   │   ├── ProfileCard.jsx         ← 3D tilt identity card
-│   │   ├── Experience.jsx          ← Scroll-driven timeline
-│   │   ├── Projects.jsx            ← 3D tilt project cards + DemoModal
-│   │   ├── DemoModal.jsx           ← Full-screen project showcase modal
-│   │   ├── AIArchitecture.jsx      ← "What I Build" system cards
-│   │   ├── Footer.jsx              ← Education bento + contact CTA
-│   │   ├── SectionHeader.jsx       ← Reusable animated section heading
-│   │   └── CursorOrb.jsx           ← Ambient cursor trail (canvas)
-│   │
+│   ├── components/                ← Modular HUD and UI components
 │   ├── data/
-│   │   └── portfolioData.js        ← All content: projects, experience, skills
-│   │
-│   ├── styles/
-│   │   └── animations.css          ← Custom keyframes and CSS animation classes
-│   │
-│   ├── App.jsx                     ← Root: heroActive state, AnimatePresence
-│   └── main.jsx                    ← ReactDOM.createRoot entry point
-│
-├── index.html                      ← Vite HTML shell, Google Fonts import
-├── tailwind.config.js              ← Custom font families + keyframes
-├── postcss.config.js
-├── vite.config.js                  ← Manual chunk splitting
-└── package.json
+│   │   └── portfolioData.js       ← Centralized data model
+│   ├── utils/
+│   │   ├── analytics.js           ← Telemetry & consent dispatcher
+│   │   ├── audioContext.js        ← AudioContext singleton
+│   │   └── motionVariants.js      ← Motion primitives with reduced motion checks
+│   ├── App.jsx                    ← Root application shell
+│   └── index.css                  ← Semantic design tokens & custom scrollbars
+├── vercel.json                    ← Production redirects & HTTP security headers
+└── vite.config.js                 ← Build configuration & chunk splitting
 ```
 
 ---
 
-## Installation & Setup
+## Installation & Local Execution
 
 ### Prerequisites
 
-- **Node.js ≥ 18** (LTS recommended)
-- **npm ≥ 9**
+- **Node.js ≥ 20.x**
+- **npm ≥ 10.x**
 
 ```bash
-# 1. Clone the repository
+# 1. Clone repository
 git clone https://github.com/Manish-Desireddi/portfolio.git
 cd portfolio
 
 # 2. Install dependencies
 npm install
-```
 
-### Required Assets
+# 3. Configure environment variables
+cp .env.example .env
 
-Place the following files in `public/assets/` before running the dev server:
-
-| File | Purpose |
-|---|---|
-| `avatar-intro.mp4` | Hero section background video (muted, looping) |
-| `profile-casual.jpg` | Profile photo displayed in the ProfileCard |
-| `campus.jpg` | Optional background image |
-| `resume.pdf` | Downloadable resume PDF |
-
----
-
-## Development Commands
-
-```bash
-# Start the local dev server (hot module replacement)
+# 4. Start local development server
 npm run dev
 # → http://localhost:5173
 
-# Production build (outputs to dist/)
+# 5. Production build
 npm run build
-
-# Preview the production build locally
-npm run preview
-# → http://localhost:4173
 ```
 
 ---
 
-## Customisation
-
-All personal content lives in **`src/data/portfolioData.js`** — edit once to update the entire site:
-
-```js
-export const NAV_ITEMS    = [...]   // Navigation sections
-export const EXPERIENCE   = [...]   // Work timeline entries
-export const PROJECTS     = [...]   // Project cards
-export const TECH_STACK   = [...]   // Marquee tech items
-export const LEADERSHIP   = [...]   // Education & leadership bento
-```
-
-To change colours, fonts, or animation timings, edit `tailwind.config.js` and `src/styles/animations.css`.
-
----
-
-## Deployment
-
-### Vercel (Recommended)
-
-Connect your GitHub repository at [vercel.com](https://vercel.com) — Vite is auto-detected.
-
-**Build settings** (auto-configured):
-```
-Framework Preset : Vite
-Build Command    : npm run build
-Output Directory : dist
-Install Command  : npm install
-```
-
-Or use the CLI:
-```bash
-npm i -g vercel
-vercel
-```
-
-### Netlify
-
-1. Push to GitHub  
-2. Connect repo at [app.netlify.com](https://app.netlify.com)  
-3. Build command: `npm run build` · Publish directory: `dist`
-
-### Manual
-
-```bash
-npm run build
-# Upload the dist/ folder to any static host (S3, GitHub Pages, Cloudflare Pages)
-```
-
----
-
-## Performance Notes
-
-- **No `setState` for cursor/tilt**: All cursor tracking uses Framer `MotionValue` — values pipe directly to DOM transforms without triggering React re-renders.
-- **`memo()` on all pure components**: No unnecessary re-renders on any leaf component.
-- **CSS animations over JS**: Marquee, neural pulse, orb drift, cursor blink — all pure CSS `@keyframes`.
-- **Manual Vite chunk splitting**: `react-vendor` and `framer` chunks load in parallel.
-- **`will-change: transform`** only on animated elements to promote GPU layers without over-allocating.
-
----
-
-## Accessibility
-
-- All images have descriptive `alt` attributes
-- Navigation buttons use `aria-label` and `aria-current="page"` for the active section
-- Interactive elements have `focus-visible` rings styled in cyan
-- Hero video is `muted`, `playsInline`, `aria-hidden`; audio is opt-in
-- Decorative SVGs are `aria-hidden="true"`
-- Semantic HTML throughout: `<section>`, `<article>`, `<nav>`, `<footer>`, `<main>`
-
----
-
-## Contact
+## Contact & Credentials
 
 **Manish Desireddi**  
-AI & Automation Engineer · B.Tech AI & Data Science, KL University (CGPA 8.2)  
-Nokia Solutions and Networks | VP Student Body, KL-SAC
+B.Tech in Artificial Intelligence & Data Science · KL University (CGPA 8.65)  
+AI & Automation Engineer · ex-Nokia Solutions and Networks  
 
 - GitHub: [github.com/Manish-Desireddi](https://github.com/Manish-Desireddi)
-- LinkedIn: [linkedin.com/in/manishdesireddi](https://linkedin.com/in/manishdesireddi)
-- Email: manishdesireddi@gmail.com
+- LinkedIn: [linkedin.com/in/Manish-Desireddi](https://linkedin.com/in/Manish-Desireddi)
+- Hugging Face: [huggingface.co/manishdesireddi](https://huggingface.co/manishdesireddi)
+- Email: [manishdesireddi@gmail.com](mailto:manishdesireddi@gmail.com)
 
 ---
 
 ## License
 
-Personal portfolio — all rights reserved.
+Personal portfolio — All rights reserved.

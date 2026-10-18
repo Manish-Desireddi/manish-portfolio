@@ -1,42 +1,28 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Lock, Mail } from 'lucide-react'
+import { modalSpring } from '../utils/motionVariants'
+import { useModalLifecycle } from '../utils/useModalLifecycle'
+import { trackEvent } from '../utils/analytics'
+import { MODALS_DATA } from '../data/portfolioData'
 
-/**
- * PrivateRepoModal - shown when a user clicks a project's GitHub button.
- * Repos are intentionally kept private because they may be commercialised.
- * Tone: apologetic, warm, sincere.
- */
 const PrivateRepoModal = ({ isOpen, onClose, projectTitle }) => {
   const closeBtnRef = useRef(null)
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-      document.body.style.touchAction = 'none'
-      window.lenis?.stop()
-    } else {
-      document.body.style.overflow = ''
-      document.body.style.touchAction = ''
-      window.lenis?.start()
-    }
-    return () => {
-      document.body.style.overflow = ''
-      document.body.style.touchAction = ''
-      window.lenis?.start()
-    }
-  }, [isOpen])
+  useModalLifecycle(isOpen, onClose, closeBtnRef)
 
-  useEffect(() => {
-    if (!isOpen) return
-    const t = setTimeout(() => closeBtnRef.current?.focus(), 80)
-    const onKey = (e) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => {
-      clearTimeout(t)
-      window.removeEventListener('keydown', onKey)
+  const handleRequestAccess = () => {
+    trackEvent('contact', 'request_private_repo_access', { project: projectTitle })
+    onClose()
+    const contactEl = document.getElementById('contact')
+    if (contactEl) {
+      if (window.lenis) {
+        window.lenis.scrollTo(contactEl, { duration: 1.15 })
+      } else {
+        contactEl.scrollIntoView({ behavior: 'smooth' })
+      }
     }
-  }, [isOpen, onClose])
+  }
 
   return (
     <AnimatePresence>
@@ -47,92 +33,70 @@ const PrivateRepoModal = ({ isOpen, onClose, projectTitle }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
+            transition={{ duration: 0.2 }}
             className="fixed inset-0 z-[70] bg-zinc-950/90 backdrop-blur-2xl"
             onClick={onClose}
             aria-hidden="true"
           />
 
-          <div className="fixed inset-0 z-[71] flex items-center justify-center pointer-events-none">
+          <div className="fixed inset-0 z-[71] flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               key="repo-panel"
               role="dialog"
               aria-modal="true"
-              aria-label="Repository is private"
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: 10 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full h-[100dvh] pointer-events-auto rounded-none bg-black/80 border-t-2 border-b-2 border-pink-500/50 shadow-[inset_0_0_100px_rgba(232,58,115,0.15)] overflow-y-auto flex flex-col items-center justify-center p-4 md:p-12"
+              aria-label={MODALS_DATA.privateRepo.title}
+              variants={modalSpring}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="relative w-full max-w-lg pointer-events-auto bg-black/90 border-2 border-pink-500/80 shadow-[0_0_50px_rgba(236,72,153,0.25)] p-6 sm:p-8 text-center"
             >
-              {/* Top accent line */}
               <div
-                className="absolute top-0 left-0 right-0 h-1"
-                style={{ background: 'linear-gradient(90deg, #d946ef, #e83a73, #ffb03a)' }}
+                className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-400 via-pink-500 to-fuchsia-500"
                 aria-hidden="true"
               />
 
-              {/* Ambient glow */}
-              <div
-                className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[50vh] blur-[100px] opacity-25 pointer-events-none"
-                style={{ background: 'radial-gradient(ellipse, #e83a73 0%, transparent 70%)' }}
-                aria-hidden="true"
-              />
+              <button
+                ref={closeBtnRef}
+                onClick={onClose}
+                className="absolute top-4 right-4 w-10 h-10 bg-black/60 border border-zinc-700 text-pink-400 hover:text-white hover:border-pink-500 flex items-center justify-center transition-colors cursor-pointer"
+                aria-label="Close restricted repo notice"
+              >
+                <X size={20} aria-hidden="true" />
+              </button>
 
-              <div className="relative z-10 w-full max-w-2xl flex flex-col items-center text-center">
-                <motion.button
-                  ref={closeBtnRef}
-                  whileHover={{ scale: 1.1, rotate: 90 }}
-                  whileTap={{ scale: 0.9 }}
+              <div className="flex items-center justify-center gap-2 mb-4 text-orange-400 font-mono text-xs uppercase tracking-widest">
+                <Lock size={16} />
+                <span>{MODALS_DATA.privateRepo.badge}</span>
+              </div>
+
+              <h3 className="text-xl sm:text-2xl font-heading text-white uppercase tracking-tight mb-3">
+                {MODALS_DATA.privateRepo.title}
+              </h3>
+
+              <p className="text-zinc-300 font-sans text-xs sm:text-sm leading-relaxed mb-6">
+                Source code for <span className="text-pink-400 font-bold">{projectTitle}</span> contains proprietary architecture, patent-pending IP, or enterprise client logic.
+              </p>
+
+              <p className="text-zinc-400 font-mono text-xs leading-relaxed mb-8 bg-zinc-950 p-3 border border-zinc-900">
+                {MODALS_DATA.privateRepo.message}
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  type="button"
+                  onClick={handleRequestAccess}
+                  className="px-6 py-3 bg-pink-500 hover:bg-white text-black font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Mail size={16} /> {MODALS_DATA.privateRepo.actionButton}
+                </button>
+                <button
+                  type="button"
                   onClick={onClose}
-                  className="fixed top-6 right-6 md:top-10 md:right-10 w-12 h-12 bg-black/50 border border-pink-500/30 flex items-center justify-center text-pink-400 hover:text-white hover:bg-pink-500/20 transition-colors focus-visible:outline-none backdrop-blur-md z-50"
-                  aria-label="Close"
+                  className="px-6 py-3 border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors cursor-pointer"
                 >
-                  <X size={24} aria-hidden="true" />
-                </motion.button>
-
-                {/* Lock icon medallion */}
-                <motion.div
-                  initial={{ scale: 0, rotate: -20 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ delay: 0.1, type: 'spring', damping: 14 }}
-                  className="w-14 h-14 bg-black border border-pink-500/50 flex items-center justify-center mb-5 shadow-[0_0_15px_rgba(232,58,115,0.4)]"
-                >
-                  <Lock size={26} className="text-pink-400" aria-hidden="true" />
-                </motion.div>
-
-                <h3 className="text-2xl font-bold font-heading text-white uppercase tracking-tight mb-3 text-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
-                  Restricted Access.
-                </h3>
-
-                <p className="text-zinc-400 text-sm leading-relaxed mb-3">
-                  I'm sorry for the closed door here{projectTitle ? <> on <span className="text-white font-medium">{projectTitle}</span></> : null}.
-                  This codebase is being kept private for now because it may grow into something
-                  commercial, and I want to be careful with the work before it's ready for the world.
-                </p>
-
-                <p className="text-zinc-500 text-sm leading-relaxed mb-6">
-                  Thank you for the curiosity - it genuinely means a lot. If you'd like a guided
-                  walkthrough, architecture notes, or a demo, I'd be more than happy to share
-                  privately.
-                </p>
-
-                <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6 w-full">
-                  <a
-                    href="mailto:manishdesireddi@gmail.com?subject=Repository%20walkthrough%20request"
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-pink-500 text-black text-sm font-heading uppercase hover:bg-white transition-colors border border-transparent hover:border-pink-500 w-full sm:w-auto"
-                  >
-                    <Mail size={18} aria-hidden="true" />
-                    Request Access
-                  </a>
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="inline-flex items-center justify-center px-8 py-4 bg-black border border-zinc-600 text-white font-heading uppercase hover:border-pink-400 transition-colors w-full sm:w-auto text-sm"
-                  >
-                    Dismiss
-                  </button>
-                </div>
+                  Dismiss Notice
+                </button>
               </div>
             </motion.div>
           </div>

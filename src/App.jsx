@@ -1,290 +1,487 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import CustomCursor from './components/CustomCursor'
-import Navigation from './components/Navigation'
-import Intro from './components/Intro'
-import About from './components/About'
-import Experience from './components/Experience'
-import Leadership from './components/Leadership'
-import Projects from './components/Projects'
-import Expertise from './components/Expertise'
-import Certifications from './components/Certifications'
-import InteractiveCLI from './components/InteractiveCLI'
-import Footer from './components/Footer'
-import DownloadPage from './components/DownloadPage'
-import Hero from './components/Hero'
-import EnterOverlay from './components/EnterOverlay'
+import React, { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+import Intro from './components/Intro'
+import Hero from './components/Hero'
+import About from './components/About'
+import Experience from './components/Experience'
+import Projects from './components/Projects'
+import Expertise from './components/Expertise'
+import Leadership from './components/Leadership'
+import Certifications from './components/Certifications'
+import InteractiveCLI from './components/InteractiveCLI'
+import Footer from './components/Footer'
+import CustomCursor from './components/CustomCursor'
+import Navigation from './components/Navigation'
 import Background from './components/Background'
+import DownloadPage from './components/DownloadPage'
+import NotFoundPage from './components/NotFoundPage'
+import ToastManager, { showToast } from './components/ToastManager'
+import CookieConsent from './components/CookieConsent'
+import EnterOverlay from './components/EnterOverlay'
+
+import { isReducedMotion } from './utils/motionVariants'
+import { syncCanvasBackingStore, drawAspectFillFrame, useUnifiedPreloader } from './utils/canvasScrubber'
+import { trackEvent } from './utils/analytics'
+import { SITE_METADATA } from './data/portfolioData'
+import { resolveDownloadProject } from './utils/assetVerifier'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const DOWNLOAD_ROUTE = '#/downloads/ai-assistant'
-const sectionClickSfx = typeof window !== 'undefined' ? new Audio('/assets/mech-click.mp3') : null;
-
-const MDPreloader = () => {
-  return (
-    <motion.div
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 2.5, delay: 0.5 } }}
-      className="fixed inset-0 z-[9999] bg-app-dark flex items-center justify-center pointer-events-none drop-shadow-[0_0_15px_rgba(236,72,153,0.8)]"
-    >
-      <motion.svg
-        width="200"
-        height="100"
-        viewBox="0 0 200 100"
-      >
-        <motion.text
-          x="50%"
-          y="50%"
-          className="font-heading"
-          fontWeight="900"
-          fontSize="64"
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill="transparent"
-          stroke="#ec4899"
-          strokeWidth="2"
-          initial={{ strokeDasharray: 800, strokeDashoffset: 800 }}
-          animate={{ strokeDashoffset: 0 }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
+const MDPreloader = ({ progress = 0 }) => (
+  <motion.div
+    className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-app-dark"
+    initial={{ opacity: 1 }}
+    exit={{ opacity: 0, transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] } }}
+  >
+    <div className="relative flex flex-col items-center">
+      <div className="relative mb-8 flex items-center justify-center">
+        <motion.svg
+          width="200"
+          height="100"
+          viewBox="0 0 200 100"
+          className="drop-shadow-[0_0_15px_rgba(236,72,153,0.8)]"
+          aria-label="Manish Desireddi Monogram"
         >
-          MD
-        </motion.text>
-      </motion.svg>
-    </motion.div>
-  )
+          <motion.text
+            x="50%"
+            y="50%"
+            className="font-heading"
+            fontWeight="900"
+            fontSize="64"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fill="transparent"
+            stroke="#ec4899"
+            strokeWidth="2"
+            initial={{ strokeDasharray: 800, strokeDashoffset: 800 }}
+            animate={{ strokeDashoffset: 0 }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: 'linear' }}
+          >
+            {SITE_METADATA.preloader.monogram}
+          </motion.text>
+        </motion.svg>
+      </div>
+
+      <div className="flex flex-col items-center gap-3">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
+          <span className="font-mono text-xs uppercase tracking-[0.25em] text-pink-400">
+            {SITE_METADATA.preloader.buffering}
+          </span>
+        </div>
+
+        <div className="relative w-64 sm:w-80 h-1.5 bg-zinc-900 border border-zinc-800 overflow-hidden">
+          <motion.div
+            className="h-full bg-gradient-to-r from-pink-500 via-pink-500 to-pink-500"
+            initial={{ width: '0%' }}
+            animate={{ width: `${Math.min(100, progress)}%` }}
+            transition={{ ease: 'linear', duration: 0.1 }}
+          />
+        </div>
+
+        <div className="flex justify-between w-64 sm:w-80 text-[10px] font-mono text-zinc-500 tracking-wider">
+          <span>{SITE_METADATA.preloader.frameCounter}</span>
+          <span>{Math.round(progress)}%</span>
+        </div>
+      </div>
+    </div>
+  </motion.div>
+)
+
+const getDownloadMetadata = (proj, originPath) => ({
+  title: proj.title,
+  desc: proj.description,
+  canonical: originPath + proj.route,
+})
+
+const getNotFoundMetadata = (originPath) => ({
+  title: 'SYS.ERR // 404 — Sector Not Found',
+  desc: 'Requested coordinate route does not exist in Manish Desireddi portfolio.',
+  canonical: originPath,
+})
+
+const isValidPathname = (pathname) =>
+  pathname === '/' || pathname === '/index.html' || pathname === ''
+
+const VALID_HASHES = new Set([
+  '',
+  '#',
+  '#about',
+  '#experience',
+  '#projects',
+  '#expertise',
+  '#leadership',
+  '#certifications',
+  '#cli',
+  '#terminal',
+  '#contact',
+  '#footer',
+])
+
+const isDownloadHash = (hash) =>
+  typeof hash === 'string' && (hash.startsWith('#/downloads') || hash.startsWith('#downloads'))
+
+const isKnownHash = (hash) => VALID_HASHES.has(hash) || isDownloadHash(hash)
+
+const isNotFoundLocation = (pathname, hash) =>
+  !isValidPathname(pathname) || !isKnownHash(hash)
+
+const resolveMetadata = (pathname, hash) => {
+  const originPath = window.location.origin + window.location.pathname
+  const downloadProj = resolveDownloadProject(hash)
+  if (downloadProj) return getDownloadMetadata(downloadProj, originPath)
+  if (isNotFoundLocation(pathname, hash)) return getNotFoundMetadata(originPath)
+  return {
+    title: SITE_METADATA.defaultTitle,
+    desc: SITE_METADATA.defaultDescription,
+    canonical: originPath,
+  }
 }
 
-const App = () => {
-  const [hasEntered, setHasEntered] = useState(false)
-  const [heroActive, setHeroActive] = useState(true)
-  const [route, setRoute] = useState(() => window.location.hash)
-  const [imagesFetched, setImagesFetched] = useState(false)
-  const [isAssetsLoaded, setIsAssetsLoaded] = useState(false)
-  const [isVideoReady, setIsVideoReady] = useState(false)
-  const [isPreloaderDismissed, setIsPreloaderDismissed] = useState(false)
-  const [isCertModalActive, setIsCertModalActive] = useState(false)
-  const loadedImagesRef = useRef([])
-  const [minTimerDone, setMinTimerDone] = useState(false)
-
-  // Timer promise (3s min)
+const usePortfolioMetadata = (pathname, hash) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMinTimerDone(true)
-    }, 3000)
-    return () => clearTimeout(timer)
-  }, [])
+    const { title, desc, canonical } = resolveMetadata(pathname, hash)
+    document.title = title
+    document.querySelector('meta[name="description"]')?.setAttribute('content', desc)
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonical)
+  }, [pathname, hash])
+}
 
-  // Dual-gate: only clear preloader once BOTH timer AND intro video are ready
+const setupLenisInstance = (isTouch) => {
+  ScrollTrigger.config({ ignoreMobileResize: true })
+  return new Lenis({
+    duration: 3.5,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true,
+    wheelMultiplier: 0.6,
+    touchMultiplier: isTouch ? 1.0 : 0.8,
+  })
+}
+
+const useLenisController = (hasEntered, isReady, isPaused) => {
+  // fallow-ignore-next-line complexity
   useEffect(() => {
-    if (minTimerDone && isVideoReady) {
-      setIsAssetsLoaded(true)
-    }
-  }, [isVideoReady, minTimerDone])
+    if (!hasEntered || !isReady) return
 
-  // Tiny hash router so the AI Assistant page works without a router dep.
-  useEffect(() => {
-    const onHash = () => setRoute(window.location.hash)
-    window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
-  }, [])
-
-  // Initialize Lenis
-  useEffect(() => {
-    if (!hasEntered || route === DOWNLOAD_ROUTE || !isAssetsLoaded) return
-    const lenis = new Lenis({
-      duration: 3.5, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true, wheelMultiplier: 0.6, touchMultiplier: 0.8,
-    })
-
-    if (heroActive) lenis.stop()
+    const isTouch = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+    const lenis = setupLenisInstance(isTouch)
 
     lenis.on('scroll', ScrollTrigger.update)
-
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000)
-    })
+    const update = (time) => lenis.raf(time * 1000)
+    gsap.ticker.add(update)
     gsap.ticker.lagSmoothing(0)
 
     ScrollTrigger.refresh()
-
-    window.lenis = lenis // Expose for Navigation components
-
-    let resizeTimer;
-    const handleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        ScrollTrigger.refresh();
-      }, 200);
-    };
-    window.addEventListener('resize', handleResize);
+    window.lenis = lenis
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimer);
+      gsap.ticker.remove(update)
       delete window.lenis
       lenis.destroy()
     }
-  }, [hasEntered, route, isAssetsLoaded])
+  }, [hasEntered, isReady])
 
-  // Phase 1: Asset Preloading logic
   useEffect(() => {
-    if (!hasEntered || route === DOWNLOAD_ROUTE) return
-    let isCancelled = false
-
-    const frameCount = 592
-    const currentFrame = index => {
-      return `/assets/hero_frames/frame_${(index + 1).toString().padStart(4, '0')}.jpg`
+    if (!window.lenis) return
+    if (isPaused) {
+      window.lenis.stop()
+      document.body.style.overflow = 'hidden'
+    } else {
+      window.lenis.start()
+      document.body.style.overflow = ''
     }
+  }, [isPaused])
+}
 
-    const images = Array(frameCount).fill(null)
-    loadedImagesRef.current = images
+const setupScrubResizeObserver = () => {
+  let timeoutId = null
+  const observer = new ResizeObserver(() => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => {
+      ScrollTrigger.refresh()
+    }, 100)
+  })
 
-    const fetchChunk = async (start, chunkSize) => {
-      const end = Math.min(start + chunkSize, frameCount)
-      const promises = []
+  const scrubZone = document.getElementById('scrub-zone')
+  const expEl = document.getElementById('experience')
+  if (scrubZone) observer.observe(scrubZone)
+  if (expEl) observer.observe(expEl)
 
-      for (let i = start; i < end; i++) {
-        const img = new Image()
-        img.decoding = 'async'
-        img.loading = 'eager'
-        const promise = fetch(currentFrame(i))
-          .then(res => res.blob())
-          .then(blob => new Promise((resolve) => {
-            img.onload = resolve
-            img.onerror = resolve
-            img.src = URL.createObjectURL(blob)
-          }))
-          .catch(() => Promise.resolve())
-        images[i] = img
-        promises.push(promise)
-      }
+  return () => {
+    clearTimeout(timeoutId)
+    observer.disconnect()
+  }
+}
 
-      await Promise.all(promises)
-      if (isCancelled) return
-
-      if (start === 0) {
-        setImagesFetched(true)
-      }
-
-      if (end < frameCount) {
-        setTimeout(() => fetchChunk(end, 50), 200)
-      }
-    }
-
-    if (isVideoReady) {
-      fetchChunk(0, 30)
-    }
-
-    return () => {
-      isCancelled = true
-    }
-  }, [hasEntered, route, isVideoReady])
-
-  // Phase 1: Global Canvas Scrubbing initialization (runs after assets fetched)
+const HeroBackgroundScrubber = ({ heroFrames }) => {
+  // fallow-ignore-next-line complexity
   useEffect(() => {
-    if (!hasEntered || !imagesFetched || route === DOWNLOAD_ROUTE) return
+    if (!heroFrames || heroFrames.length === 0) return
 
     const canvas = document.getElementById('hero-canvas')
     if (!canvas) return
-
     const context = canvas.getContext('2d')
-    canvas.width = 1920
-    canvas.height = 1080
+    if (!context) return
 
-    const images = loadedImagesRef.current
+    const handleResize = () => syncCanvasBackingStore(canvas)
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    const cleanupObserver = setupScrubResizeObserver()
+
     const frames = { frame: 0 }
-
-    let isFirstRender = true;
-
-    let ctx = gsap.context(() => {
+    const ctx = gsap.context(() => {
       const render = () => {
-        const img = images[Math.round(frames.frame)]
-        // Add naturalWidth > 0 to verify the image is not broken
-        if (img && img.naturalWidth > 0) {
-          context.drawImage(img, 0, 0, canvas.width, canvas.height)
-        }
+        const img = heroFrames[Math.round(frames.frame)] || heroFrames[0]
+        drawAspectFillFrame(canvas, context, img)
       }
 
-      render() // Initial render
+      render()
 
-      const tl = gsap.timeline({
+      if (!isReducedMotion()) {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#scrub-zone',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 1,
+            invalidateOnRefresh: true,
+          },
+        })
+        tl.to(frames, {
+          frame: heroFrames.length - 1,
+          snap: 'frame',
+          ease: 'none',
+          duration: 1,
+          onUpdate: render,
+        })
+      }
+
+      gsap.timeline({
         scrollTrigger: {
-          trigger: "#scrub-zone",
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 1,
-        }
-      })
-
-      tl.to(frames, {
-        frame: images.length - 1,
-        snap: "frame",
-        ease: "none",
-        duration: 1,
-        onUpdate: render,
-      })
-
-      const fadeTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#projects",
-          start: "top bottom",
-          end: "top center",
+          trigger: '#projects',
+          start: 'top bottom',
+          end: 'top center',
           scrub: true,
-          onEnter: () => { if (sectionClickSfx) { sectionClickSfx.currentTime = 0; sectionClickSfx.play().catch(() => { }) } },
-          onEnterBack: () => { if (sectionClickSfx) { sectionClickSfx.currentTime = 0; sectionClickSfx.play().catch(() => { }) } },
-        }
-      })
-      fadeTl.to(["#hero-canvas", "#texture-overlay"], {
-        opacity: 0,
-        ease: "none"
-      })
+          invalidateOnRefresh: true,
+        },
+      }).to(canvas, { opacity: 0, ease: 'none' })
+
+      ScrollTrigger.refresh()
     })
 
     return () => {
-      if (ctx) ctx.revert()
+      cleanupObserver()
+      window.removeEventListener('resize', handleResize)
+      ctx.revert()
     }
-  }, [hasEntered, imagesFetched, route])
+  }, [heroFrames])
+
+  return (
+    <canvas
+      id="hero-canvas"
+      className="fixed top-0 left-0 w-full h-[100dvh] object-cover z-0 mix-blend-screen pointer-events-none opacity-90"
+      aria-hidden="true"
+    />
+  )
+}
+
+// fallow-ignore-next-line complexity
+const MainPortfolioBody = ({
+  isOffline,
+  isAssetsReady,
+  bufferProgress,
+  setIsPreloaderDismissed,
+  heroActive,
+  handleVideoEnd,
+  setIsVideoReady,
+  isPreloaderDismissed,
+  heroFrames,
+  projectFrames,
+  setIsCertModalActive,
+  setIsProjectModalActive,
+  handleRequestHero,
+  isModalActive,
+}) => (
+  <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
+    <CustomCursor />
+    <ToastManager />
+    <CookieConsent />
+
+    {isOffline && (
+      <div className="fixed top-0 left-0 right-0 z-[10001] bg-red-600 text-white font-mono text-xs py-1.5 px-4 text-center tracking-widest uppercase">
+        {SITE_METADATA.offlineBanner}
+      </div>
+    )}
+
+    <AnimatePresence onExitComplete={() => setIsPreloaderDismissed(true)}>
+      {!isAssetsReady && <MDPreloader key="preloader" progress={bufferProgress} />}
+    </AnimatePresence>
+
+    <motion.div
+      key="main-app"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: isAssetsReady ? 1 : 0 }}
+      transition={{ duration: 0.8 }}
+    >
+      <AnimatePresence
+        onExitComplete={() => {
+          window.scrollTo({ top: 0, behavior: 'instant' })
+          ScrollTrigger.refresh()
+        }}
+      >
+        {heroActive && (
+          <Intro
+            key="intro"
+            onVideoEnd={handleVideoEnd}
+            onVideoReady={() => setIsVideoReady(true)}
+            isPreloaderDismissed={isPreloaderDismissed}
+          />
+        )}
+      </AnimatePresence>
+
+      <HeroBackgroundScrubber heroFrames={heroFrames} />
+      <div
+        id="texture-overlay"
+        className="fixed top-0 left-0 w-full h-[100dvh] bg-[url('/assets/cubes.png')] mix-blend-multiply opacity-30 z-0 pointer-events-none"
+        aria-hidden="true"
+      />
+      <Background />
+
+      <main className="relative z-10">
+        <div id="scrub-zone" className="relative">
+          <Hero />
+          <About />
+          <Experience />
+        </div>
+        <Projects
+          projectFrames={projectFrames}
+          onModalStateChange={setIsProjectModalActive}
+        />
+        <Expertise />
+        <Leadership />
+        <Certifications onModalStateChange={setIsCertModalActive} />
+        <InteractiveCLI />
+        <Footer isOffline={isOffline} />
+      </main>
+
+      {!heroActive && (
+        <Navigation onRequestHero={handleRequestHero} isModalActive={isModalActive} />
+      )}
+    </motion.div>
+  </div>
+)
+
+// fallow-ignore-next-line complexity
+const App = () => {
+  const [hasEntered, setHasEntered] = useState(false)
+  const [heroActive, setHeroActive] = useState(true)
+  const [locState, setLocState] = useState(() => ({
+    pathname: typeof window !== 'undefined' ? window.location.pathname : '/',
+    hash: typeof window !== 'undefined' ? window.location.hash : '',
+  }))
+  const [isVideoReady, setIsVideoReady] = useState(false)
+  const [isPreloaderDismissed, setIsPreloaderDismissed] = useState(false)
+  const [isCertModalActive, setIsCertModalActive] = useState(false)
+  const [isProjectModalActive, setIsProjectModalActive] = useState(false)
+  const [isOffline, setIsOffline] = useState(typeof navigator !== 'undefined' ? !navigator.onLine : false)
+
+  const isModalActive = isCertModalActive || isProjectModalActive
+  usePortfolioMetadata(locState.pathname, locState.hash)
+
+  const { bufferProgress, isPreloadComplete, heroFrames, projectFrames } =
+    useUnifiedPreloader(hasEntered, isVideoReady)
+
+  const isAssetsReady = isPreloadComplete && (isVideoReady || isOffline)
+  useLenisController(hasEntered, isAssetsReady, heroActive || isModalActive)
 
   useEffect(() => {
-    const lock = heroActive && route !== DOWNLOAD_ROUTE
-    document.body.style.overflow = lock ? 'hidden' : ''
-    if (lock) {
-      window.lenis?.stop()
-    } else {
-      window.lenis?.start()
+    const handleOnline = () => {
+      setIsOffline(false)
+      showToast({ title: 'CONNECTIVITY RESTORED', message: 'Online telemetry linked', type: 'success' })
     }
+    const handleOffline = () => {
+      setIsOffline(true)
+      showToast({ title: 'CONNECTIVITY SEVERED', message: 'System operating in offline mode', type: 'error' })
+    }
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
     return () => {
-      document.body.style.overflow = ''
-      window.lenis?.start()
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
     }
-  }, [heroActive, route])
+  }, [])
 
-  const handleVideoEnd = useCallback(() => setHeroActive(false), [])
+  useEffect(() => {
+    const syncLocation = () => {
+      setLocState({
+        pathname: window.location.pathname,
+        hash: window.location.hash,
+      })
+    }
+    window.addEventListener('hashchange', syncLocation)
+    window.addEventListener('popstate', syncLocation)
+    return () => {
+      window.removeEventListener('hashchange', syncLocation)
+      window.removeEventListener('popstate', syncLocation)
+    }
+  }, [])
+
+  const handleVideoEnd = useCallback(() => {
+    trackEvent('interaction', 'intro_completed')
+    setHeroActive(false)
+  }, [])
+
   const handleRequestHero = useCallback(() => {
     setHeroActive(true)
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [])
 
-  useEffect(() => {
-    if (hasEntered && !heroActive && route === DOWNLOAD_ROUTE) {
-      setRoute(DOWNLOAD_ROUTE)
+  const handleReturnHome = useCallback(() => {
+    if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+      window.history.pushState({}, '', '/')
     }
-  }, [hasEntered, heroActive, route])
-
-  // Initial scroll restoration
-  useEffect(() => {
-    window.history.scrollRestoration = 'manual'
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    window.location.hash = ''
+    setLocState({
+      pathname: window.location.pathname,
+      hash: window.location.hash,
+    })
   }, [])
 
-  if (route === DOWNLOAD_ROUTE) {
+  const downloadProject = resolveDownloadProject(locState.hash)
+  const isDownloadRoute = isDownloadHash(locState.hash)
+  const is404 = isNotFoundLocation(locState.pathname, locState.hash)
+
+  useEffect(() => {
+    if (isDownloadRoute && !downloadProject) {
+      showToast({
+        type: 'error',
+        title: 'SYS.ERR // ASSET UNAVAILABLE',
+        message: 'This resource is not available at the moment.',
+      })
+      window.location.hash = '#projects'
+    }
+  }, [isDownloadRoute, downloadProject])
+
+  if (isDownloadRoute && downloadProject) {
+    return (
+      <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
+        <CustomCursor accentColor="teal" />
+        <ToastManager />
+        <DownloadPage />
+      </div>
+    )
+  }
+
+  if (is404) {
     return (
       <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
         <CustomCursor />
-        <DownloadPage />
+        <ToastManager />
+        <NotFoundPage onReturnHome={handleReturnHome} />
       </div>
     )
   }
@@ -299,54 +496,22 @@ const App = () => {
   }
 
   return (
-    <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
-      <CustomCursor />
-
-      <AnimatePresence onExitComplete={() => setIsPreloaderDismissed(true)}>
-        {!isAssetsLoaded && <MDPreloader key="preloader" />}
-      </AnimatePresence>
-
-      <motion.div
-        key="main-app"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isAssetsLoaded ? 1 : 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        {!heroActive && <Navigation onRequestHero={handleRequestHero} isModalActive={isCertModalActive} />}
-
-        <AnimatePresence
-          onExitComplete={() => window.scrollTo({ top: 0, behavior: 'instant' })}
-        >
-          {heroActive && <Intro key="intro" onVideoEnd={handleVideoEnd} onVideoReady={() => setIsVideoReady(true)} isPreloaderDismissed={isPreloaderDismissed} />}
-        </AnimatePresence>
-
-        <div id="home" aria-hidden="true" />
-
-        {/* Global Background Canvas spanning NewHero to Experience */}
-        <canvas
-          id="hero-canvas"
-          className="fixed top-0 left-0 w-full h-[100dvh] object-cover z-0 mix-blend-screen pointer-events-none opacity-90"
-        />
-        {/* Texture Overlay */}
-        <div id="texture-overlay" className="fixed top-0 left-0 w-full h-[100dvh] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-multiply opacity-30 z-0 pointer-events-none" />
-
-        <Background />
-
-        <main className="relative z-10">
-          <div id="scrub-zone" className="relative">
-            <Hero />
-            <About />
-            <Experience />
-          </div>
-          <Projects />
-          <Expertise />
-          <Leadership />
-          <Certifications onModalStateChange={setIsCertModalActive} />
-          <InteractiveCLI />
-          <Footer />
-        </main>
-      </motion.div>
-    </div>
+    <MainPortfolioBody
+      isOffline={isOffline}
+      isAssetsReady={isAssetsReady}
+      bufferProgress={bufferProgress}
+      setIsPreloaderDismissed={setIsPreloaderDismissed}
+      heroActive={heroActive}
+      handleVideoEnd={handleVideoEnd}
+      setIsVideoReady={setIsVideoReady}
+      isPreloaderDismissed={isPreloaderDismissed}
+      heroFrames={heroFrames}
+      projectFrames={projectFrames}
+      setIsCertModalActive={setIsCertModalActive}
+      setIsProjectModalActive={setIsProjectModalActive}
+      handleRequestHero={handleRequestHero}
+      isModalActive={isModalActive}
+    />
   )
 }
 

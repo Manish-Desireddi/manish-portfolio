@@ -1,68 +1,76 @@
 import React, { useRef } from 'react'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
-import { CalendarDays, MapPin, CheckSquare } from 'lucide-react'
-import { EXPERIENCE } from '../data/portfolioData'
+import { CalendarDays, MapPin, CheckCircle2, Shield } from 'lucide-react'
+import { EXPERIENCE, EXPERIENCE_META } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
 
-const TimelineCard = React.memo(({ entry }) => (
+const ExperienceHeaderBar = ({ entry }) => (
+  <div className="sticky top-20 z-20 mb-8 p-4 sm:p-5 bg-black/40 backdrop-blur-md border border-pink-500/30 flex flex-wrap items-center justify-between gap-4 shadow-[0_0_20px_rgba(236,72,153,0.15)]">
+    <div className="flex items-center gap-3">
+      <div className="w-2.5 h-2.5 rounded-full bg-pink-500 animate-pulse shrink-0" />
+      <div>
+        <h3 className="font-heading text-lg sm:text-xl uppercase tracking-wide text-white">
+          {entry.title} <span className="text-pink-400">·</span> {entry.company}
+        </h3>
+        <p className="font-mono text-xs text-zinc-400">ROLE PROTOCOL // AI Automation for Performance, Verification and Validation Team</p>
+      </div>
+    </div>
+
+    <div className="flex items-center gap-4 text-xs font-mono">
+      <span className="inline-flex items-center gap-1.5 text-pink-300 bg-pink-950/40 px-2.5 py-1 border border-pink-500/30">
+        <CalendarDays size={13} className="text-pink-400" />
+        {entry.date}
+      </span>
+      {entry.location && (
+        <span className="inline-flex items-center gap-1.5 text-zinc-400">
+          <MapPin size={13} className="text-pink-500" />
+          {entry.location}
+        </span>
+      )}
+    </div>
+  </div>
+)
+
+const ExperienceNodeCard = ({ item, index }) => (
   <motion.div
-    initial={{ opacity: 0, x: -30 }}
-    whileInView={{ opacity: 1, x: 0 }}
-    viewport={{ once: true, margin: '-80px' }}
-    transition={{ duration: 0.5, ease: "easeOut" }}
-    className="flex gap-6 md:gap-8 group"
+    initial={{ opacity: 0, y: 24 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: '-50px' }}
+    transition={{ duration: 0.4, delay: index * 0.08, ease: 'easeOut' }}
+    className="group relative p-5 sm:p-6 bg-black/15 backdrop-blur-[2px] border border-zinc-800/80 hover:border-pink-500/50 transition-all shadow-[inset_0_0_15px_rgba(236,72,153,0.05)] flex flex-col justify-between"
   >
-    {/* Dot column */}
-    <div className="shrink-0 flex flex-col items-center z-10" aria-hidden="true">
-      <div className="w-4 h-4 bg-black border-2 border-pink-400 mt-2 flex items-center justify-center group-hover:scale-125 group-hover:bg-pink-400 transition-all">
-        <div className="w-1 h-1 bg-pink-400 group-hover:bg-black transition-colors" />
+    <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-pink-500/40 group-hover:border-pink-400 transition-colors" />
+    <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-pink-500/40 group-hover:border-pink-400 transition-colors" />
+
+    <div className="flex items-center justify-between mb-3 border-b border-zinc-800/60 pb-2">
+      <div className="flex items-center gap-2">
+        <CheckCircle2
+          size={16}
+          className="text-pink-500 group-hover:text-pink-400 group-hover:drop-shadow-[0_0_8px_rgba(236,72,153,0.9)] transition-all shrink-0"
+        />
+        <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-widest">
+          NODE 0{index + 1} // VERIFIED DIRECTIVE
+        </span>
       </div>
+      <Shield size={12} className="text-pink-500/60" />
     </div>
 
-    {/* HUD Card */}
-    <div className="flex-1 mb-16 p-8 bg-black/40 backdrop-blur-sm border border-pink-500/20 group-hover:border-pink-400/60 transition-colors shadow-[inset_0_0_20px_rgba(217,70,239,0.1)] relative overflow-hidden">
-      {/* HUD Corner Brackets */}
-      <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-pink-400/50" />
-      <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-pink-400/50" />
-      <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-pink-400/50" />
-      <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-pink-400/50" />
-      
-      {/* Scanning line effect */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-pink-400/5 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-scan-line pointer-events-none" />
-
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 pb-6 border-b border-pink-500/20 group-hover:border-pink-400/50 transition-colors relative z-10">
-        <div>
-          <h3 className="text-2xl font-heading uppercase tracking-tight text-white mb-1 drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">[ {entry.title} ]</h3>
-          <p className="text-pink-400 font-oswald uppercase tracking-widest text-sm">{entry.company}</p>
-        </div>
-
-        <div className="flex flex-col gap-2 sm:items-end shrink-0">
-          <span className="inline-flex items-center gap-2 text-xs text-pink-200 font-mono bg-pink-950/40 px-3 py-1.5 border border-pink-500/30">
-            <CalendarDays size={14} className="text-pink-400" />
-            T-{entry.date}
-          </span>
-          {entry.location && (
-            <span className="inline-flex items-center gap-2 text-xs text-zinc-400 font-mono tracking-widest uppercase">
-              <MapPin size={12} className="text-pink-500" />
-              LOC: {entry.location}
-            </span>
-          )}
-        </div>
-      </div>
-
-      <ul className="space-y-4 relative z-10" aria-label={`Responsibilities at ${entry.company}`}>
-        {entry.responsibilities.map((item, i) => (
-          <li key={i} className="flex items-start gap-4 text-pink-50/70 text-sm font-sans leading-relaxed">
-            <CheckSquare size={16} className="text-pink-500/50 mt-0.5 shrink-0 group-hover:text-pink-400 group-hover:drop-shadow-[0_0_5px_rgba(217,70,239,0.8)] transition-all" />
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <p className="text-zinc-200 text-xs sm:text-sm font-sans leading-relaxed break-words">
+      {item}
+    </p>
   </motion.div>
-))
+)
 
-TimelineCard.displayName = 'TimelineCard'
+const ExperienceTimeline = ({ entry }) => (
+  <div className="relative">
+    <ExperienceHeaderBar entry={entry} />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {entry.responsibilities.map((item, i) => (
+        <ExperienceNodeCard key={i} item={item} index={i} />
+      ))}
+    </div>
+  </div>
+)
 
 const Experience = () => {
   const sectionRef = useRef(null)
@@ -78,37 +86,26 @@ const Experience = () => {
   )
 
   return (
-    <section id="experience" ref={sectionRef} className="relative py-28 px-6 bg-transparent">
-      {/* HUD Scanline Overlay for entire section */}
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(217,70,239,0.03)_1px,transparent_1px)] bg-[length:100%_4px] z-0" />
-      
-      <div className="relative z-10 max-w-5xl mx-auto">
-        <div className="text-center md:text-left mb-20 relative">
-          {/* HUD Targeting Box for Header */}
-          <div className="absolute -left-4 -top-4 w-8 h-8 border-t-2 border-l-2 border-pink-500/50" />
-          <div className="absolute -right-4 -bottom-4 w-8 h-8 border-b-2 border-r-2 border-pink-500/50" />
-          
-          <SectionHeader
-            eyebrow="SYS.LOG // Experience"
-            title="WHERE I'VE SHIPPED."
-            subtitle="> EXECUTING PRODUCTION PROTOCOLS AT SCALE..."
-          />
-        </div>
+    <section id="experience" ref={sectionRef} className="relative py-28 px-4 sm:px-6 bg-transparent">
+      <div className="relative z-10 max-w-6xl mx-auto">
+        <SectionHeader
+          index={EXPERIENCE_META.index}
+          category={EXPERIENCE_META.category}
+          title={EXPERIENCE_META.title}
+          subtitle={EXPERIENCE_META.subtitle}
+        />
 
-        <div className="relative pl-2 md:pl-4">
-          {/* Static track line */}
-          <div className="absolute left-[24px] md:left-[32px] top-0 bottom-0 w-[2px] bg-pink-900/30" aria-hidden="true" />
-
-          {/* Animated fill line */}
+        <div className="relative mt-12">
+          <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-pink-900/30" aria-hidden="true" />
           <motion.div
-            className="absolute left-[24px] md:left-[32px] top-0 w-[2px] bg-gradient-to-b from-pink-500 to-orange-500 origin-top"
+            className="absolute left-0 top-0 w-[2px] bg-gradient-to-b from-pink-500 to-orange-500 origin-top"
             style={{ scaleY: lineScaleY, height: '100%' }}
             aria-hidden="true"
           />
 
-          <div className="relative">
+          <div className="pl-4 sm:pl-8">
             {EXPERIENCE.map((entry) => (
-              <TimelineCard key={entry.id} entry={entry} />
+              <ExperienceTimeline key={entry.id} entry={entry} />
             ))}
           </div>
         </div>

@@ -13,7 +13,17 @@ export default {
         oswald: ['Oswald', 'sans-serif'],
       },
       colors: {
-        'app-dark': '#0B0914',
+        'app-dark': 'var(--color-bg-base, #0B0914)',
+        hud: {
+          primary: 'var(--color-hud-primary, #ec4899)',
+          secondary: 'var(--color-hud-secondary, #fb923c)',
+          accent: 'var(--color-hud-accent, #10b981)',
+          border: 'var(--color-hud-border, rgba(236, 72, 153, 0.3))',
+        },
+      },
+      spacing: {
+        'safe-bottom': 'var(--nav-safe-area)',
+        'container-pad': 'var(--container-pad)',
       },
       keyframes: {
         'marquee-scroll': {
