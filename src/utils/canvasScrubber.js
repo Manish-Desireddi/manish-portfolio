@@ -17,7 +17,7 @@ export const syncCanvasDimensions = (canvas, onResized) => {
     canvas.dataset.syncedWidth = String(currentWidth)
   }
   const isMobile = currentWidth < 768
-  const maxDpr = isMobile ? 1.5 : 2.0
+  const maxDpr = isMobile ? 1.0 : 2.0
   const dpr = Math.min(window.devicePixelRatio || 1, maxDpr)
   const currentHeight = Math.round(window.visualViewport?.height || window.innerHeight)
   canvas.width = Math.round(currentWidth * dpr)
@@ -64,50 +64,22 @@ export const drawCanvasFrame = (canvas, context, img) => {
   context.clearRect(0, 0, canvas.width, canvas.height)
   context.drawImage(img, dx, dy, drawW, drawH)
 }
-
-const decodeFrame = async (blob, isMobile) => {
-  if (isMobile && typeof createImageBitmap === 'function') {
-    try {
-      return await createImageBitmap(blob, {
-        resizeWidth: 960,
-        resizeQuality: 'medium',
-      })
-    } catch {
-      // Fallback to Image element
-    }
-  }
-
-  return new Promise((resolve) => {
+const loadFrameImage = (url) =>
+  new Promise((resolve) => {
     const img = new Image()
     img.decoding = 'async'
     img.loading = 'eager'
-    const objectUrl = URL.createObjectURL(blob)
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl)
-      resolve(img)
-    }
+    img.onload = () => resolve(img)
     img.onerror = () => {
-      URL.revokeObjectURL(objectUrl)
-      resolve(null)
+      const retryImg = new Image()
+      retryImg.decoding = 'async'
+      retryImg.loading = 'eager'
+      retryImg.onload = () => resolve(retryImg)
+      retryImg.onerror = () => resolve(null)
+      retryImg.src = url
     }
-    img.src = objectUrl
+    img.src = url
   })
-}
-
-const fetchSingleFrameWithRetry = async (url, isMobile) => {
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    try {
-      const res = await fetch(url)
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const blob = await res.blob()
-      const decoded = await decodeFrame(blob, isMobile)
-      if (decoded) return decoded
-    } catch {
-      // Retry once on failure
-    }
-  }
-  return null
-}
 
 const mapConcurrent = async (items, concurrency, fn) => {
   const results = new Array(items.length)
@@ -187,7 +159,7 @@ export const useAssetPreloader = (hasEntered) => {
     let loadedCount = 0
 
     const loadWithProgress = (url) =>
-      fetchSingleFrameWithRetry(url, isMobile).then((frame) => {
+      loadFrameImage(url).then((frame) => {
         if (!isCancelled) {
           loadedCount += 1
           setBufferProgress(Math.round((loadedCount / totalFrames) * 100))

@@ -35,7 +35,7 @@ const ExperienceNodeCard = ({ item, index }) => (
   <motion.div
     initial={{ opacity: 0, y: 24 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: '-50px' }}
+    viewport={{ once: true, amount: 0.15 }}
     transition={{ duration: 0.4, delay: index * 0.08, ease: 'easeOut' }}
     className="group relative p-5 sm:p-6 bg-black/15 backdrop-blur-[2px] border border-zinc-800/80 hover:border-pink-500/50 transition-all shadow-[inset_0_0_15px_rgba(236,72,153,0.05)] flex flex-col justify-between"
   >

@@ -15,7 +15,7 @@ const BlockReveal = ({ color }) => (
     variants={blockRevealVariant}
     initial="hidden"
     whileInView="visible"
-    viewport={{ once: true, margin: '-100px' }}
+    viewport={{ once: true, amount: 0.15 }}
   />
 )
 
@@ -31,7 +31,7 @@ const VpExperienceCard = () => (
       className="relative z-20"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      viewport={{ once: true, margin: '-100px' }}
+      viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 0.5, delay: 0.4 }}
     >
       <div className="flex items-start justify-between flex-wrap gap-4 mb-8">
@@ -89,7 +89,7 @@ const EducationBentoColumn = ({ cgpaRef, cgpa }) => (
         className="relative z-20"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: '-100px' }}
+        viewport={{ once: true, amount: 0.15 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
         <div className="w-12 h-12 rounded-full bg-black border border-amber-500 flex items-center justify-center mb-6">
@@ -123,7 +123,7 @@ const EducationBentoColumn = ({ cgpaRef, cgpa }) => (
         className="relative z-20 text-center"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: '-100px' }}
+        viewport={{ once: true, amount: 0.15 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
         <div className="text-xs font-mono text-orange-500 uppercase tracking-widest mb-2">
@@ -139,7 +139,7 @@ const EducationBentoColumn = ({ cgpaRef, cgpa }) => (
 
 const Leadership = () => {
   const cgpaRef = useRef(null)
-  const isCgpaInView = useInView(cgpaRef, { once: true, margin: '-100px' })
+  const isCgpaInView = useInView(cgpaRef, { once: true, amount: 0.15 })
   const [cgpa, setCgpa] = useState(0)
 
   useEffect(() => {

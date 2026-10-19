@@ -39,12 +39,21 @@ const PreloaderOverlay = ({ progress = 0 }) => (
     <div className="relative flex flex-col items-center">
       <div className="relative mb-8 flex items-center justify-center">
         <motion.svg
-          width="200"
-          height="100"
-          viewBox="0 0 200 100"
-          className="drop-shadow-[0_0_15px_rgba(236,72,153,0.8)]"
+          width="280"
+          height="160"
+          viewBox="0 0 280 160"
+          className="overflow-visible"
           aria-label="Manish Desireddi Monogram"
         >
+          <defs>
+            <filter id="md-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           <motion.text
             x="50%"
             y="50%"
@@ -56,6 +65,7 @@ const PreloaderOverlay = ({ progress = 0 }) => (
             fill="transparent"
             stroke="#ec4899"
             strokeWidth="2"
+            filter="url(#md-glow)"
             initial={{ strokeDasharray: 800, strokeDashoffset: 800 }}
             animate={{ strokeDashoffset: 0 }}
             transition={{ duration: 3.5, repeat: Infinity, ease: 'linear' }}
@@ -150,7 +160,7 @@ const usePortfolioMetadata = (pathname, hash) => {
   }, [pathname, hash])
 }
 
-const setupLenisInstance = (isTouch) => {
+const setupLenisInstance = () => {
   ScrollTrigger.config({ ignoreMobileResize: true })
   return new Lenis({
     duration: 3.5,
@@ -159,7 +169,7 @@ const setupLenisInstance = (isTouch) => {
     syncTouch: false,
     smoothTouch: false,
     wheelMultiplier: 0.6,
-    touchMultiplier: isTouch ? 0 : 0.8,
+    touchMultiplier: 0.8,
   })
 }
 
@@ -169,7 +179,9 @@ const useLenisController = (hasEntered, isReady, isPaused) => {
     if (!hasEntered || !isReady) return
 
     const isTouch = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
-    const lenis = setupLenisInstance(isTouch)
+    if (isTouch) return
+
+    const lenis = setupLenisInstance()
 
     lenis.on('scroll', ScrollTrigger.update)
     const update = (time) => lenis.raf(time * 1000)
@@ -187,12 +199,14 @@ const useLenisController = (hasEntered, isReady, isPaused) => {
   }, [hasEntered, isReady])
 
   useEffect(() => {
+    document.body.style.overflow = isPaused ? 'hidden' : ''
     if (!window.lenis) return
     if (isPaused) {
       window.lenis.stop()
-      document.body.style.overflow = 'hidden'
     } else {
       window.lenis.start()
+    }
+    return () => {
       document.body.style.overflow = ''
     }
   }, [isPaused])

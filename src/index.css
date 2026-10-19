@@ -23,7 +23,7 @@ html {
 body {
   background-color: var(--color-bg-base);
   color: #ffffff;
-  overflow-x: hidden;
+  overflow-x: clip;
   font-family: 'Inter', system-ui, sans-serif;
 }
 

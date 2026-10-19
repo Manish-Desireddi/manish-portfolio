@@ -21,9 +21,14 @@ const Background = () => {
         }}
       />
 
-      {/* Ambient glows */}
-      <div className="absolute top-1/4 left-1/4 w-[60vw] md:w-[40vw] h-[60vw] md:h-[40vw] bg-pink-500/10 rounded-full blur-[80px] md:blur-[120px] mix-blend-screen" />
-      <div className="absolute bottom-1/4 right-1/4 w-[70vw] md:w-[50vw] h-[70vw] md:h-[50vw] bg-amber-500/5 rounded-full blur-[100px] md:blur-[150px] mix-blend-screen" />
+      {/* Ambient glows using hardware-friendly CSS radial gradients (zero blur filter cost) */}
+      <div
+        className="absolute inset-0 pointer-events-none mix-blend-screen"
+        style={{
+          background:
+            'radial-gradient(circle at 25% 25%, rgba(236, 72, 153, 0.12), transparent 45%), radial-gradient(circle at 75% 75%, rgba(245, 158, 11, 0.08), transparent 50%)',
+        }}
+      />
 
       <style>{`
         @media (pointer: fine) {

@@ -22,7 +22,7 @@ const ExpertiseCard = ({ system, index }) => {
       variants={fadeUpVariant}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: '-50px' }}
+      viewport={{ once: true, amount: 0.15 }}
       custom={index}
       className="expertise-card group relative bg-app-dark border border-zinc-800 p-8 flex flex-col hover:border-zinc-500 transition-colors"
     >

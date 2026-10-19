@@ -12,9 +12,11 @@ import { trackEvent } from '../utils/analytics'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const ProjectCardFront = ({ project, onOpenDemo, onOpenRepo, onFlip }) => (
+const ProjectCardFront = ({ project, onOpenDemo, onOpenRepo, onFlip, isFlipped }) => (
   <div
-    className="absolute inset-0 w-full h-full bg-black/85 border-l-4 border-pink-500 p-5 sm:p-7 md:p-9 backdrop-blur-xl flex flex-col justify-between shrink-0 overflow-hidden group shadow-[inset_0_0_24px_rgba(217,70,239,0.18)]"
+    className={`absolute inset-0 w-full h-full bg-zinc-950/95 border-l-4 border-pink-500 p-5 sm:p-7 md:p-9 flex flex-col justify-between shrink-0 overflow-hidden group shadow-[inset_0_0_24px_rgba(217,70,239,0.18)] ${
+      isFlipped ? 'pointer-events-none z-10' : 'pointer-events-auto z-20'
+    }`}
     style={{
       backfaceVisibility: 'hidden',
       WebkitBackfaceVisibility: 'hidden',
@@ -83,13 +85,15 @@ const ProjectCardFront = ({ project, onOpenDemo, onOpenRepo, onFlip }) => (
   </div>
 )
 
-const ProjectCardBack = ({ project, onFlip }) => (
+const ProjectCardBack = ({ project, onFlip, isFlipped }) => (
   <div
-    className="absolute inset-0 w-full h-full bg-black/90 border-l-4 border-orange-500 p-5 sm:p-7 md:p-9 backdrop-blur-xl flex flex-col justify-between shrink-0 overflow-hidden shadow-[inset_0_0_24px_rgba(251,146,60,0.18)]"
+    className={`absolute inset-0 w-full h-full bg-zinc-950/95 border-l-4 border-orange-500 p-5 sm:p-7 md:p-9 flex flex-col justify-between shrink-0 overflow-hidden shadow-[inset_0_0_24px_rgba(251,146,60,0.18)] ${
+      isFlipped ? 'pointer-events-auto z-20' : 'pointer-events-none z-10'
+    }`}
     style={{
       backfaceVisibility: 'hidden',
       WebkitBackfaceVisibility: 'hidden',
-      transform: 'rotateY(180deg)',
+      transform: 'rotateY(180deg) translateZ(1px)',
     }}
   >
     <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-orange-500/80" />
@@ -187,10 +191,12 @@ const ProjectCard = ({ project, onOpenDemo, onOpenRepo }) => {
             onOpenDemo={onOpenDemo}
             onOpenRepo={onOpenRepo}
             onFlip={toggleFlip}
+            isFlipped={isFlipped}
           />
           <ProjectCardBack
             project={project}
             onFlip={toggleFlip}
+            isFlipped={isFlipped}
           />
         </motion.div>
       </div>

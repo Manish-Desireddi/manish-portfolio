@@ -111,7 +111,7 @@ export const DOWNLOAD_PROJECTS = {
     version: 'v0.1.0',
     themeColor: 'teal',
     monogram: 'AU',
-    platformBadge: 'Win 11 / Zero-Cloud Engess',
+    platformBadge: 'Win 11 / Zero-Cloud Egress',
     desktopOnly: true,
     desktopOnlyNotice: 'WINDOWS 11 DESKTOP SUPPORT ONLY — ACCESS FROM A DESKTOP WORKSTATION TO DOWNLOAD INSTALLER',
     title: 'AURA AGENTIC OS',
@@ -192,7 +192,7 @@ export const HERO_DATA = {
   nameWords: ['MANISH', 'DESIREDDI'],
   taglines: [
     'Engineering Intelligence.',
-    'Scaling throught into Systems.',
+    'Scaling Thought into Systems.',
   ],
   heroHeading: 'Portfolio',
 }
@@ -315,8 +315,8 @@ export const CERTIFICATIONS = [
   {
     category: 'Cloud & DevOps',
     items: [
-      { id: 'cert5', title: 'OCI 2025 Certified DevOps Professional', issuer: 'Oracle', date: 'Oct 08, 2025', idBadge: '1Z0-1084-25', link: 'https://catalog-education.oracle.com/pls/certview/sharebadge?id=84A9816BEBDB724467CF275B00FCA4D5A81599FB1D9A7F60EAE12B61FC4B198F', clearance: 'active', aspectRatio: '4/3' },
-      { id: 'cert6', title: 'OCI 2025 Certified Developer Professional', issuer: 'Oracle', date: 'Oct 15, 2025', idBadge: '1Z0-1109-25', link: 'https://catalog-education.oracle.com/pls/certview/sharebadge?id=C6FDEFE8B8BB195AE5831EF033F4F050AB4B16F87FC75CC05A727BDE3B58DD50', clearance: 'active', aspectRatio: '4/3' },
+      { id: 'cert5', title: 'OCI 2025 Certified Developer Professional', issuer: 'Oracle', date: 'Oct 08, 2025', idBadge: '1Z0-1084-25', link: 'https://catalog-education.oracle.com/pls/certview/sharebadge?id=84A9816BEBDB724467CF275B00FCA4D5A81599FB1D9A7F60EAE12B61FC4B198F', clearance: 'active', aspectRatio: '4/3' },
+      { id: 'cert6', title: 'OCI 2025 Certified DevOps Professional', issuer: 'Oracle', date: 'Oct 15, 2025', idBadge: '1Z0-1109-25', link: 'https://catalog-education.oracle.com/pls/certview/sharebadge?id=C6FDEFE8B8BB195AE5831EF033F4F050AB4B16F87FC75CC05A727BDE3B58DD50', clearance: 'active', aspectRatio: '4/3' },
     ],
   },
   {

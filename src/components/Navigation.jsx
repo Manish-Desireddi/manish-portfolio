@@ -223,6 +223,20 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
     return () => window.removeEventListener('keydown', onKey)
   }, [drawerOpen])
 
+  useEffect(() => {
+    if (drawerOpen) {
+      document.body.style.overflow = 'hidden'
+      if (window.lenis) window.lenis.stop()
+    } else {
+      document.body.style.overflow = ''
+      if (window.lenis) window.lenis.start()
+    }
+    return () => {
+      document.body.style.overflow = ''
+      if (window.lenis) window.lenis.start()
+    }
+  }, [drawerOpen])
+
   const goToSection = useCallback(
     (e, id) => {
       e?.preventDefault()

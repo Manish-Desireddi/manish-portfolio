@@ -7,7 +7,7 @@ const SectionBadge = ({ index, category }) => (
     variants={fadeUpVariant}
     initial="hidden"
     whileInView="visible"
-    viewport={{ once: true, margin: '-60px' }}
+    viewport={{ once: true, amount: 0.15 }}
     custom={0}
     className="flex items-center justify-center gap-3 mb-2 md:mb-4"
   >
@@ -43,7 +43,7 @@ const SectionHeader = React.memo(({ index, category, eyebrow, number, title, sub
         variants={fadeUpVariant}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: '-60px' }}
+        viewport={{ once: true, amount: 0.15 }}
         custom={1}
         className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-tight"
       >
@@ -55,7 +55,7 @@ const SectionHeader = React.memo(({ index, category, eyebrow, number, title, sub
           variants={fadeUpVariant}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
+          viewport={{ once: true, amount: 0.15 }}
           custom={2}
           className="mt-2 md:mt-4 text-zinc-400 max-w-2xl mx-auto text-sm md:text-lg leading-relaxed hidden sm:block"
         >
