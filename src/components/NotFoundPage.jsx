@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, Home, Download } from 'lucide-react'
+import { AlertTriangle, Home } from 'lucide-react'
 import { NOT_FOUND_DATA } from '../data/portfolioData'
 
 const NotFoundPage = ({ onReturnHome }) => {
@@ -17,14 +17,8 @@ const NotFoundPage = ({ onReturnHome }) => {
     onReturnHome?.()
   }
 
-  const handleDownload = () => {
-    window.location.hash = '#/downloads/aura'
-  }
-
   return (
     <div className="relative min-h-[100dvh] bg-black text-white flex items-center justify-center px-6 overflow-hidden">
-      <div className="fixed inset-0 bg-[url('/assets/cubes.png')] mix-blend-overlay opacity-15 pointer-events-none" />
-
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -33,10 +27,10 @@ const NotFoundPage = ({ onReturnHome }) => {
       >
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-950/40 border border-red-500/50 text-red-400 font-mono text-xs uppercase tracking-widest mb-6">
           <AlertTriangle size={14} />
-          {NOT_FOUND_DATA.code} // ROUTE_UNRESOLVED
+          {NOT_FOUND_DATA.badge}
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-heading uppercase tracking-tighter mb-4 text-white">
+        <h1 className="text-3xl sm:text-5xl font-heading uppercase tracking-tighter mb-4 text-white">
           {NOT_FOUND_DATA.title}
         </h1>
 
@@ -44,22 +38,14 @@ const NotFoundPage = ({ onReturnHome }) => {
           {NOT_FOUND_DATA.message}
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex justify-center">
           <button
             type="button"
             onClick={handleHome}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-pink-500 text-black font-heading uppercase text-sm tracking-wider hover:bg-white transition-colors cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-pink-500 text-black font-heading uppercase text-sm tracking-wider hover:bg-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
           >
             <Home size={18} />
             {NOT_FOUND_DATA.returnButton}
-          </button>
-          <button
-            type="button"
-            onClick={handleDownload}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 border border-zinc-700 hover:border-pink-500 text-white font-heading uppercase text-sm tracking-wider hover:bg-white/5 transition-colors cursor-pointer"
-          >
-            <Download size={18} />
-            AURA OS Download
           </button>
         </div>
       </motion.div>

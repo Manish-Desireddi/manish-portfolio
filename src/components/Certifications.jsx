@@ -90,7 +90,7 @@ const CertModalHeader = ({ onClose, closeBtnRef, selectedCategory, onSelectCateg
         ref={closeBtnRef}
         type="button"
         onClick={onClose}
-        className="flex items-center gap-2 text-zinc-400 hover:text-white px-3 py-1.5 border border-zinc-800 hover:border-pink-500 bg-black/60 transition-colors"
+        className="flex items-center gap-2 text-zinc-400 hover:text-white px-3 py-1.5 border border-zinc-800 hover:border-pink-500 bg-black/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 cursor-pointer"
         aria-label="Close credentials database"
       >
         <X size={16} />
@@ -108,7 +108,7 @@ const CertModalHeader = ({ onClose, closeBtnRef, selectedCategory, onSelectCateg
           key={cat}
           type="button"
           onClick={() => onSelectCategory(cat)}
-          className={`px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wider transition-colors border shrink-0 ${
+          className={`px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wider transition-colors border shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500 cursor-pointer ${
             selectedCategory === cat
               ? 'border-pink-500 bg-pink-950/40 text-pink-400 font-bold'
               : 'border-zinc-800 text-zinc-500 hover:text-zinc-300'
@@ -189,7 +189,7 @@ const CertSlideView = ({ cert }) => {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackEvent('interaction', 'verify_cert_external', { cert: cert.id })}
-            className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-heading uppercase text-xs tracking-wider transition-colors shadow-md mt-2"
+            className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-heading uppercase text-xs tracking-wider transition-colors shadow-md mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer"
           >
             Verify Credential <ExternalLink size={14} />
           </a>
@@ -205,7 +205,7 @@ const CertModalPagination = ({ activeIndex, totalCerts, onPrev, onNext }) => (
       type="button"
       onClick={onPrev}
       disabled={activeIndex === 0}
-      className="flex items-center gap-1.5 px-3 py-1.5 border border-zinc-800 bg-black text-white disabled:opacity-40 disabled:pointer-events-none hover:border-pink-500 transition-colors"
+      className="flex items-center gap-1.5 px-3 py-1.5 border border-zinc-800 bg-black text-white disabled:opacity-40 disabled:pointer-events-none hover:border-pink-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 cursor-pointer"
       aria-label="Previous certificate"
     >
       <ChevronLeft size={16} />
@@ -220,7 +220,7 @@ const CertModalPagination = ({ activeIndex, totalCerts, onPrev, onNext }) => (
       type="button"
       onClick={onNext}
       disabled={activeIndex === totalCerts - 1}
-      className="flex items-center gap-1.5 px-3 py-1.5 border border-zinc-800 bg-black text-white disabled:opacity-40 disabled:pointer-events-none hover:border-pink-500 transition-colors"
+      className="flex items-center gap-1.5 px-3 py-1.5 border border-zinc-800 bg-black text-white disabled:opacity-40 disabled:pointer-events-none hover:border-pink-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 cursor-pointer"
       aria-label="Next certificate"
     >
       <span className="font-heading uppercase text-xs hidden sm:inline">Next</span>
@@ -355,7 +355,7 @@ const Certifications = ({ onModalStateChange }) => {
           <div className="absolute inset-0 flex items-center justify-center z-20">
             <button
               type="button"
-              className="bg-pink-500 hover:bg-pink-400 text-black px-6 sm:px-10 py-3.5 sm:py-5 font-heading text-lg sm:text-2xl uppercase tracking-wider transition-colors flex items-center gap-3 shadow-[0_0_20px_rgba(217,70,239,0.5)] cursor-pointer"
+              className="bg-pink-500 hover:bg-pink-400 text-black px-6 sm:px-10 py-3.5 sm:py-5 font-heading text-lg sm:text-2xl uppercase tracking-wider transition-colors flex items-center gap-3 shadow-[0_0_20px_rgba(217,70,239,0.5)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
             >
               {CERTIFICATIONS_META.viewCredential} <ChevronRight size={22} />
             </button>

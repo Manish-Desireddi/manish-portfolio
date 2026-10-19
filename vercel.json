@@ -3,6 +3,10 @@
     {
       "source": "/autos",
       "destination": "/#/downloads/ai-assistant"
+    },
+    {
+      "source": "/((?!assets/|downloads/|favicon\\.svg).*)",
+      "destination": "/index.html"
     }
   ],
   "redirects": [

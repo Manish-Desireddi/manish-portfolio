@@ -77,6 +77,19 @@ const useTerminalDismiss = (isActive, onDismiss, wrapperRef, inputRef) => {
   }, [isActive, onDismiss, wrapperRef, inputRef])
 }
 
+const useScrollLock = (isActive, isHovered) => {
+  useEffect(() => {
+    if (isActive && isHovered) {
+      window.lenis?.stop()
+    } else {
+      window.lenis?.start()
+    }
+    return () => {
+      window.lenis?.start()
+    }
+  }, [isActive, isHovered])
+}
+
 const InteractiveCLI = () => {
   const [history, setHistory] = useState(() =>
     CLI_DATA.bootMessages.map((msg) => ({ type: 'system', content: msg })),
@@ -85,12 +98,14 @@ const InteractiveCLI = () => {
   const [commandHistory, setCommandHistory] = useState([])
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [isTerminalActive, setIsTerminalActive] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
   const containerRef = useRef(null)
   const inputRef = useRef(null)
   const terminalWrapperRef = useRef(null)
   const lastOutputStartRef = useRef(0)
 
   useTerminalDismiss(isTerminalActive, setIsTerminalActive, terminalWrapperRef, inputRef)
+  useScrollLock(isTerminalActive, isHovered)
 
   useLayoutEffect(() => {
     if (!containerRef.current) return
@@ -196,6 +211,8 @@ const InteractiveCLI = () => {
         <div
           ref={terminalWrapperRef}
           onClick={handleTerminalClick}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           className="bg-black/60 backdrop-blur-xl border-2 border-zinc-800 rounded-sm overflow-hidden shadow-[0_0_30px_rgba(217,70,239,0.1)] cursor-text"
         >
           <div className="bg-zinc-900/80 px-4 py-2 border-b border-zinc-800 flex items-center justify-between">
@@ -204,11 +221,10 @@ const InteractiveCLI = () => {
               <span className="font-mono text-xs text-zinc-400">{CLI_DATA.promptLabel}</span>
             </div>
             <span
-              className={`font-mono text-[10px] tracking-wider uppercase transition-colors ${
-                isTerminalActive ? 'text-emerald-400' : 'text-zinc-500'
-              }`}
+              className={`font-mono text-[10px] tracking-wider uppercase transition-colors ${isTerminalActive ? 'text-emerald-400' : 'text-zinc-500'
+                }`}
             >
-              {isTerminalActive ? 'ACTIVE // CLICK OUTSIDE TO EXIT' : 'CLICK TO ACTIVATE SCROLL & INPUT'}
+              {isTerminalActive ? 'ACTIVE // CLICK OUTSIDE TO EXIT' : 'CLICK TO ACTIVATE INPUT'}
             </span>
           </div>
 
@@ -216,9 +232,8 @@ const InteractiveCLI = () => {
             ref={containerRef}
             data-lenis-prevent={isTerminalActive ? 'true' : undefined}
             tabIndex={0}
-            className={`p-4 sm:p-6 h-[clamp(280px,50vh,420px)] no-scrollbar font-mono text-xs sm:text-sm relative outline-none focus:ring-1 focus:ring-pink-500/30 ${
-              isTerminalActive ? 'overflow-y-auto' : 'overflow-y-hidden pointer-events-none'
-            }`}
+            className={`p-4 sm:p-6 h-[clamp(280px,50vh,420px)] no-scrollbar font-mono text-xs sm:text-sm relative outline-none focus:ring-1 focus:ring-pink-500/30 ${isTerminalActive ? 'overflow-y-auto' : 'overflow-y-hidden pointer-events-none'
+              } ${isTerminalActive && isHovered ? 'overscroll-contain' : ''}`}
           >
             <TerminalMessageHistory history={history} />
 
@@ -235,10 +250,13 @@ const InteractiveCLI = () => {
                 aria-label="Interactive CLI command prompt"
                 spellCheck={false}
                 autoComplete="off"
+                autoCapitalize="none"
+                autoCorrect="off"
+                enterKeyHint="send"
               />
               <button
                 type="submit"
-                className="text-zinc-600 hover:text-pink-400 transition-colors p-1 cursor-pointer"
+                className="text-zinc-600 hover:text-pink-400 transition-colors p-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                 aria-label="Submit command"
               >
                 <CornerDownLeft size={14} />

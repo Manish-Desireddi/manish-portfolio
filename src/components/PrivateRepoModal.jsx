@@ -1,8 +1,8 @@
 import React, { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Lock, Mail } from 'lucide-react'
+import { Lock, Mail } from 'lucide-react'
 import { modalSpring } from '../utils/motionVariants'
-import { useModalLifecycle } from '../utils/useModalLifecycle'
+import { useModalLifecycle, scrollToContactSection } from '../utils/useModalLifecycle'
 import { trackEvent } from '../utils/analytics'
 import { MODALS_DATA } from '../data/portfolioData'
 
@@ -14,14 +14,7 @@ const PrivateRepoModal = ({ isOpen, onClose, projectTitle }) => {
   const handleRequestAccess = () => {
     trackEvent('contact', 'request_private_repo_access', { project: projectTitle })
     onClose()
-    const contactEl = document.getElementById('contact')
-    if (contactEl) {
-      if (window.lenis) {
-        window.lenis.scrollTo(contactEl, { duration: 1.15 })
-      } else {
-        contactEl.scrollIntoView({ behavior: 'smooth' })
-      }
-    }
+    scrollToContactSection()
   }
 
   return (
@@ -56,15 +49,6 @@ const PrivateRepoModal = ({ isOpen, onClose, projectTitle }) => {
                 aria-hidden="true"
               />
 
-              <button
-                ref={closeBtnRef}
-                onClick={onClose}
-                className="absolute top-4 right-4 w-10 h-10 bg-black/60 border border-zinc-700 text-pink-400 hover:text-white hover:border-pink-500 flex items-center justify-center transition-colors cursor-pointer"
-                aria-label="Close restricted repo notice"
-              >
-                <X size={20} aria-hidden="true" />
-              </button>
-
               <div className="flex items-center justify-center gap-2 mb-4 text-orange-400 font-mono text-xs uppercase tracking-widest">
                 <Lock size={16} />
                 <span>{MODALS_DATA.privateRepo.badge}</span>
@@ -86,14 +70,15 @@ const PrivateRepoModal = ({ isOpen, onClose, projectTitle }) => {
                 <button
                   type="button"
                   onClick={handleRequestAccess}
-                  className="px-6 py-3 bg-pink-500 hover:bg-white text-black font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  className="px-6 py-3 bg-pink-500 hover:bg-white text-black font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                 >
                   <Mail size={16} /> {MODALS_DATA.privateRepo.actionButton}
                 </button>
                 <button
+                  ref={closeBtnRef}
                   type="button"
                   onClick={onClose}
-                  className="px-6 py-3 border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors cursor-pointer"
+                  className="px-6 py-3 border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
                 >
                   Dismiss Notice
                 </button>

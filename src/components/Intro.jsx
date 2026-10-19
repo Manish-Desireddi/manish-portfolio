@@ -141,7 +141,7 @@ const IntroOverlayContent = ({ animState, onSkip }) => (
       animate={animState}
       transition={{ delay: 1.8 }}
       onClick={onSkip}
-      className="group mt-2 inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-heading uppercase text-sm hover:bg-pink-400 hover:text-black transition-colors w-fit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] cursor-pointer"
+      className="group mt-2 inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-heading uppercase text-sm hover:bg-pink-400 hover:text-black transition-colors w-fit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] cursor-pointer"
       aria-label="Skip intro broadcast"
     >
       {INTRO_DATA.skipLabel}
@@ -179,11 +179,13 @@ const Intro = ({ onVideoEnd, onVideoReady, isPreloaderDismissed }) => {
       <video
         ref={videoRef}
         src={INTRO_DATA.videoSrc}
+        preload="auto"
         muted={false}
         playsInline
         loop={false}
         onEnded={handleVideoEnd}
         onCanPlayThrough={onVideoReady}
+        onLoadedData={onVideoReady}
         onContextMenu={(e) => e.preventDefault()}
         draggable={false}
         className="absolute inset-0 w-full h-full object-cover"
@@ -219,7 +221,7 @@ const Intro = ({ onVideoEnd, onVideoReady, isPreloaderDismissed }) => {
         animate={animState}
         transition={{ delay: 0.8 }}
         onClick={toggleAudio}
-        className="absolute bottom-8 right-8 z-[3] flex items-center gap-3 px-6 py-3 bg-white text-black font-heading uppercase text-sm border-2 border-transparent hover:bg-black hover:text-pink-400 hover:border-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 cursor-pointer"
+        className="absolute bottom-8 right-8 z-[3] flex items-center gap-3 px-6 py-3 bg-white text-black font-heading uppercase text-sm border-2 border-transparent hover:bg-black hover:text-pink-400 hover:border-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
         aria-label={muted ? 'Unmute audio broadcast' : 'Mute audio broadcast'}
       >
         {muted ? (

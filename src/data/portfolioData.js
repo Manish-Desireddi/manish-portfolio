@@ -257,7 +257,7 @@ export const EXPERTISE_DATA = {
   category: 'EXPERTISE',
   sectionNumber: '04',
   title: 'CORE CAPABILITIES',
-  subtitle: 'ENGINEERING DOMAINS & ARCHITECTURES',
+  subtitle: '> ENGINEERING DOMAINS & ARCHITECTURES',
   systems: [
     {
       id: 'agentic',
@@ -309,20 +309,20 @@ export const CERTIFICATIONS = [
       { id: 'cert1', title: 'Azure AI Engineer Associate', issuer: 'Microsoft', date: 'Jan 15, 2026', idBadge: 'AZ-102', link: 'https://learn.microsoft.com/api/credentials/share/en-in/ManishDesireddi-7062/BFC025FD51AAEEFB?sharingId=79004611549A2A1D', clearance: 'active', aspectRatio: '16/9' },
       { id: 'cert2', title: 'OCI 2024 Certified Professional, Generative AI', issuer: 'Oracle', date: 'July 31, 2024', idBadge: '1Z0-1127-24', link: 'https://catalog-education.oracle.com/pls/certview/sharebadge?id=E0958DD90E958E58EF7E18513DD608C77E3012702968124269433C4FD28E17C2', clearance: 'expired', aspectRatio: '4/3' },
       { id: 'cert3', title: 'Salesforce Certified AI Associate', issuer: 'Salesforce', date: 'Oct 19, 2024', link: 'https://trailhead.salesforce.com/en/credentials/aiassociate', clearance: 'retired', aspectRatio: '4/3' },
-      { id: 'cert4', title: 'LinkedIn AI for Gaming', issuer: 'LinkedIn', date: 'Oct 05, 2023', link: 'https://www.linkedin.com/learning/certificates/d5tBEFHX', clearance: 'active', aspectRatio: '4/3' },
+      { id: 'cert4', title: 'LinkedIn AI for Gaming', issuer: 'LinkedIn', date: 'Oct 05, 2023', link: 'https://www.linkedin.com/learning/certificates/bd6703c9e794e9c78a06d7109c7ca717c43cad26762477e946eb899979c148b8?lipi=urn%3Ali%3Apage%3Ad_flagship3_detail_base%3BB5EbvmRFTfau3qAzO9r25w%3D%3D', clearance: 'active', aspectRatio: '4/3' },
     ],
   },
   {
     category: 'Cloud & DevOps',
     items: [
-      { id: 'cert5', title: 'OCI 2025 Certified Developer Professional', issuer: 'Oracle', date: 'Oct 08, 2025', idBadge: '1Z0-1084-25', link: 'https://catalog-education.oracle.com/pls/certview/sharebadge?id=84A9816BEBDB724467CF275B00FCA4D5A81599FB1D9A7F60EAE12B61FC4B198F', clearance: 'active', aspectRatio: '4/3' },
-      { id: 'cert6', title: 'OCI 2025 Certified DevOps Professional', issuer: 'Oracle', date: 'Oct 15, 2025', idBadge: '1Z0-1109-25', link: 'https://catalog-education.oracle.com/pls/certview/sharebadge?id=C6FDEFE8B8BB195AE5831EF033F4F050AB4B16F87FC75CC05A727BDE3B58DD50', clearance: 'active', aspectRatio: '4/3' },
+      { id: 'cert5', title: 'OCI 2025 Certified DevOps Professional', issuer: 'Oracle', date: 'Oct 08, 2025', idBadge: '1Z0-1084-25', link: 'https://catalog-education.oracle.com/pls/certview/sharebadge?id=84A9816BEBDB724467CF275B00FCA4D5A81599FB1D9A7F60EAE12B61FC4B198F', clearance: 'active', aspectRatio: '4/3' },
+      { id: 'cert6', title: 'OCI 2025 Certified Developer Professional', issuer: 'Oracle', date: 'Oct 15, 2025', idBadge: '1Z0-1109-25', link: 'https://catalog-education.oracle.com/pls/certview/sharebadge?id=C6FDEFE8B8BB195AE5831EF033F4F050AB4B16F87FC75CC05A727BDE3B58DD50', clearance: 'active', aspectRatio: '4/3' },
     ],
   },
   {
     category: 'Software',
     items: [
-      { id: 'cert8', title: 'Unity Certified User: Programmer', issuer: 'Unity Technologies', date: 'Mar 31, 2025', link: 'https://www.credly.com/badges/602b940c-c99c-400b-a172-e7416818db02/public_url', clearance: 'active', aspectRatio: '4/3' },
+      { id: 'cert8', title: 'Unity Certified User: Programmer', issuer: 'Unity Technologies', date: 'Mar 31, 2025', link: 'https://www.credly.com/badges/9582429d-a450-48f8-8c8d-6d42fcb5b1e1/public_url', clearance: 'active', aspectRatio: '4/3' },
       { id: 'cert7', title: 'IBMCE CEPYT1IN Python Certificate', issuer: 'IBM', date: 'Oct 16, 2023', idBadge: 'CEPYT1IN', link: 'https://courses.etrain.skillsnetwork.site/certificates/fe160acd6c1243b48c7dca486adc2cc9', clearance: 'active', aspectRatio: '4/3' },
     ],
   },
@@ -330,7 +330,7 @@ export const CERTIFICATIONS = [
     category: 'Automation',
     items: [
       { id: 'cert9', title: 'Essentials RPA Professional', issuer: 'Automation Anywhere', date: 'Mar 03, 2026', idBadge: 'AAESS-A360', link: 'https://certificates.automationanywhere.com/a88994c0-dfab-4d12-b31a-76e94e14db40?record_view=true', clearance: 'active', aspectRatio: '3/4' },
-      { id: 'cert10', title: 'Nokia Internship Certificate', issuer: 'Nokia', date: 'Jun 30, 2026', link: 'https://www.nokia.com', clearance: 'active', aspectRatio: '3/4' },
+      { id: 'cert10', title: 'Nokia Internship Certificate', issuer: 'Nokia', date: 'Jun 30, 2026', link: 'https://lnkd.in/p/d9M3xGT3', clearance: 'active', aspectRatio: '3/4' },
     ],
   },
 ]
@@ -451,7 +451,7 @@ export const PROJECTS = [
     metrics: { memory: 'SQLite + ChromaDB', ui: 'React 19 + GSAP', tts: 'Edge Neural' },
     tags: ['Python', 'LangGraph', 'React 19', 'FastAPI', 'ChromaDB', 'PyWebView', 'Tailwind v4'],
     github: 'https://github.com/Manish-Desireddi',
-    demoKind: 'download-cloud',
+    demoKind: 'download-aura',
     downloadSlug: 'aura',
     accent: 'orange',
   },
@@ -593,18 +593,35 @@ export const MODALS_DATA = {
 
 // --- Privacy / Cookie Consent -----------------------------------------------
 export const PRIVACY_DATA = {
-  title: 'PRIVACY PROTOCOL // COOKIE CONSENT',
-  description: 'This terminal uses local memory tokens to preserve telemetry and HUD configurations.',
-  acceptButton: 'INITIALIZE STORAGE',
-  declineButton: 'RESTRICT TELEMETRY',
+  title: 'Cookie & Privacy Preferences',
+  description: 'We use cookies and local storage to remember your preferences and understand how visitors interact with this portfolio. Choose "Accept All" to enable all features, or "Essential Only" for basic site functionality.',
+  acceptButton: 'Accept All',
+  declineButton: 'Essential Only',
+  customizeButton: 'Customize Cookies',
+  categories: {
+    essential: {
+      title: 'Essential Cookies',
+      badge: 'Always Active',
+      description: 'Required for basic website navigation and remembering your cookie preferences.',
+    },
+    analytics: {
+      title: 'Analytics Cookies',
+      description: 'Helps us see which projects and sections visitors explore the most.',
+    },
+    performance: {
+      title: 'Performance Cookies',
+      description: 'Helps us monitor animation smoothness and loading speed across different devices.',
+    },
+  },
 }
 
 // --- Not Found (404) Data ---------------------------------------------------
 export const NOT_FOUND_DATA = {
+  badge: '[ 404 ] // ROUTE UNRESOLVED',
   code: '404',
-  title: 'SYSTEM ERROR // SECTOR NOT FOUND',
-  message: 'The requested route does not exist in the neural topology.',
-  returnButton: 'RETURN TO GRID',
+  title: 'SYS.ERR // COORDINATE NOT FOUND',
+  message: 'The requested coordinate route does not exist in the neural topology.',
+  returnButton: 'RETURN TO PORTFOLIO',
 }
 
 // --- Demo Modal Project Variants --------------------------------------------
@@ -612,20 +629,25 @@ export const DEMO_VARIANTS = {
   'modal-subq': {
     title: 'Audio Transformer is Live on GitHub.',
     body: 'The Sub-Quadratic Audio Transformer Engine is open-source and ready for testing. Access the repository directly below.',
+    status: 'LIVE ON GITHUB',
+    gateStatus: 'verified',
   },
   'modal-3d': {
     title: '3D latents are still cooking.',
     body: 'The diffusion pipeline is currently in active training on ShapeNet. A live preview will be available once the latents converge - check back soon.',
-    progress: [1, 0.86, 0.64, 0.42, 0.20],
+    status: 'TRAINING CONVERGENCE',
+    gateStatus: 'pending',
   },
   'modal-storefront': {
     title: 'Storefront is being assembled.',
     body: 'The AI PC Builder commerce experience is wiring up payments, inventory, and the recommendation engine. Launching soon.',
-    progress: [1, 1, 0.66, 0.5, 0.22],
+    status: 'COMMERCE PIPELINE',
+    gateStatus: 'pending',
   },
   'modal-commercial': {
     title: 'Available on commercial license.',
     body: 'The Classic build runs fully offline on multi-GPU hardware (AMD Radeon AI Pro + NVIDIA RTX 3060) and is being prepared for commercial release. Reach out for a private trial, demo, or licensing conversation.',
-    progress: [1, 1, 1, 0.85, 0.6],
+    status: 'COMMERCIAL LICENSE',
+    gateStatus: 'pending',
   },
 }

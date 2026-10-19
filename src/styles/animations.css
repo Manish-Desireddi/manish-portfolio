@@ -158,6 +158,6 @@ body {
 
 /* --- Hardware Accel --- */
 .project-card,
-.TacticalCard {
+.expertise-card {
   will-change: transform, opacity;
 }

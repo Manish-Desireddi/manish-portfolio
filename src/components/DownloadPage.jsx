@@ -18,7 +18,7 @@ import {
 } from '../data/portfolioData'
 import { resolveDownloadProject, verifyAndTriggerDownload } from '../utils/assetVerifier'
 import { showToast } from './ToastManager'
-import { terminalBlockReveal } from '../utils/motionVariants'
+import { blockRevealVariant } from '../utils/motionVariants'
 
 const ICON_MAP = {
   Cpu,
@@ -60,7 +60,7 @@ function useScrambleText(target, enabled = true) {
   return text
 }
 
-const HudCornerBrackets = ({ palette }) => (
+const CornerBrackets = ({ palette }) => (
   <>
     <div className={`absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 ${palette.border} pointer-events-none transition-transform group-hover:-translate-x-0.5 group-hover:-translate-y-0.5`} />
     <div className={`absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 ${palette.border} pointer-events-none transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5`} />
@@ -161,7 +161,7 @@ const DownloadCta = ({ project, palette, isMobile, verifying, onDownload }) => {
         whileTap={{ scale: 0.98 }}
         onClick={onDownload}
         disabled={verifying}
-        className={`w-full py-4 ${palette.bg} ${palette.bgHover} text-black font-heading uppercase text-lg font-bold flex items-center justify-center gap-3 transition-colors ${palette.borderGlow} disabled:opacity-75 relative overflow-hidden group cursor-pointer`}
+        className={`w-full py-4 ${palette.bg} ${palette.bgHover} text-black font-heading uppercase text-lg font-bold flex items-center justify-center gap-3 transition-colors ${palette.borderGlow} disabled:opacity-75 relative overflow-hidden group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500`}
       >
         <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-25deg] -translate-x-[150%] animate-shimmer pointer-events-none" />
         <Download size={20} className={verifying ? 'animate-bounce relative z-10' : 'relative z-10'} />
@@ -171,7 +171,7 @@ const DownloadCta = ({ project, palette, isMobile, verifying, onDownload }) => {
   )
 }
 
-const TiltSpotlightCard = ({ children, palette, className = '' }) => {
+const SpotlightCard = ({ children, palette, className = '' }) => {
   const cardRef = useRef(null)
   const isTouch = typeof window !== 'undefined'
     && (window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches)
@@ -255,16 +255,16 @@ const DownloadModule = ({ project, palette }) => {
       transition={{ delay: 0.1, duration: 0.5 }}
       className="lg:col-span-5 relative"
     >
-      <TiltSpotlightCard palette={palette} className="group">
+      <SpotlightCard palette={palette} className="group">
         <motion.div
-          variants={terminalBlockReveal}
+          variants={blockRevealVariant}
           initial="hidden"
           animate="visible"
           className={`absolute inset-0 ${palette.bg} z-30 pointer-events-none`}
         />
 
         <div className="bg-zinc-950 border-2 border-zinc-800 p-8 h-full flex flex-col justify-between relative group hover:border-zinc-700 transition-colors overflow-hidden">
-          <HudCornerBrackets palette={palette} />
+          <CornerBrackets palette={palette} />
 
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className={`w-full h-12 bg-gradient-to-b from-transparent ${palette.scanline} to-transparent animate-scan-line`} />
@@ -301,7 +301,7 @@ const DownloadModule = ({ project, palette }) => {
             />
           </div>
         </div>
-      </TiltSpotlightCard>
+      </SpotlightCard>
     </motion.div>
   )
 }
@@ -316,7 +316,7 @@ const FeatureCard = ({ feature, palette, index }) => {
       transition={{ delay: 0.2 + index * 0.1, duration: 0.4 }}
       className="bg-black border border-zinc-800 p-6 relative group hover:border-zinc-700 transition-colors overflow-hidden"
     >
-      <HudCornerBrackets palette={palette} />
+      <CornerBrackets palette={palette} />
       <div className="flex items-center gap-3 mb-4">
         <div className={`p-2 border border-zinc-800 bg-zinc-950 ${palette.textLight} group-hover:scale-110 transition-transform`}>
           <IconComponent size={20} />
@@ -340,7 +340,7 @@ const SystemSpecsPanel = ({ requirements, palette }) => (
     className="bg-zinc-950 border border-zinc-800 p-8 relative overflow-hidden flex flex-col justify-between"
   >
     <motion.div
-      variants={terminalBlockReveal}
+      variants={blockRevealVariant}
       initial="hidden"
       animate="visible"
       className={`absolute inset-0 ${palette.bg} z-30 pointer-events-none`}
@@ -424,13 +424,11 @@ const DownloadPage = () => {
       className="relative min-h-screen overflow-x-hidden bg-black text-white selection:bg-teal-500 selection:text-black font-sans"
       style={{ '--color-hud-primary': palette.hex }}
     >
-      <div className="fixed inset-0 bg-[url('/assets/cubes.png')] mix-blend-overlay opacity-20 pointer-events-none" />
-
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-12 md:py-20">
         <button
           type="button"
           onClick={goHome}
-          className="inline-flex items-center gap-2 text-zinc-500 hover:text-white text-sm font-heading uppercase tracking-widest mb-16 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 text-zinc-500 hover:text-white text-sm font-heading uppercase tracking-widest mb-16 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
         >
           <ArrowLeft size={16} />
           Return to Portfolio

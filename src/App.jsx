@@ -23,15 +23,14 @@ import ToastManager, { showToast } from './components/ToastManager'
 import CookieConsent from './components/CookieConsent'
 import EnterOverlay from './components/EnterOverlay'
 
-import { isReducedMotion } from './utils/motionVariants'
-import { syncCanvasBackingStore, drawAspectFillFrame, useUnifiedPreloader } from './utils/canvasScrubber'
+import { syncCanvasDimensions, drawCanvasFrame, useAssetPreloader } from './utils/canvasScrubber'
 import { trackEvent } from './utils/analytics'
 import { SITE_METADATA } from './data/portfolioData'
 import { resolveDownloadProject } from './utils/assetVerifier'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const MDPreloader = ({ progress = 0 }) => (
+const PreloaderOverlay = ({ progress = 0 }) => (
   <motion.div
     className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-app-dark"
     initial={{ opacity: 1 }}
@@ -157,8 +156,10 @@ const setupLenisInstance = (isTouch) => {
     duration: 3.5,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
+    syncTouch: false,
+    smoothTouch: false,
     wheelMultiplier: 0.6,
-    touchMultiplier: isTouch ? 1.0 : 0.8,
+    touchMultiplier: isTouch ? 0 : 0.8,
   })
 }
 
@@ -197,7 +198,7 @@ const useLenisController = (hasEntered, isReady, isPaused) => {
   }, [isPaused])
 }
 
-const setupScrubResizeObserver = () => {
+const observeScrollRegionResize = () => {
   let timeoutId = null
   const observer = new ResizeObserver(() => {
     clearTimeout(timeoutId)
@@ -217,7 +218,7 @@ const setupScrubResizeObserver = () => {
   }
 }
 
-const HeroBackgroundScrubber = ({ heroFrames }) => {
+const HeroBackgroundCanvas = ({ heroFrames }) => {
   // fallow-ignore-next-line complexity
   useEffect(() => {
     if (!heroFrames || heroFrames.length === 0) return
@@ -227,38 +228,36 @@ const HeroBackgroundScrubber = ({ heroFrames }) => {
     const context = canvas.getContext('2d')
     if (!context) return
 
-    const handleResize = () => syncCanvasBackingStore(canvas)
+    const frames = { frame: 0 }
+    const render = () => {
+      const img = heroFrames[Math.round(frames.frame)] || heroFrames[0]
+      drawCanvasFrame(canvas, context, img)
+    }
+
+    const handleResize = () => syncCanvasDimensions(canvas, render)
     handleResize()
     window.addEventListener('resize', handleResize)
-    const cleanupObserver = setupScrubResizeObserver()
+    const cleanupObserver = observeScrollRegionResize()
 
-    const frames = { frame: 0 }
     const ctx = gsap.context(() => {
-      const render = () => {
-        const img = heroFrames[Math.round(frames.frame)] || heroFrames[0]
-        drawAspectFillFrame(canvas, context, img)
-      }
-
       render()
 
-      if (!isReducedMotion()) {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: '#scrub-zone',
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: 1,
-            invalidateOnRefresh: true,
-          },
-        })
-        tl.to(frames, {
-          frame: heroFrames.length - 1,
-          snap: 'frame',
-          ease: 'none',
-          duration: 1,
-          onUpdate: render,
-        })
-      }
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#scrub-zone',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1,
+          invalidateOnRefresh: true,
+        },
+      })
+      tl.to(frames, {
+        frame: heroFrames.length - 1,
+        snap: 'frame',
+        ease: 'none',
+        duration: 1,
+        onUpdate: render,
+      })
 
       gsap.timeline({
         scrollTrigger: {
@@ -283,14 +282,14 @@ const HeroBackgroundScrubber = ({ heroFrames }) => {
   return (
     <canvas
       id="hero-canvas"
-      className="fixed top-0 left-0 w-full h-[100dvh] object-cover z-0 mix-blend-screen pointer-events-none opacity-90"
+      className="fixed inset-0 w-full h-[100dvh] object-cover z-0 mix-blend-screen pointer-events-none opacity-90"
       aria-hidden="true"
     />
   )
 }
 
 // fallow-ignore-next-line complexity
-const MainPortfolioBody = ({
+const PortfolioLayout = ({
   isOffline,
   isAssetsReady,
   bufferProgress,
@@ -318,7 +317,7 @@ const MainPortfolioBody = ({
     )}
 
     <AnimatePresence onExitComplete={() => setIsPreloaderDismissed(true)}>
-      {!isAssetsReady && <MDPreloader key="preloader" progress={bufferProgress} />}
+      {!isAssetsReady && <PreloaderOverlay key="preloader" progress={bufferProgress} />}
     </AnimatePresence>
 
     <motion.div
@@ -343,12 +342,7 @@ const MainPortfolioBody = ({
         )}
       </AnimatePresence>
 
-      <HeroBackgroundScrubber heroFrames={heroFrames} />
-      <div
-        id="texture-overlay"
-        className="fixed top-0 left-0 w-full h-[100dvh] bg-[url('/assets/cubes.png')] mix-blend-multiply opacity-30 z-0 pointer-events-none"
-        aria-hidden="true"
-      />
+      <HeroBackgroundCanvas heroFrames={heroFrames} />
       <Background />
 
       <main className="relative z-10">
@@ -393,9 +387,9 @@ const App = () => {
   usePortfolioMetadata(locState.pathname, locState.hash)
 
   const { bufferProgress, isPreloadComplete, heroFrames, projectFrames } =
-    useUnifiedPreloader(hasEntered, isVideoReady)
+    useAssetPreloader(hasEntered)
 
-  const isAssetsReady = isPreloadComplete && (isVideoReady || isOffline)
+  const isAssetsReady = isPreloadComplete
   useLenisController(hasEntered, isAssetsReady, heroActive || isModalActive)
 
   useEffect(() => {
@@ -496,7 +490,7 @@ const App = () => {
   }
 
   return (
-    <MainPortfolioBody
+    <PortfolioLayout
       isOffline={isOffline}
       isAssetsReady={isAssetsReady}
       bufferProgress={bufferProgress}

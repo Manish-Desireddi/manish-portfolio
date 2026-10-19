@@ -63,7 +63,7 @@ const Hero = () => {
     <section
       id="home"
       ref={containerRef}
-      className="relative w-full h-[100dvh] overflow-hidden bg-transparent flex items-center justify-center"
+      className="relative w-full h-[100svh] md:h-[100dvh] overflow-hidden bg-transparent flex items-center justify-center"
       aria-label="Portfolio Home"
     >
       <div

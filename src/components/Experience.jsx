@@ -82,7 +82,7 @@ const Experience = () => {
 
   const lineScaleY = useSpring(
     useTransform(scrollYProgress, [0, 1], [0, 1]),
-    { damping: 30, stiffness: 100 },
+    { damping: 30, stiffness: 100, restDelta: 0.001 },
   )
 
   return (

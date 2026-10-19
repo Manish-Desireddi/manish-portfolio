@@ -9,7 +9,7 @@ export const isReducedMotion = () => prefersReducedMotion
 
 const standardEase = [0.22, 1, 0.36, 1]
 
-export const hudFadeUp = {
+export const fadeUpVariant = {
   hidden: {
     opacity: 0,
     y: prefersReducedMotion ? 0 : 20,
@@ -25,7 +25,7 @@ export const hudFadeUp = {
   }),
 }
 
-export const terminalBlockReveal = {
+export const blockRevealVariant = {
   hidden: {
     height: '0%',
     top: '0%',

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useForm, ValidationError } from '@formspree/react'
-import { Linkedin, Github, Instagram, ArrowUp, AlertCircle, CheckCircle2, Shield } from 'lucide-react'
+import { Linkedin, Github, Instagram, ArrowUp, AlertCircle, CheckCircle2, Cookie } from 'lucide-react'
 import { showToast } from './ToastManager'
 import { trackEvent } from '../utils/analytics'
 import { FOOTER_DATA } from '../data/portfolioData'
 
-const RockstarStamp = () => (
+const DeveloperBadge = () => (
   <div className="w-[120px] shrink-0 border-4 border-white bg-black flex overflow-hidden self-start shadow-xl">
     <div className="w-1/3 border-r-4 border-white flex flex-col items-center justify-center p-2 bg-white text-black">
       <span className="font-heading text-5xl leading-none tracking-tighter">
@@ -37,7 +37,7 @@ const TransmissionConfirmedCard = ({ onReset }) => (
     <button
       type="button"
       onClick={onReset}
-      className="mt-4 px-6 py-2.5 bg-zinc-900 hover:bg-emerald-500 hover:text-black text-emerald-400 font-heading uppercase text-xs tracking-wider border border-emerald-500/40 transition-colors"
+      className="mt-4 px-6 py-2.5 bg-zinc-900 hover:bg-emerald-500 hover:text-black text-emerald-400 font-heading uppercase text-xs tracking-wider border border-emerald-500/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 cursor-pointer"
     >
       Send Another Transmission
     </button>
@@ -72,7 +72,7 @@ const FieldInput = ({ id, type, name, label, placeholder, disabled, errors }) =>
       name={name}
       required
       disabled={disabled}
-      className="w-full bg-black/60 border border-zinc-800 focus:border-pink-500 p-3.5 sm:p-4 text-white text-sm font-mono outline-none transition-colors"
+      className="w-full bg-black/60 border border-zinc-800 focus:border-pink-500 p-3.5 sm:p-4 text-white text-sm font-mono outline-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
       placeholder={placeholder}
     />
     <ValidationError prefix={label} field={name} errors={errors} className="text-red-400 text-xs font-mono mt-1" />
@@ -90,7 +90,7 @@ const FieldTextarea = ({ id, name, label, placeholder, disabled, errors }) => (
       rows={4}
       required
       disabled={disabled}
-      className="w-full bg-black/60 border border-zinc-800 focus:border-pink-500 p-3.5 sm:p-4 text-white text-sm font-mono outline-none transition-colors resize-none"
+      className="w-full bg-black/60 border border-zinc-800 focus:border-pink-500 p-3.5 sm:p-4 text-white text-sm font-mono outline-none transition-colors resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
       placeholder={placeholder}
     />
     <ValidationError prefix={label} field={name} errors={errors} className="text-red-400 text-xs font-mono mt-1" />
@@ -189,7 +189,7 @@ const ContactForm = ({ isOffline }) => {
       <button
         type="submit"
         disabled={!isOnline || formState.submitting}
-        className="w-full py-4 bg-pink-500 hover:bg-white text-black font-heading uppercase text-sm sm:text-base tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(236,72,153,0.4)]"
+        className="w-full py-4 bg-pink-500 hover:bg-white text-black font-heading uppercase text-sm sm:text-base tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(236,72,153,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 cursor-pointer"
       >
         {formState.submitting ? FOOTER_DATA.submittingButton : FOOTER_DATA.submitButton}
       </button>
@@ -203,14 +203,14 @@ const FooterSectorDirectory = () => (
       SYSTEM SECTOR DIRECTORY
     </h3>
     <div className="grid grid-cols-2 gap-2 text-xs font-mono text-zinc-400">
-      <a href="#home" className="hover:text-pink-400 transition-colors">01 // HOME</a>
-      <a href="#about" className="hover:text-pink-400 transition-colors">02 // ABOUT</a>
-      <a href="#experience" className="hover:text-pink-400 transition-colors">03 // EXPERIENCE</a>
-      <a href="#projects" className="hover:text-pink-400 transition-colors">04 // PROJECTS</a>
-      <a href="#architecture" className="hover:text-pink-400 transition-colors">05 // EXPERTISE</a>
-      <a href="#leadership" className="hover:text-pink-400 transition-colors">06 // LEADERSHIP</a>
-      <a href="#certifications" className="hover:text-pink-400 transition-colors">07 // ACCREDITATIONS</a>
-      <a href="#cli" className="hover:text-pink-400 transition-colors">08 // TERMINAL CLI</a>
+      <a href="#home" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">01 // HOME</a>
+      <a href="#about" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">02 // ABOUT</a>
+      <a href="#experience" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">03 // EXPERIENCE</a>
+      <a href="#projects" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">04 // PROJECTS</a>
+      <a href="#architecture" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">05 // EXPERTISE</a>
+      <a href="#leadership" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">06 // LEADERSHIP</a>
+      <a href="#certifications" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">07 // ACCREDITATIONS</a>
+      <a href="#cli" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">08 // TERMINAL CLI</a>
     </div>
   </div>
 )
@@ -223,7 +223,7 @@ const FooterSocialLinks = () => (
         href="https://linkedin.com/in/Manish-Desireddi"
         target="_blank"
         rel="noopener noreferrer"
-        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400"
+        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
         aria-label="Manish Desireddi on LinkedIn"
       >
         <Linkedin size={20} />
@@ -232,7 +232,7 @@ const FooterSocialLinks = () => (
         href="https://github.com/Manish-Desireddi"
         target="_blank"
         rel="noopener noreferrer"
-        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400"
+        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
         aria-label="Manish Desireddi on GitHub"
       >
         <Github size={20} />
@@ -241,7 +241,7 @@ const FooterSocialLinks = () => (
         href="https://huggingface.co/manishdesireddi"
         target="_blank"
         rel="noopener noreferrer"
-        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400"
+        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
         aria-label="Manish Desireddi on HuggingFace"
       >
         <div
@@ -262,7 +262,7 @@ const FooterSocialLinks = () => (
         href="https://instagram.com/the.manish.desireddi_"
         target="_blank"
         rel="noopener noreferrer"
-        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400"
+        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
         aria-label="Manish Desireddi on Instagram"
       >
         <Instagram size={20} />
@@ -284,7 +284,7 @@ const Footer = ({ isOffline = false }) => {
   }
 
   const openPrivacySettings = () => {
-    window.dispatchEvent(new CustomEvent('sys-open-privacy-settings'))
+    window.dispatchEvent(new CustomEvent('app:open-privacy'))
   }
 
   return (
@@ -313,7 +313,7 @@ const Footer = ({ isOffline = false }) => {
               <button
                 type="button"
                 onClick={scrollToTop}
-                className="inline-flex items-center gap-2 px-4 py-2 border border-zinc-800 text-zinc-400 hover:text-white hover:border-pink-500 font-mono text-xs uppercase tracking-wider transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 border border-zinc-800 text-zinc-400 hover:text-white hover:border-pink-500 font-mono text-xs uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 cursor-pointer"
                 aria-label="Return to top of page"
               >
                 <ArrowUp size={14} /> Back to Top
@@ -321,9 +321,9 @@ const Footer = ({ isOffline = false }) => {
               <button
                 type="button"
                 onClick={openPrivacySettings}
-                className="inline-flex items-center gap-1.5 text-zinc-500 hover:text-pink-400 font-mono text-xs uppercase tracking-wider transition-colors"
+                className="inline-flex items-center gap-1.5 text-zinc-500 hover:text-pink-400 font-mono text-xs uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 cursor-pointer"
               >
-                <Shield size={14} /> Telemetry Settings
+                <Cookie size={14} /> Cookie Settings
               </button>
             </div>
           </div>
@@ -331,7 +331,7 @@ const Footer = ({ isOffline = false }) => {
 
         <div className="border-t border-zinc-900 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-mono text-zinc-500">
           <p>{FOOTER_DATA.copyright}</p>
-          <RockstarStamp />
+          <DeveloperBadge />
         </div>
       </div>
     </footer>

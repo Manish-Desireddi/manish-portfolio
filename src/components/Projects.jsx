@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { PROJECTS, PROJECTS_META } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
 import DemoModal from './DemoModal'
@@ -6,86 +7,212 @@ import PrivateRepoModal from './PrivateRepoModal'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { playSubBassCue } from '../utils/audioContext'
-import { isReducedMotion } from '../utils/motionVariants'
-import { syncCanvasBackingStore, drawAspectFillFrame } from '../utils/canvasScrubber'
+import { syncCanvasDimensions, drawCanvasFrame } from '../utils/canvasScrubber'
 import { trackEvent } from '../utils/analytics'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const ProjectCard = ({ project, onOpenDemo, onOpenRepo }) => (
-  <div className="w-[100vw] h-full flex items-center justify-center px-4 sm:px-8 lg:px-20 shrink-0">
-    <div className="project-card w-full max-w-5xl flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-8 max-h-[85vh] md:max-h-[70vh] overflow-y-auto md:overflow-visible no-scrollbar">
-      <div className="md:col-span-7 bg-black/80 border-l-4 border-pink-500 p-6 sm:p-8 backdrop-blur-xl flex flex-col justify-between shrink-0 relative overflow-hidden group shadow-[inset_0_0_20px_rgba(217,70,239,0.15)]">
-        <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-pink-500/80" />
-        <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-pink-500/80" />
+const ProjectCardFront = ({ project, onOpenDemo, onOpenRepo, onFlip }) => (
+  <div
+    className="absolute inset-0 w-full h-full bg-black/85 border-l-4 border-pink-500 p-5 sm:p-7 md:p-9 backdrop-blur-xl flex flex-col justify-between shrink-0 overflow-hidden group shadow-[inset_0_0_24px_rgba(217,70,239,0.18)]"
+    style={{
+      backfaceVisibility: 'hidden',
+      WebkitBackfaceVisibility: 'hidden',
+    }}
+  >
+    <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-pink-500/80" />
+    <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-pink-500/80" />
 
-        <div>
-          <h3 className="font-heading text-2xl sm:text-3xl uppercase tracking-tighter text-white mb-2 group-hover:text-pink-400 transition-colors">
-            {project.title}
-          </h3>
-          <p className="text-zinc-300 font-sans leading-relaxed text-xs sm:text-sm mb-6">
-            {project.description}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-3 pt-4 border-t border-zinc-800">
-          <button
-            type="button"
-            onClick={() => onOpenDemo(project)}
-            className="px-5 py-2.5 bg-white text-black font-heading uppercase hover:bg-pink-400 hover:text-black transition-colors text-xs sm:text-sm shadow-[0_0_15px_rgba(255,255,255,0.3)]"
-          >
-            Explore Demo
-          </button>
-          <button
-            type="button"
-            onClick={() => onOpenRepo(project)}
-            className="px-5 py-2.5 border-2 border-zinc-700 text-white font-heading uppercase hover:bg-white/10 hover:border-white transition-colors text-xs sm:text-sm"
-          >
-            View Source
-          </button>
-        </div>
+    <div className="shrink-0 mb-2">
+      <div className="flex items-center justify-between gap-3 mb-2">
+        <span className="font-mono text-[10px] tracking-widest text-pink-400 uppercase">
+          SEC // {project.id}
+        </span>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onFlip()
+          }}
+          className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-400 hover:text-pink-400 tracking-wider transition-colors uppercase cursor-pointer"
+        >
+          <span>FLIP FOR TELEMETRY</span>
+          <span className="text-pink-400">➔</span>
+        </button>
       </div>
 
-      <div className="md:col-span-5 flex flex-col gap-3 justify-center">
-        <div className="bg-black/75 border border-zinc-800 p-4 sm:p-5 flex items-center gap-4 hover:border-pink-400 transition-colors backdrop-blur-xl">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-black flex items-center justify-center font-heading text-pink-400 text-lg sm:text-xl border border-pink-500/30 shrink-0">
-            01
-          </div>
-          <div className="min-w-0">
-            <h4 className="font-oswald uppercase text-white tracking-widest text-xs sm:text-sm">Built With</h4>
-            <p className="text-pink-200/80 text-xs font-mono mt-0.5 truncate">{project.tags.slice(0, 3).join(' // ')}</p>
-          </div>
-        </div>
+      <h3 className="font-heading text-xl sm:text-2xl md:text-3xl uppercase tracking-tighter text-white mb-2 group-hover:text-pink-400 transition-colors">
+        {project.title}
+      </h3>
+    </div>
 
-        <div className="bg-black/75 border border-zinc-800 p-4 sm:p-5 flex items-center gap-4 hover:border-orange-400 transition-colors backdrop-blur-xl">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-black flex items-center justify-center font-heading text-orange-400 text-lg sm:text-xl border border-orange-500/30 shrink-0">
-            02
-          </div>
-          <div className="min-w-0">
-            <h4 className="font-oswald uppercase text-white tracking-widest text-xs sm:text-sm">Key Highlight</h4>
-            <p className="text-orange-200/80 text-xs font-mono mt-0.5 truncate">{project.highlights[0]}</p>
-          </div>
-        </div>
+    <div className="overflow-y-auto no-scrollbar min-h-0 flex-1 pr-1 mb-2">
+      <p className="text-zinc-300 font-sans leading-relaxed text-xs sm:text-sm">
+        {project.description}
+      </p>
+    </div>
 
-        {project.metrics && (
-          <div className="bg-black/75 border border-zinc-800 p-4 sm:p-5 flex items-center gap-4 hover:border-amber-400 transition-colors backdrop-blur-xl">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-black flex items-center justify-center font-heading text-amber-400 text-lg sm:text-xl border border-amber-500/30 shrink-0">
-              03
-            </div>
-            <div className="min-w-0">
-              <h4 className="font-oswald uppercase text-white tracking-widest text-xs sm:text-sm">Telemetry</h4>
-              <p className="text-amber-200/80 text-xs font-mono mt-0.5 truncate">
-                {Object.entries(project.metrics).map(([k, v]) => `${k.toUpperCase()}: ${v}`).join(' | ')}
-              </p>
-            </div>
-          </div>
-        )}
+    <div className="pt-3 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <div className="flex flex-wrap gap-2.5 md:gap-3">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onOpenDemo(project)
+          }}
+          className="px-4 md:px-5 py-2 md:py-2.5 bg-white text-black font-heading uppercase hover:bg-pink-400 hover:text-black transition-colors text-xs sm:text-sm shadow-[0_0_15px_rgba(255,255,255,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
+        >
+          Explore Demo
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onOpenRepo(project)
+          }}
+          className="px-4 md:px-5 py-2 md:py-2.5 border-2 border-zinc-700 text-white font-heading uppercase hover:bg-white/10 hover:border-white transition-colors text-xs sm:text-sm cursor-pointer"
+        >
+          View Source
+        </button>
       </div>
+
+      <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest hidden sm:inline">
+        CLICK CARD TO FLIP
+      </span>
     </div>
   </div>
 )
 
-const restorePersistedScroll = () => {
+const ProjectCardBack = ({ project, onFlip }) => (
+  <div
+    className="absolute inset-0 w-full h-full bg-black/90 border-l-4 border-orange-500 p-5 sm:p-7 md:p-9 backdrop-blur-xl flex flex-col justify-between shrink-0 overflow-hidden shadow-[inset_0_0_24px_rgba(251,146,60,0.18)]"
+    style={{
+      backfaceVisibility: 'hidden',
+      WebkitBackfaceVisibility: 'hidden',
+      transform: 'rotateY(180deg)',
+    }}
+  >
+    <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-orange-500/80" />
+    <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-orange-500/80" />
+
+    <div className="flex items-center justify-between gap-3 mb-2 border-b border-zinc-800 pb-2 shrink-0">
+      <span className="font-mono text-[10px] tracking-widest text-orange-400 uppercase">
+        TELEMETRY // SPECIFICATIONS
+      </span>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          onFlip()
+        }}
+        className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-400 hover:text-orange-400 tracking-wider transition-colors uppercase cursor-pointer"
+      >
+        <span className="text-orange-400">↩</span>
+        <span>RETURN TO OVERVIEW</span>
+      </button>
+    </div>
+
+    <div className="overflow-y-auto no-scrollbar min-h-0 flex-1 space-y-3 pr-1 mb-2">
+      <div>
+        <h4 className="font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
+          Stack Architecture
+        </h4>
+        <div className="flex flex-wrap gap-1.5">
+          {project.tags.map((tag) => (
+            <span
+              key={tag}
+              className="px-2 py-0.5 bg-zinc-900 border border-zinc-700 text-pink-300 font-mono text-[10px] tracking-tight"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {project.highlights && project.highlights.length > 0 && (
+        <div>
+          <h4 className="font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1">
+            Engineering Highlights
+          </h4>
+          <ul className="space-y-1">
+            {project.highlights.map((item, idx) => (
+              <li key={idx} className="font-sans text-xs text-zinc-300 flex items-start gap-1.5">
+                <span className="text-orange-400 font-mono text-[10px] mt-0.5">▸</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+
+    {project.metrics && (
+      <div className="pt-3 border-t border-zinc-800 grid grid-cols-2 sm:grid-cols-3 gap-2 shrink-0">
+        {Object.entries(project.metrics).map(([key, val]) => (
+          <div key={key} className="bg-zinc-950/80 border border-zinc-800 p-2">
+            <span className="block font-mono text-[9px] uppercase tracking-wider text-zinc-400 truncate">
+              {key}
+            </span>
+            <span className="block font-mono text-xs sm:text-sm font-bold text-amber-400 truncate">
+              {val}
+            </span>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+)
+
+const ProjectCard = ({ project, onOpenDemo, onOpenRepo }) => {
+  const [isFlipped, setIsFlipped] = useState(false)
+  const toggleFlip = () => setIsFlipped((prev) => !prev)
+
+  return (
+    <div className="w-[100vw] h-full flex items-center justify-center px-4 sm:px-8 lg:px-20 shrink-0">
+      <div
+        className="project-card w-full max-w-2xl md:max-w-3xl h-full max-h-[clamp(260px,48vh,420px)] cursor-pointer select-none"
+        style={{ perspective: '1200px' }}
+        onClick={toggleFlip}
+        role="region"
+        aria-label={`Project card for ${project.title}`}
+      >
+        <motion.div
+          className="relative w-full h-full"
+          style={{ transformStyle: 'preserve-3d' }}
+          animate={{ rotateY: isFlipped ? 180 : 0 }}
+          transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+        >
+          <ProjectCardFront
+            project={project}
+            onOpenDemo={onOpenDemo}
+            onOpenRepo={onOpenRepo}
+            onFlip={toggleFlip}
+          />
+          <ProjectCardBack
+            project={project}
+            onFlip={toggleFlip}
+          />
+        </motion.div>
+      </div>
+    </div>
+  )
+}
+
+const ScrollDownIndicator = () => (
+  <div
+    className="absolute bottom-16 md:bottom-[84px] left-1/2 -translate-x-1/2 pointer-events-none z-20 flex flex-col items-center gap-1 opacity-70 hover:opacity-100 transition-opacity"
+    aria-hidden="true"
+  >
+    <div className="w-5 h-8 border-2 border-zinc-400 rounded-full flex justify-center pt-1.5">
+      <div className="w-1 h-2 bg-pink-400 rounded-full animate-bounce" />
+    </div>
+    <span className="font-mono text-[9px] tracking-widest text-zinc-400 uppercase">
+      SCROLL DOWN
+    </span>
+  </div>
+)
+
+const restoreScrollPosition = () => {
   try {
     const savedY = sessionStorage.getItem('returnScrollY')
     if (savedY !== null) {
@@ -106,7 +233,7 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
   const trackRef = useRef(null)
   const titleRef = useRef(null)
 
-  const [demoState, setDemoState] = useState({ open: false, variantId: null })
+  const [demoState, setDemoState] = useState({ open: false, variantId: null, title: '' })
   const [repoState, setRepoState] = useState({ open: false, title: null })
 
   const isReady = projectFrames && projectFrames.length > 0
@@ -121,7 +248,16 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
     const canvas = document.getElementById('projects-canvas')
     const context = canvas ? canvas.getContext('2d') : null
 
-    const handleResize = () => syncCanvasBackingStore(canvas)
+    const frames = { frame: 0 }
+    const frameCount = projectFrames.length
+
+    const render = () => {
+      if (!canvas || !context) return
+      const img = projectFrames[Math.round(frames.frame)] || projectFrames[0]
+      drawCanvasFrame(canvas, context, img)
+    }
+
+    const handleResize = () => syncCanvasDimensions(canvas, render)
     handleResize()
 
     const ro = new ResizeObserver(handleResize)
@@ -129,8 +265,6 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
 
     const ctx = gsap.context(() => {
       const total = PROJECTS.length
-      const frames = { frame: 0 }
-      const frameCount = projectFrames.length
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -155,22 +289,15 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
       }, 0.5)
 
       if (canvas && context) {
-        const render = () => {
-          const img = projectFrames[Math.round(frames.frame)] || projectFrames[0]
-          drawAspectFillFrame(canvas, context, img)
-        }
-
         render()
 
-        if (!isReducedMotion()) {
-          tl.to(frames, {
-            frame: frameCount - 1,
-            snap: 'frame',
-            ease: 'none',
-            duration: total + 0.5,
-            onUpdate: render,
-          }, 0)
-        }
+        tl.to(frames, {
+          frame: frameCount - 1,
+          snap: 'frame',
+          ease: 'none',
+          duration: total + 0.5,
+          onUpdate: render,
+        }, 0)
       }
 
       const cards = gsap.utils.toArray('.project-card')
@@ -188,7 +315,7 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
     setTimeout(() => {
       ScrollTrigger.refresh()
       window.lenis?.resize()
-      restorePersistedScroll()
+      restoreScrollPosition()
     }, 120)
 
     return () => {
@@ -199,7 +326,7 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
 
   const handleOpenDemo = (project) => {
     trackEvent('interaction', 'project_demo_open', { projectId: project.id })
-    if (project.demoKind === 'download-cloud') {
+    if (project.demoKind === 'download-aura') {
       try {
         sessionStorage.setItem('returnScrollY', String(window.scrollY))
       } catch {
@@ -208,7 +335,7 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
       window.lenis?.stop()
       window.location.hash = `#/downloads/${project.downloadSlug || 'aura'}`
     } else {
-      setDemoState({ open: true, variantId: project.demoKind })
+      setDemoState({ open: true, variantId: project.demoKind, title: project.title })
     }
   }
 
@@ -223,7 +350,7 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
 
   return (
     <>
-      <section ref={containerRef} id="projects" className="relative w-full h-[100dvh] bg-app-dark overflow-hidden">
+      <section ref={containerRef} id="projects" className="relative w-full h-[100svh] md:h-[100dvh] bg-app-dark overflow-hidden">
         <canvas
           id="projects-canvas"
           className="absolute inset-0 w-full h-full object-cover z-0 opacity-80"
@@ -231,7 +358,7 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
         />
         <div className="absolute inset-0 bg-black/60 pointer-events-none z-0" aria-hidden="true" />
 
-        <div className="projects-content relative z-10 w-full h-full pt-16 md:pt-24 pb-6 md:pb-12 overflow-hidden flex flex-col justify-between">
+        <div className="projects-content relative z-10 w-full h-full pt-4 md:pt-8 pb-28 md:pb-32 overflow-hidden flex flex-col justify-between">
           <div ref={titleRef} className="text-center origin-top px-4 sm:px-6 flex-shrink-0">
             <SectionHeader
               index={PROJECTS_META.index}
@@ -243,7 +370,7 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
 
           <div
             ref={trackRef}
-            className="flex h-full flex-grow items-center mt-4 md:mt-8 overflow-visible no-scrollbar flex-nowrap"
+            className="flex-1 min-h-0 w-full flex items-center overflow-visible no-scrollbar flex-nowrap"
           >
             {PROJECTS.map((project) => (
               <ProjectCard
@@ -255,12 +382,15 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
             ))}
           </div>
         </div>
+
+        <ScrollDownIndicator />
       </section>
 
       <DemoModal
         isOpen={demoState.open}
         onClose={() => setDemoState({ ...demoState, open: false })}
         variantId={demoState.variantId}
+        projectTitle={demoState.title}
       />
       <PrivateRepoModal
         isOpen={repoState.open}

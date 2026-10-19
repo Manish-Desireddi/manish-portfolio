@@ -3,16 +3,16 @@ import { motion, useInView, animate } from 'framer-motion'
 import { Target, Users, Briefcase, GraduationCap, MapPin } from 'lucide-react'
 import { LEADERSHIP, LEADERSHIP_META } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
-import { isReducedMotion, terminalBlockReveal } from '../utils/motionVariants'
+import { isReducedMotion, blockRevealVariant } from '../utils/motionVariants'
 
 const MagneticIcon = ({ children }) => (
   <div className="p-2 -m-2 inline-flex">{children}</div>
 )
 
-const TerminalBlockReveal = ({ color }) => (
+const BlockReveal = ({ color }) => (
   <motion.div
     className={`absolute inset-0 z-30 pointer-events-none ${color}`}
-    variants={terminalBlockReveal}
+    variants={blockRevealVariant}
     initial="hidden"
     whileInView="visible"
     viewport={{ once: true, margin: '-100px' }}
@@ -21,7 +21,7 @@ const TerminalBlockReveal = ({ color }) => (
 
 const VpExperienceCard = () => (
   <div className="lg:col-span-2 relative bg-black border border-pink-500 rounded-xl p-6 sm:p-8 overflow-hidden group">
-    <TerminalBlockReveal color="bg-pink-500" />
+    <BlockReveal color="bg-pink-500" />
     <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-pink-500 rounded-tl-lg pointer-events-none" />
     <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-pink-500 rounded-tr-lg pointer-events-none" />
     <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-pink-500 rounded-bl-lg pointer-events-none" />
@@ -79,7 +79,7 @@ const VpExperienceCard = () => (
 const EducationBentoColumn = ({ cgpaRef, cgpa }) => (
   <div className="lg:col-span-1 flex flex-col gap-6">
     <div className="flex-1 relative bg-black border border-amber-500 rounded-xl p-6 sm:p-8 overflow-hidden flex flex-col justify-center">
-      <TerminalBlockReveal color="bg-amber-500" />
+      <BlockReveal color="bg-amber-500" />
       <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-amber-500 rounded-tl-lg pointer-events-none" />
       <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-amber-500 rounded-tr-lg pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-amber-500 rounded-bl-lg pointer-events-none" />
@@ -113,7 +113,7 @@ const EducationBentoColumn = ({ cgpaRef, cgpa }) => (
       ref={cgpaRef}
       className="min-h-[clamp(140px,20vh,192px)] relative bg-black rounded-xl p-6 sm:p-8 overflow-hidden flex flex-col items-center justify-center border border-orange-500"
     >
-      <TerminalBlockReveal color="bg-orange-500" />
+      <BlockReveal color="bg-orange-500" />
       <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-orange-500 rounded-tl-lg pointer-events-none" />
       <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-orange-500 rounded-tr-lg pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-orange-500 rounded-bl-lg pointer-events-none" />

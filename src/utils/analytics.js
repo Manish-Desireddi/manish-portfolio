@@ -3,6 +3,22 @@
 
 const STORAGE_KEY = 'sys_privacy_consent_v1'
 
+const purgeNonEssentialStorage = (prefs) => {
+  if (typeof window === 'undefined') return
+  try {
+    if (!prefs?.telemetry) {
+      sessionStorage.removeItem('returnScrollY')
+    }
+    const nonEssentialKeys = ['sys_analytics_id', 'sys_visitor_session', 'sys_perf_metrics', 'telemetry_cache']
+    nonEssentialKeys.forEach((key) => {
+      localStorage.removeItem(key)
+      sessionStorage.removeItem(key)
+    })
+  } catch {
+    // Safe storage fallback
+  }
+}
+
 export const getConsentPreferences = () => {
   if (typeof window === 'undefined') return { essential: true, analytics: false, telemetry: false }
   try {
@@ -17,6 +33,9 @@ export const setConsentPreferences = (prefs) => {
   if (typeof window === 'undefined') return
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs))
+    if (!prefs?.analytics || !prefs?.telemetry) {
+      purgeNonEssentialStorage(prefs)
+    }
     window.dispatchEvent(new CustomEvent('sys-privacy-consent-changed', { detail: prefs }))
   } catch {
     // Safe storage fallback
@@ -25,7 +44,13 @@ export const setConsentPreferences = (prefs) => {
 
 const canDispatchEvent = (category, prefs) => {
   if (category === 'essential') return true
-  return Boolean(prefs?.analytics)
+  if (category === 'navigation' || category === 'interaction' || category === 'download' || category === 'contact') {
+    return Boolean(prefs?.analytics)
+  }
+  if (category === 'telemetry' || category === 'error' || category === 'performance') {
+    return Boolean(prefs?.telemetry)
+  }
+  return false
 }
 
 const isDebugTelemetryEnabled = () => {

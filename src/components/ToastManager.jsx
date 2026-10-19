@@ -5,7 +5,7 @@ import { CheckCircle2, AlertTriangle, Info, X } from 'lucide-react'
 // Global toast dispatch helper
 export const showToast = (toast) => {
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('sys-show-toast', { detail: toast }))
+    window.dispatchEvent(new CustomEvent('app:toast', { detail: toast }))
   }
 }
 
@@ -72,8 +72,8 @@ const ToastManager = () => {
       }
     }
 
-    window.addEventListener('sys-show-toast', handleToast)
-    return () => window.removeEventListener('sys-show-toast', handleToast)
+    window.addEventListener('app:toast', handleToast)
+    return () => window.removeEventListener('app:toast', handleToast)
   }, [])
 
   return (

@@ -42,7 +42,7 @@ const DrawerMenuLink = ({ href, onClick, label, icon: Icon, isActive, badge }) =
   <a
     href={href}
     onClick={onClick}
-    className={`flex items-center justify-between p-4 border transition-all ${
+    className={`flex items-center justify-between p-4 border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 ${
       isActive
         ? 'border-pink-500 bg-pink-950/20 text-white'
         : 'border-zinc-800 bg-zinc-950/60 text-zinc-300 hover:border-zinc-600 hover:text-white'
@@ -75,7 +75,7 @@ const DesktopNavStrip = ({ activeId, onSelect }) => (
           onClick={(e) => onSelect(e, id)}
           aria-label={`Navigate to ${label} section`}
           aria-current={isActive ? 'page' : undefined}
-          className="relative shrink-0 flex flex-col items-center justify-center w-14 h-14 transition-colors border-r border-zinc-800 hover:bg-zinc-900 group"
+          className="relative shrink-0 flex flex-col items-center justify-center w-14 h-14 transition-colors border-r border-zinc-800 hover:bg-zinc-900 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
         >
           {isActive && (
             <motion.div
@@ -105,13 +105,13 @@ const MobileMenuButton = ({ drawerOpen, onToggle }) => (
     onClick={onToggle}
     aria-label={drawerOpen ? 'Close command drawer' : 'Open command drawer'}
     aria-expanded={drawerOpen}
-    className="md:hidden flex items-center justify-center w-12 h-12 bg-zinc-950 hover:bg-pink-950/30 text-pink-400 border-zinc-800 transition-colors shrink-0"
+    className="md:hidden flex items-center justify-center w-12 h-12 bg-zinc-950 hover:bg-pink-950/30 text-pink-400 border-zinc-800 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 cursor-pointer"
   >
     {drawerOpen ? <X size={20} /> : <Menu size={20} />}
   </button>
 )
 
-const HudCommandDrawer = ({ isOpen, onClose, activeId, onSelect, onResumeDownload, drawerRef }) => {
+const NavigationDrawer = ({ isOpen, onClose, activeId, onSelect, onResumeDownload, drawerRef }) => {
   if (!isOpen) return null
 
   return (
@@ -136,7 +136,7 @@ const HudCommandDrawer = ({ isOpen, onClose, activeId, onSelect, onResumeDownloa
         <button
           type="button"
           onClick={onClose}
-          className="p-2 border border-zinc-800 text-zinc-400 hover:text-white hover:border-pink-500 transition-colors"
+          className="p-2 border border-zinc-800 text-zinc-400 hover:text-white hover:border-pink-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 cursor-pointer"
           aria-label="Close command drawer"
         >
           <X size={20} />
@@ -282,7 +282,7 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
       </nav>
 
       <AnimatePresence>
-        <HudCommandDrawer
+        <NavigationDrawer
           isOpen={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           activeId={activeId}

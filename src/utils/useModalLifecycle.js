@@ -36,3 +36,13 @@ export const useModalLifecycle = (isOpen, onClose, closeBtnRef) => {
     }
   }, [isOpen, onClose, closeBtnRef])
 }
+
+export const scrollToContactSection = () => {
+  const contactEl = document.getElementById('contact')
+  if (!contactEl) return
+  if (window.lenis) {
+    window.lenis.scrollTo(contactEl, { duration: 1.15 })
+  } else {
+    contactEl.scrollIntoView({ behavior: 'smooth' })
+  }
+}

@@ -1,10 +1,10 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { hudFadeUp } from '../utils/motionVariants'
+import { fadeUpVariant } from '../utils/motionVariants'
 
-const TacticalSectorBadge = ({ index, category }) => (
+const SectionBadge = ({ index, category }) => (
   <motion.div
-    variants={hudFadeUp}
+    variants={fadeUpVariant}
     initial="hidden"
     whileInView="visible"
     viewport={{ once: true, margin: '-60px' }}
@@ -36,11 +36,11 @@ const SectionHeader = React.memo(({ index, category, eyebrow, number, title, sub
   return (
     <div className="mb-6 md:mb-16 text-center">
       {displayCategory && (
-        <TacticalSectorBadge index={displayIndex} category={displayCategory} />
+        <SectionBadge index={displayIndex} category={displayCategory} />
       )}
 
       <motion.h2
-        variants={hudFadeUp}
+        variants={fadeUpVariant}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-60px' }}
@@ -52,7 +52,7 @@ const SectionHeader = React.memo(({ index, category, eyebrow, number, title, sub
 
       {subtitle && (
         <motion.p
-          variants={hudFadeUp}
+          variants={fadeUpVariant}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-60px' }}

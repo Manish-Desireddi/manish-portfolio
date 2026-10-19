@@ -26,8 +26,6 @@ const ProfileCard = ({
             }}
           />
 
-          <div className="absolute inset-0 bg-[url('/assets/cubes.png')] mix-blend-overlay opacity-50 pointer-events-none" />
-
           <div className="absolute top-3 right-3 flex items-center gap-2 px-3 py-1 bg-black border border-emerald-500">
             <span className="w-2 h-2 bg-emerald-400 animate-pulse" />
             <span className="text-[10px] font-heading text-emerald-400 uppercase tracking-widest">{status}</span>
@@ -56,7 +54,7 @@ const ProfileCard = ({
 
           <a
             href={`mailto:${contactEmail}`}
-            className="block w-full text-center py-3 bg-pink-950/20 border border-pink-500/50 text-white font-heading uppercase tracking-widest hover:bg-pink-500 hover:border-pink-500 hover:text-black transition-all shadow-[0_0_15px_rgba(236,72,153,0)] hover:shadow-[0_0_20px_rgba(236,72,153,0.6)]"
+            className="block w-full text-center py-3 bg-pink-950/20 border border-pink-500/50 text-white font-heading uppercase tracking-widest hover:bg-pink-500 hover:border-pink-500 hover:text-black transition-all shadow-[0_0_15px_rgba(236,72,153,0)] hover:shadow-[0_0_20px_rgba(236,72,153,0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
           >
             {contactText}
           </a>

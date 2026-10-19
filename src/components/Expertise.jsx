@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import { motion } from 'framer-motion'
 import SectionHeader from './SectionHeader'
-import { hudFadeUp } from '../utils/motionVariants'
+import { fadeUpVariant } from '../utils/motionVariants'
 import { EXPERTISE_DATA } from '../data/portfolioData'
 
 const ACCENT_MAP = {
@@ -13,18 +13,18 @@ const ACCENT_MAP = {
 
 const ACCENT_KEYS = ['pink', 'orange', 'fuchsia', 'amber']
 
-const TacticalCard = ({ system, index }) => {
+const ExpertiseCard = ({ system, index }) => {
   const accentKey = ACCENT_KEYS[index % ACCENT_KEYS.length]
   const { bg, border, text, groupHoverBorder } = ACCENT_MAP[accentKey]
 
   return (
     <motion.article
-      variants={hudFadeUp}
+      variants={fadeUpVariant}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: '-50px' }}
       custom={index}
-      className="group relative bg-app-dark border border-zinc-800 p-8 flex flex-col hover:border-zinc-500 transition-colors"
+      className="expertise-card group relative bg-app-dark border border-zinc-800 p-8 flex flex-col hover:border-zinc-500 transition-colors"
     >
       <div className={`absolute top-0 left-0 w-full h-1 ${bg} border-t-2 ${border} scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300`} />
 
@@ -77,7 +77,7 @@ const Expertise = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
           {EXPERTISE_DATA.systems.map((system, idx) => (
-            <TacticalCard key={system.id} system={system} index={idx} />
+            <ExpertiseCard key={system.id} system={system} index={idx} />
           ))}
         </div>
       </div>

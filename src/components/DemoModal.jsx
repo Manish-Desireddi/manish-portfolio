@@ -1,73 +1,85 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ExternalLink, ShieldCheck } from 'lucide-react'
+import { ExternalLink, ShieldCheck, Mail } from 'lucide-react'
 import { DEMO_VARIANTS } from '../data/portfolioData'
 import { modalSpring } from '../utils/motionVariants'
-import { useModalLifecycle } from '../utils/useModalLifecycle'
+import { useModalLifecycle, scrollToContactSection } from '../utils/useModalLifecycle'
 import { trackEvent } from '../utils/analytics'
 
 const DEFAULT_VARIANT = {
-  title: 'Demo under development.',
-  body: 'This project demo is currently under active development. A live preview will be available soon - check back shortly.',
-  progress: [1, 1, 1, 0.6, 0.22],
+  title: 'Demo Under Development',
+  body: 'This project demo is currently under active engineering refinement.',
+  status: 'PENDING RELEASE',
+  gateStatus: 'pending',
 }
 
-const useTypewriterEffect = (isOpen, text) => {
-  const [displayed, setDisplayed] = useState('')
-  const [glitchOn, setGlitchOn] = useState(false)
-  const indexRef = useRef(0)
-  const timerRef = useRef(null)
-  const glitchRef = useRef(null)
+const DeploymentTelemetryPipeline = ({ variant }) => {
+  const isGateVerified = variant.gateStatus === 'verified'
 
-  useEffect(() => {
-    if (!isOpen) {
-      setDisplayed('')
-      setGlitchOn(false)
-      indexRef.current = 0
-      clearInterval(timerRef.current)
-      clearInterval(glitchRef.current)
-      return
-    }
+  return (
+    <div className="my-6 p-3.5 bg-zinc-950/90 border border-zinc-900 text-left">
+      <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-3 border-b border-zinc-900 pb-1.5">
+        <span>DEPLOYMENT PIPELINE</span>
+        <span className="text-pink-400">TELEMETRY 3-NODE</span>
+      </div>
 
-    const startTimer = setTimeout(() => {
-      timerRef.current = setInterval(() => {
-        if (indexRef.current < text.length) {
-          setDisplayed(text.slice(0, indexRef.current + 1))
-          indexRef.current += 1
-        } else {
-          clearInterval(timerRef.current)
-          glitchRef.current = setInterval(() => {
-            setGlitchOn(true)
-            setTimeout(() => setGlitchOn(false), 160)
-          }, 3200)
-        }
-      }, 40)
-    }, 200)
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between text-xs font-mono">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="text-zinc-300">[01] CORE ARCHITECTURE</span>
+          </div>
+          <span className="text-emerald-400 text-[11px] font-bold">VERIFIED</span>
+        </div>
 
-    return () => {
-      clearTimeout(startTimer)
-      clearInterval(timerRef.current)
-      clearInterval(glitchRef.current)
-    }
-  }, [isOpen, text])
+        <div className="flex items-center justify-between text-xs font-mono">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="text-zinc-300">[02] WEIGHTS & RUNTIME</span>
+          </div>
+          <span className="text-emerald-400 text-[11px] font-bold">VERIFIED</span>
+        </div>
 
-  return { displayed, glitchOn }
+        <div className="flex items-center justify-between text-xs font-mono">
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-2 h-2 rounded-full ${
+                isGateVerified ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'
+              }`}
+            />
+            <span className="text-zinc-300">[03] PUBLIC ACCESS GATE</span>
+          </div>
+          <span
+            className={`text-[11px] font-bold ${
+              isGateVerified ? 'text-emerald-400' : 'text-amber-400'
+            }`}
+          >
+            {variant.status || 'PENDING RELEASE'}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
 }
 
-// fallow-ignore-next-line complexity
-const DemoModal = ({ isOpen, onClose, variantId }) => {
+const DemoModal = ({ isOpen, onClose, variantId, projectTitle }) => {
   const variant = DEMO_VARIANTS[variantId] ?? DEFAULT_VARIANT
   const closeBtnRef = useRef(null)
 
   useModalLifecycle(isOpen, onClose, closeBtnRef)
-  const { displayed, glitchOn } = useTypewriterEffect(isOpen, variant.title)
+
+  const handleRequestWalkthrough = () => {
+    trackEvent('contact', 'request_demo_walkthrough', { project: projectTitle, variantId })
+    onClose()
+    scrollToContactSection()
+  }
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
           <motion.div
-            key="modal-backdrop"
+            key="demo-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -79,7 +91,7 @@ const DemoModal = ({ isOpen, onClose, variantId }) => {
 
           <div className="fixed inset-0 z-[71] flex items-center justify-center p-4 pointer-events-none">
             <motion.div
-              key="modal-panel"
+              key="demo-panel"
               role="dialog"
               aria-modal="true"
               aria-label={variant.title}
@@ -87,76 +99,58 @@ const DemoModal = ({ isOpen, onClose, variantId }) => {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="relative w-full max-w-2xl pointer-events-auto bg-black/90 border-2 border-pink-500/80 shadow-[0_0_50px_rgba(236,72,153,0.25)] p-6 sm:p-10 text-center"
+              className="relative w-full max-w-lg pointer-events-auto bg-black/90 border-2 border-pink-500/80 shadow-[0_0_50px_rgba(236,72,153,0.25)] p-6 sm:p-8 text-center"
             >
               <div
                 className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-400 via-pink-500 to-fuchsia-500"
                 aria-hidden="true"
               />
 
-              <button
-                ref={closeBtnRef}
-                onClick={onClose}
-                className="absolute top-4 right-4 w-10 h-10 bg-black/60 border border-zinc-700 text-pink-400 hover:text-white hover:border-pink-500 flex items-center justify-center transition-colors cursor-pointer"
-                aria-label="Close demo modal"
-              >
-                <X size={20} aria-hidden="true" />
-              </button>
-
-              <div className="flex items-center justify-center gap-2 mb-6 text-pink-500 font-mono text-xs uppercase tracking-widest">
+              <div className="flex items-center justify-center gap-2 mb-4 text-orange-400 font-mono text-xs uppercase tracking-widest">
                 <ShieldCheck size={16} />
-                <span>SYS.MODULE // STATUS_TELEMETRY</span>
+                <span>DEPLOYMENT PROTOCOL // SANDBOX STATUS</span>
               </div>
 
-              <div className="mb-4 min-h-[3rem] flex items-center justify-center">
-                <p
-                  className={`text-2xl sm:text-3xl font-heading text-white uppercase tracking-tight ${
-                    glitchOn ? 'glitch-text text-pink-400' : ''
-                  }`}
-                  aria-live="polite"
-                >
-                  {displayed}
-                </p>
-              </div>
+              <h3 className="text-xl sm:text-2xl font-heading text-white uppercase tracking-tight mb-3">
+                {variant.title}
+              </h3>
 
-              <p className="text-zinc-300 font-sans text-sm sm:text-base leading-relaxed mb-6 max-w-xl mx-auto">
-                {variant.body}
+              <p className="text-zinc-300 font-sans text-xs sm:text-sm leading-relaxed mb-4">
+                Telemetry for <span className="text-pink-400 font-bold">{projectTitle || 'Target Architecture'}</span>: {variant.body}
               </p>
 
-              {variantId === 'modal-subq' ? (
-                <div className="mt-8 flex justify-center">
+              <DeploymentTelemetryPipeline variant={variant} />
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                {variantId === 'modal-subq' ? (
                   <a
                     href="https://github.com/Manish-Desireddi/Sub-Quadratic-Audio-Transformer-Engine"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackEvent('interaction', 'open_subq_repo')}
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-pink-500 text-black font-heading uppercase tracking-widest text-sm hover:bg-white transition-colors shadow-[0_0_20px_rgba(236,72,153,0.5)]"
+                    className="px-6 py-3 bg-pink-500 hover:bg-white text-black font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                   >
-                    Open GitHub Repository <ExternalLink size={18} />
+                    <ExternalLink size={16} /> ACCESS GITHUB REPOSITORY
                   </a>
-                </div>
-              ) : (
-                variant.progress && (
-                  <div className="space-y-2.5 max-w-md mx-auto pt-4" aria-label="Build progress">
-                    {variant.progress.map((fill, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <div className="flex-1 h-2 bg-zinc-950 border border-zinc-800 overflow-hidden">
-                          <motion.div
-                            className="h-full bg-gradient-to-r from-pink-500 to-orange-400"
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: fill }}
-                            transition={{ delay: 0.3 + i * 0.08, duration: 0.6, ease: 'easeOut' }}
-                            style={{ originX: 0 }}
-                          />
-                        </div>
-                        <span className="text-[10px] font-mono text-zinc-500 w-10 text-right">
-                          {Math.round(fill * 100)}%
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )
-              )}
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleRequestWalkthrough}
+                    className="px-6 py-3 bg-pink-500 hover:bg-white text-black font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
+                  >
+                    <Mail size={16} /> REQUEST LIVE WALKTHROUGH
+                  </button>
+                )}
+
+                <button
+                  ref={closeBtnRef}
+                  type="button"
+                  onClick={onClose}
+                  className="px-6 py-3 border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+                >
+                  Dismiss Notice
+                </button>
+              </div>
             </motion.div>
           </div>
         </>

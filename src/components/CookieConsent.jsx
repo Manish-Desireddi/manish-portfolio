@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Shield, Settings, Check, X } from 'lucide-react'
+import { Cookie, Settings, Check, X } from 'lucide-react'
 import { getConsentPreferences, setConsentPreferences } from '../utils/analytics'
 import { PRIVACY_DATA } from '../data/portfolioData'
 
@@ -14,44 +14,58 @@ const CookiePreferencesForm = ({
   <div className="space-y-4 pt-4 border-t border-zinc-800">
     <div className="flex items-center justify-between p-3 bg-zinc-950 border border-zinc-800">
       <div>
-        <p className="font-heading text-xs uppercase tracking-wider text-white">Essential System Ops</p>
-        <p className="font-mono text-[10px] text-zinc-400">Strictly required for session telemetry & routing.</p>
+        <p className="font-heading text-xs uppercase tracking-wider text-white">
+          {PRIVACY_DATA.categories.essential.title}
+        </p>
+        <p className="font-mono text-[10px] text-zinc-400">
+          {PRIVACY_DATA.categories.essential.description}
+        </p>
       </div>
       <span className="font-mono text-[10px] text-emerald-400 bg-emerald-950/40 px-2 py-0.5 border border-emerald-500/40">
-        REQUIRED
+        {PRIVACY_DATA.categories.essential.badge}
       </span>
     </div>
 
     <div className="flex items-center justify-between p-3 bg-zinc-950 border border-zinc-800">
       <div>
-        <p className="font-heading text-xs uppercase tracking-wider text-white">Performance Analytics</p>
-        <p className="font-mono text-[10px] text-zinc-400">Collects anonymous frame load & viewport metrics.</p>
+        <p className="font-heading text-xs uppercase tracking-wider text-white">
+          {PRIVACY_DATA.categories.analytics.title}
+        </p>
+        <p className="font-mono text-[10px] text-zinc-400">
+          {PRIVACY_DATA.categories.analytics.description}
+        </p>
       </div>
       <input
         type="checkbox"
         checked={analyticsAllowed}
         onChange={(e) => setAnalyticsAllowed(e.target.checked)}
-        className="w-4 h-4 accent-pink-500 rounded bg-black border-zinc-700"
+        className="w-4 h-4 accent-pink-500 rounded bg-black border-zinc-700 cursor-pointer"
+        aria-label={PRIVACY_DATA.categories.analytics.title}
       />
     </div>
 
     <div className="flex items-center justify-between p-3 bg-zinc-950 border border-zinc-800">
       <div>
-        <p className="font-heading text-xs uppercase tracking-wider text-white">Error & Event Telemetry</p>
-        <p className="font-mono text-[10px] text-zinc-400">Anonymous debug logs to improve WebGL/Canvas rendering.</p>
+        <p className="font-heading text-xs uppercase tracking-wider text-white">
+          {PRIVACY_DATA.categories.performance.title}
+        </p>
+        <p className="font-mono text-[10px] text-zinc-400">
+          {PRIVACY_DATA.categories.performance.description}
+        </p>
       </div>
       <input
         type="checkbox"
         checked={telemetryAllowed}
         onChange={(e) => setTelemetryAllowed(e.target.checked)}
-        className="w-4 h-4 accent-pink-500 rounded bg-black border-zinc-700"
+        className="w-4 h-4 accent-pink-500 rounded bg-black border-zinc-700 cursor-pointer"
+        aria-label={PRIVACY_DATA.categories.performance.title}
       />
     </div>
 
     <button
       type="button"
       onClick={onSave}
-      className="w-full py-2.5 bg-pink-500 hover:bg-white text-black font-heading text-xs uppercase tracking-wider transition-colors"
+      className="w-full py-2.5 bg-pink-500 hover:bg-white text-black font-heading text-xs uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 cursor-pointer"
     >
       Save Preferences
     </button>
@@ -80,8 +94,8 @@ const CookieConsent = () => {
       setIsOpen(true)
     }
 
-    window.addEventListener('sys-open-privacy-settings', handleOpenRequest)
-    return () => window.removeEventListener('sys-open-privacy-settings', handleOpenRequest)
+    window.addEventListener('app:open-privacy', handleOpenRequest)
+    return () => window.removeEventListener('app:open-privacy', handleOpenRequest)
   }, [])
 
   const handleAcceptAll = () => {
@@ -117,7 +131,7 @@ const CookieConsent = () => {
         >
           <div className="flex items-start justify-between gap-4 mb-3">
             <div className="flex items-center gap-2 text-pink-400">
-              <Shield size={18} />
+              <Cookie size={18} />
               <span className="font-heading uppercase text-xs sm:text-sm tracking-wider">
                 {PRIVACY_DATA.title}
               </span>
@@ -125,8 +139,8 @@ const CookieConsent = () => {
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-zinc-500 hover:text-white transition-colors"
-              aria-label="Close privacy notice"
+              className="text-zinc-500 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 cursor-pointer"
+              aria-label="Close cookie notice"
             >
               <X size={16} />
             </button>
@@ -142,14 +156,14 @@ const CookieConsent = () => {
                 <button
                   type="button"
                   onClick={handleAcceptAll}
-                  className="py-2.5 px-3 bg-pink-500 hover:bg-white text-black font-heading text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="py-2.5 px-3 bg-pink-500 hover:bg-white text-black font-heading text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                 >
                   <Check size={14} /> {PRIVACY_DATA.acceptButton}
                 </button>
                 <button
                   type="button"
                   onClick={handleEssentialOnly}
-                  className="py-2.5 px-3 border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-heading text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                  className="py-2.5 px-3 border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-heading text-xs uppercase tracking-wider transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
                 >
                   {PRIVACY_DATA.declineButton}
                 </button>
@@ -157,9 +171,9 @@ const CookieConsent = () => {
               <button
                 type="button"
                 onClick={() => setShowConfig(true)}
-                className="py-2 text-zinc-400 hover:text-pink-400 font-mono text-[11px] uppercase tracking-widest transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="py-2 text-zinc-400 hover:text-pink-400 font-mono text-[11px] uppercase tracking-widest transition-colors flex items-center justify-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
               >
-                <Settings size={12} /> Custom Preferences
+                <Settings size={12} /> {PRIVACY_DATA.customizeButton}
               </button>
             </div>
           ) : (
