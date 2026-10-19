@@ -22,9 +22,11 @@ import NotFoundPage from './components/NotFoundPage'
 import ToastManager, { showToast } from './components/ToastManager'
 import CookieConsent from './components/CookieConsent'
 import EnterOverlay from './components/EnterOverlay'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 
 import { syncCanvasDimensions, drawCanvasFrame, useAssetPreloader } from './utils/canvasScrubber'
-import { trackEvent } from './utils/analytics'
+import { trackEvent, getConsentPreferences } from './utils/analytics'
 import { SITE_METADATA } from './data/portfolioData'
 import { resolveDownloadProject } from './utils/assetVerifier'
 
@@ -159,6 +161,56 @@ const usePortfolioMetadata = (pathname, hash) => {
     document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonical)
   }, [pathname, hash])
 }
+
+const useKeyboardModality = () => {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Tab') {
+        document.body.classList.add('using-keyboard')
+      }
+    }
+    const handlePointerDown = () => {
+      document.body.classList.remove('using-keyboard')
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('pointerdown', handlePointerDown)
+    window.addEventListener('touchstart', handlePointerDown, { passive: true })
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('pointerdown', handlePointerDown)
+      window.removeEventListener('touchstart', handlePointerDown)
+      document.body.classList.remove('using-keyboard')
+    }
+  }, [])
+}
+
+const useConsentPreferences = () => {
+  const [prefs, setPrefs] = useState(() => getConsentPreferences())
+  useEffect(() => {
+    const handleConsentChange = (e) => {
+      setPrefs(e.detail || getConsentPreferences())
+    }
+    const handleStorage = (e) => {
+      if (e.key === 'sys_privacy_consent_v1') {
+        setPrefs(getConsentPreferences())
+      }
+    }
+    window.addEventListener('sys-privacy-consent-changed', handleConsentChange)
+    window.addEventListener('storage', handleStorage)
+    return () => {
+      window.removeEventListener('sys-privacy-consent-changed', handleConsentChange)
+      window.removeEventListener('storage', handleStorage)
+    }
+  }, [])
+  return prefs
+}
+
+const TelemetryProviders = ({ prefs }) => (
+  <>
+    {prefs?.analytics && <Analytics />}
+    {prefs?.telemetry && <SpeedInsights />}
+  </>
+)
 
 const setupLenisInstance = () => {
   ScrollTrigger.config({ ignoreMobileResize: true })
@@ -399,6 +451,8 @@ const App = () => {
 
   const isModalActive = isCertModalActive || isProjectModalActive
   usePortfolioMetadata(locState.pathname, locState.hash)
+  useKeyboardModality()
+  const consentPrefs = useConsentPreferences()
 
   const { bufferProgress, isPreloadComplete, heroFrames, projectFrames } =
     useAssetPreloader(hasEntered)
@@ -477,6 +531,7 @@ const App = () => {
   if (isDownloadRoute && downloadProject) {
     return (
       <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
+        <TelemetryProviders prefs={consentPrefs} />
         <CustomCursor accentColor="teal" />
         <ToastManager />
         <DownloadPage />
@@ -487,6 +542,7 @@ const App = () => {
   if (is404) {
     return (
       <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
+        <TelemetryProviders prefs={consentPrefs} />
         <CustomCursor />
         <ToastManager />
         <NotFoundPage onReturnHome={handleReturnHome} />
@@ -497,6 +553,7 @@ const App = () => {
   if (!hasEntered) {
     return (
       <>
+        <TelemetryProviders prefs={consentPrefs} />
         <CustomCursor />
         <EnterOverlay onEnter={() => setHasEntered(true)} />
       </>
@@ -504,22 +561,25 @@ const App = () => {
   }
 
   return (
-    <PortfolioLayout
-      isOffline={isOffline}
-      isAssetsReady={isAssetsReady}
-      bufferProgress={bufferProgress}
-      setIsPreloaderDismissed={setIsPreloaderDismissed}
-      heroActive={heroActive}
-      handleVideoEnd={handleVideoEnd}
-      setIsVideoReady={setIsVideoReady}
-      isPreloaderDismissed={isPreloaderDismissed}
-      heroFrames={heroFrames}
-      projectFrames={projectFrames}
-      setIsCertModalActive={setIsCertModalActive}
-      setIsProjectModalActive={setIsProjectModalActive}
-      handleRequestHero={handleRequestHero}
-      isModalActive={isModalActive}
-    />
+    <>
+      <TelemetryProviders prefs={consentPrefs} />
+      <PortfolioLayout
+        isOffline={isOffline}
+        isAssetsReady={isAssetsReady}
+        bufferProgress={bufferProgress}
+        setIsPreloaderDismissed={setIsPreloaderDismissed}
+        heroActive={heroActive}
+        handleVideoEnd={handleVideoEnd}
+        setIsVideoReady={setIsVideoReady}
+        isPreloaderDismissed={isPreloaderDismissed}
+        heroFrames={heroFrames}
+        projectFrames={projectFrames}
+        setIsCertModalActive={setIsCertModalActive}
+        setIsProjectModalActive={setIsProjectModalActive}
+        handleRequestHero={handleRequestHero}
+        isModalActive={isModalActive}
+      />
+    </>
   )
 }
 

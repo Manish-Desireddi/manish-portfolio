@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useCallback } from 'react'
 import { motion, useInView, animate } from 'framer-motion'
 import { Target, Users, Briefcase, GraduationCap, MapPin } from 'lucide-react'
 import { LEADERSHIP, LEADERSHIP_META } from '../data/portfolioData'
@@ -9,18 +9,25 @@ const MagneticIcon = ({ children }) => (
   <div className="p-2 -m-2 inline-flex">{children}</div>
 )
 
+const cardContentVariant = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.5, delay: 0.4 } },
+}
+
 const BlockReveal = ({ color }) => (
   <motion.div
-    className={`absolute inset-0 z-30 pointer-events-none ${color}`}
+    className={`absolute inset-0 z-30 pointer-events-none origin-top ${color}`}
     variants={blockRevealVariant}
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true, amount: 0.15 }}
   />
 )
 
 const VpExperienceCard = () => (
-  <div className="lg:col-span-2 relative bg-black border border-pink-500 rounded-xl p-6 sm:p-8 overflow-hidden group">
+  <motion.div
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, amount: 0.1 }}
+    className="lg:col-span-2 relative bg-black border border-pink-500 rounded-xl p-6 sm:p-8 overflow-hidden group"
+  >
     <BlockReveal color="bg-pink-500" />
     <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-pink-500 rounded-tl-lg pointer-events-none" />
     <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-pink-500 rounded-tr-lg pointer-events-none" />
@@ -29,10 +36,7 @@ const VpExperienceCard = () => (
 
     <motion.div
       className="relative z-20"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.15 }}
-      transition={{ duration: 0.5, delay: 0.4 }}
+      variants={cardContentVariant}
     >
       <div className="flex items-start justify-between flex-wrap gap-4 mb-8">
         <div>
@@ -73,12 +77,17 @@ const VpExperienceCard = () => (
         ))}
       </ul>
     </motion.div>
-  </div>
+  </motion.div>
 )
 
-const EducationBentoColumn = ({ cgpaRef, cgpa }) => (
+const EducationBentoColumn = ({ cgpaRef, cgpa, onCgpaViewportEnter }) => (
   <div className="lg:col-span-1 flex flex-col gap-6">
-    <div className="flex-1 relative bg-black border border-amber-500 rounded-xl p-6 sm:p-8 overflow-hidden flex flex-col justify-center">
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
+      className="flex-1 relative bg-black border border-amber-500 rounded-xl p-6 sm:p-8 overflow-hidden flex flex-col justify-center"
+    >
       <BlockReveal color="bg-amber-500" />
       <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-amber-500 rounded-tl-lg pointer-events-none" />
       <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-amber-500 rounded-tr-lg pointer-events-none" />
@@ -87,10 +96,7 @@ const EducationBentoColumn = ({ cgpaRef, cgpa }) => (
 
       <motion.div
         className="relative z-20"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, amount: 0.15 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
+        variants={cardContentVariant}
       >
         <div className="w-12 h-12 rounded-full bg-black border border-amber-500 flex items-center justify-center mb-6">
           <GraduationCap className="w-6 h-6 text-amber-500" />
@@ -107,10 +113,14 @@ const EducationBentoColumn = ({ cgpaRef, cgpa }) => (
           <span className="text-xs font-mono text-amber-500">{LEADERSHIP.education.date}</span>
         </div>
       </motion.div>
-    </div>
+    </motion.div>
 
-    <div
+    <motion.div
       ref={cgpaRef}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
+      onViewportEnter={onCgpaViewportEnter}
       className="min-h-[clamp(140px,20vh,192px)] relative bg-black rounded-xl p-6 sm:p-8 overflow-hidden flex flex-col items-center justify-center border border-orange-500"
     >
       <BlockReveal color="bg-orange-500" />
@@ -121,10 +131,7 @@ const EducationBentoColumn = ({ cgpaRef, cgpa }) => (
 
       <motion.div
         className="relative z-20 text-center"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, amount: 0.15 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
+        variants={cardContentVariant}
       >
         <div className="text-xs font-mono text-orange-500 uppercase tracking-widest mb-2">
           Cumulative Academic Metric
@@ -133,30 +140,37 @@ const EducationBentoColumn = ({ cgpaRef, cgpa }) => (
           {cgpa.toFixed(2)}
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   </div>
 )
 
 const Leadership = () => {
   const cgpaRef = useRef(null)
-  const isCgpaInView = useInView(cgpaRef, { once: true, amount: 0.15 })
+  const isCgpaInView = useInView(cgpaRef, { once: true, amount: 0.1 })
   const [cgpa, setCgpa] = useState(0)
+  const hasAnimatedRef = useRef(false)
 
-  useEffect(() => {
-    if (!isCgpaInView) return
+  const triggerCgpaAnimation = useCallback(() => {
+    if (hasAnimatedRef.current) return
+    hasAnimatedRef.current = true
     const target = parseFloat(LEADERSHIP.education.cgpa)
     if (isReducedMotion()) {
       setCgpa(target)
       return
     }
-    const controls = animate(0, target, {
+    animate(0, target, {
       duration: 2,
       ease: 'easeOut',
       delay: 0.5,
       onUpdate: (val) => setCgpa(val),
     })
-    return () => controls.stop()
-  }, [isCgpaInView])
+  }, [])
+
+  useEffect(() => {
+    if (isCgpaInView) {
+      triggerCgpaAnimation()
+    }
+  }, [isCgpaInView, triggerCgpaAnimation])
 
   return (
     <section id="leadership" className="py-24 px-4 sm:px-8 md:px-12 bg-transparent relative z-10 font-sans">
@@ -169,7 +183,11 @@ const Leadership = () => {
         />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12">
           <VpExperienceCard />
-          <EducationBentoColumn cgpaRef={cgpaRef} cgpa={cgpa} />
+          <EducationBentoColumn
+            cgpaRef={cgpaRef}
+            cgpa={cgpa}
+            onCgpaViewportEnter={triggerCgpaAnimation}
+          />
         </div>
       </div>
     </section>

@@ -40,9 +40,22 @@ export const useModalLifecycle = (isOpen, onClose, closeBtnRef) => {
 export const scrollToContactSection = () => {
   const contactEl = document.getElementById('contact')
   if (!contactEl) return
-  if (window.lenis) {
-    window.lenis.scrollTo(contactEl, { duration: 1.15 })
-  } else {
-    contactEl.scrollIntoView({ behavior: 'smooth' })
-  }
+
+  document.body.style.overflow = ''
+  document.body.style.touchAction = ''
+  window.lenis?.start()
+
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      if (window.lenis) {
+        window.lenis.scrollTo(contactEl, {
+          duration: 2.0,
+          force: true,
+          easing: (t) => 1 - Math.pow(1 - t, 4),
+        })
+      } else {
+        contactEl.scrollIntoView({ behavior: 'smooth' })
+      }
+    }, 50)
+  })
 }

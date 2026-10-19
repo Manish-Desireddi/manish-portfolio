@@ -232,7 +232,7 @@ const InteractiveCLI = () => {
             ref={containerRef}
             data-lenis-prevent={isTerminalActive ? 'true' : undefined}
             tabIndex={0}
-            className={`p-4 sm:p-6 h-[clamp(280px,50vh,420px)] no-scrollbar font-mono text-xs sm:text-sm relative outline-none focus:ring-1 focus:ring-pink-500/30 ${isTerminalActive ? 'overflow-y-auto' : 'overflow-y-hidden pointer-events-none'
+            className={`p-4 sm:p-6 h-[clamp(280px,50vh,420px)] no-scrollbar font-mono text-xs sm:text-sm relative outline-none ${isTerminalActive ? 'overflow-y-auto' : 'overflow-y-hidden pointer-events-none'
               } ${isTerminalActive && isHovered ? 'overscroll-contain' : ''}`}
           >
             <TerminalMessageHistory history={history} />

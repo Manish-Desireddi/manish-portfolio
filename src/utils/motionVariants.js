@@ -27,13 +27,13 @@ export const fadeUpVariant = {
 
 export const blockRevealVariant = {
   hidden: {
-    height: '0%',
-    top: '0%',
+    scaleY: 0,
+    originY: 0,
   },
   // fallow-ignore-next-line complexity
   visible: (custom = 0) => ({
-    height: prefersReducedMotion ? ['0%', '0%', '0%'] : ['0%', '100%', '0%'],
-    top: prefersReducedMotion ? ['0%', '0%', '0%'] : ['0%', '0%', '100%'],
+    scaleY: prefersReducedMotion ? [0, 0, 0] : [0, 1, 0],
+    originY: [0, 0, 1],
     transition: {
       duration: prefersReducedMotion ? 0.05 : 0.8,
       delay: prefersReducedMotion ? 0 : custom * 0.08,

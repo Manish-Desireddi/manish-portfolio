@@ -72,7 +72,7 @@ const FieldInput = ({ id, type, name, label, placeholder, disabled, errors }) =>
       name={name}
       required
       disabled={disabled}
-      className="w-full bg-black/60 border border-zinc-800 focus:border-pink-500 p-3.5 sm:p-4 text-white text-sm font-mono outline-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
+      className="w-full bg-black/60 border border-zinc-800 hover:border-zinc-700 p-3.5 sm:p-4 text-white text-sm font-mono outline-none transition-colors"
       placeholder={placeholder}
     />
     <ValidationError prefix={label} field={name} errors={errors} className="text-red-400 text-xs font-mono mt-1" />
@@ -90,7 +90,7 @@ const FieldTextarea = ({ id, name, label, placeholder, disabled, errors }) => (
       rows={4}
       required
       disabled={disabled}
-      className="w-full bg-black/60 border border-zinc-800 focus:border-pink-500 p-3.5 sm:p-4 text-white text-sm font-mono outline-none transition-colors resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
+      className="w-full bg-black/60 border border-zinc-800 hover:border-zinc-700 p-3.5 sm:p-4 text-white text-sm font-mono outline-none transition-colors resize-none"
       placeholder={placeholder}
     />
     <ValidationError prefix={label} field={name} errors={errors} className="text-red-400 text-xs font-mono mt-1" />

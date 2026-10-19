@@ -2,6 +2,11 @@
 // Centralizes dynamic concurrency, mobile ImageBitmap decoding, DPR-clamped sizing, aspect-fill crop math, and unified preloader
 
 import { useEffect, useState } from 'react'
+import { CERTIFICATIONS } from '../data/portfolioData'
+
+const certImageCache = new Map()
+
+export const getCachedCertImage = (src) => certImageCache.get(src) || null
 
 /**
  * Updates canvas backing store dimensions clamped to DPR limits.
@@ -154,13 +159,19 @@ export const useAssetPreloader = (hasEntered) => {
     const projectUrls = Array.from({ length: 600 }, (_, i) =>
       `/assets/${projectDir}/frame_${(i + 1).toString().padStart(4, '0')}.jpg`
     )
+    const certUrls = CERTIFICATIONS.flatMap((cat) =>
+      cat.items.map((item) => `/assets/certs/${item.id}.png`)
+    )
 
-    const totalFrames = heroUrls.length + projectUrls.length
+    const totalFrames = heroUrls.length + projectUrls.length + certUrls.length
     let loadedCount = 0
 
-    const loadWithProgress = (url) =>
+    const loadWithProgress = (url, isCert = false) =>
       loadFrameImage(url).then((frame) => {
         if (!isCancelled) {
+          if (isCert && frame) {
+            certImageCache.set(url, frame)
+          }
           loadedCount += 1
           setBufferProgress(Math.round((loadedCount / totalFrames) * 100))
         }
@@ -168,8 +179,9 @@ export const useAssetPreloader = (hasEntered) => {
       })
 
     Promise.all([
-      mapConcurrent(heroUrls, concurrency, loadWithProgress),
-      mapConcurrent(projectUrls, concurrency, loadWithProgress),
+      mapConcurrent(heroUrls, concurrency, (url) => loadWithProgress(url, false)),
+      mapConcurrent(projectUrls, concurrency, (url) => loadWithProgress(url, false)),
+      mapConcurrent(certUrls, concurrency, (url) => loadWithProgress(url, true)),
     ]).then(([heroes, projects]) => {
       if (isCancelled) return
       setHeroFrames(fillMissingFrames(heroes))

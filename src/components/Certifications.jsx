@@ -14,6 +14,7 @@ import { CERTIFICATIONS, CERTIFICATIONS_META } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
 import { useModalLifecycle } from '../utils/useModalLifecycle'
 import { trackEvent } from '../utils/analytics'
+import { getCachedCertImage } from '../utils/canvasScrubber'
 
 const CATEGORIES = CERTIFICATIONS_META.categories
 
@@ -32,51 +33,62 @@ const CLEARANCE_BADGE_MAP = {
   },
 }
 
+const drawCertToCanvas = (canvas, img) => {
+  if (!canvas || !img) return
+  const width = img.naturalWidth || img.width || 600
+  const height = img.naturalHeight || img.height || 400
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (ctx) {
+    ctx.clearRect(0, 0, width, height)
+    ctx.drawImage(img, 0, 0, width, height)
+  }
+}
+
+const drawCertFallback = (canvas) => {
+  if (!canvas) return
+  canvas.width = 600
+  canvas.height = 400
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  ctx.fillStyle = '#0a0a0a'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.strokeStyle = '#ec4899'
+  ctx.lineWidth = 2
+  ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20)
+  ctx.fillStyle = '#ec4899'
+  ctx.font = 'bold 20px monospace'
+  ctx.textAlign = 'center'
+  ctx.fillText('ACCREDITATION VERIFIED', 300, 200)
+}
+
 const SecureCanvasImage = ({ src, alt, className }) => {
   const canvasRef = useRef(null)
 
   useEffect(() => {
-    let objectUrl = ''
-    fetch(src)
-      .then((res) => (res.ok ? res.blob() : Promise.reject(new Error(`HTTP ${res.status}`))))
-      .then((blob) => {
-        objectUrl = URL.createObjectURL(blob)
-        const img = new Image()
-        img.onload = () => {
-          const canvas = canvasRef.current
-          if (canvas) {
-            canvas.width = img.naturalWidth
-            canvas.height = img.naturalHeight
-            const ctx = canvas.getContext('2d')
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-          }
-          URL.revokeObjectURL(objectUrl)
-        }
-        img.onerror = () => {
-          URL.revokeObjectURL(objectUrl)
-        }
-        img.src = objectUrl
-      })
-      .catch(() => {
-        const canvas = canvasRef.current
-        if (canvas) {
-          canvas.width = 600
-          canvas.height = 400
-          const ctx = canvas.getContext('2d')
-          ctx.fillStyle = '#0a0a0a'
-          ctx.fillRect(0, 0, canvas.width, canvas.height)
-          ctx.strokeStyle = '#ec4899'
-          ctx.lineWidth = 2
-          ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20)
-          ctx.fillStyle = '#ec4899'
-          ctx.font = 'bold 20px monospace'
-          ctx.textAlign = 'center'
-          ctx.fillText('ACCREDITATION VERIFIED', 300, 200)
-        }
-      })
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const cached = getCachedCertImage(src)
+    if (cached) {
+      drawCertToCanvas(canvas, cached)
+      return
+    }
+
+    let isSubscribed = true
+    const img = new Image()
+    img.decoding = 'async'
+    img.onload = () => {
+      if (isSubscribed) drawCertToCanvas(canvas, img)
+    }
+    img.onerror = () => {
+      if (isSubscribed) drawCertFallback(canvas)
+    }
+    img.src = src
 
     return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl)
+      isSubscribed = false
     }
   }, [src])
 
