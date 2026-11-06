@@ -50,31 +50,46 @@ export const setConsentPreferences = (prefs) => {
       purgeNonEssentialStorage(prefs)
     }
 
-    // Flush pre-consent event queue if permission granted
-    if (pendingConsentQueue.length > 0) {
+    // 1. Dispatch custom event first to sync UI/providers
+    window.dispatchEvent(new CustomEvent('sys-privacy-consent-changed', { detail: prefs }))
+
+    // 2. Track explicit cookie_consent_updated event
+    try {
       if (prefs?.analytics) {
-        pendingConsentQueue.forEach((ev) => {
-          try {
-            track(ev.action, { category: ev.category, ...ev.metadata })
-          } catch {
-            // Vercel analytics fallback
-          }
+        track('cookie_consent_updated', {
+          analytics: Boolean(prefs.analytics),
+          telemetry: Boolean(prefs.telemetry),
         })
       }
-      if (prefs?.telemetry) {
-        pendingConsentQueue.forEach((ev) => {
-          appendPerfMetric({
-            action: ev.action,
-            category: ev.category,
-            metadata: ev.metadata,
-            timestamp: ev.timestamp,
-          })
-        })
-      }
-      pendingConsentQueue.length = 0
+    } catch {
+      // Vercel analytics fallback
     }
 
-    window.dispatchEvent(new CustomEvent('sys-privacy-consent-changed', { detail: prefs }))
+    // 3. Defer pre-consent event queue flush by 150ms so window.va is initialized
+    setTimeout(() => {
+      if (pendingConsentQueue.length > 0) {
+        if (prefs?.analytics) {
+          pendingConsentQueue.forEach((ev) => {
+            try {
+              track(ev.action, { category: ev.category, ...ev.metadata })
+            } catch {
+              // Vercel analytics fallback
+            }
+          })
+        }
+        if (prefs?.telemetry) {
+          pendingConsentQueue.forEach((ev) => {
+            appendPerfMetric({
+              action: ev.action,
+              category: ev.category,
+              metadata: ev.metadata,
+              timestamp: ev.timestamp,
+            })
+          })
+        }
+        pendingConsentQueue.length = 0
+      }
+    }, 150)
   } catch {
     // Safe storage fallback
   }

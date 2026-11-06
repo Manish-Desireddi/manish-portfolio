@@ -4,34 +4,45 @@ import { Volume2, VolumeX, ChevronRight } from 'lucide-react'
 import { showToast } from './ToastManager'
 import { trackEvent } from '../utils/analytics'
 import { INTRO_DATA, HERO_DATA } from '../data/portfolioData'
-import { isInAppBrowser, isIOSDevice } from '../utils/browserDetect'
+
+export const primeIntroVideo = () => {
+  if (typeof document === 'undefined') return
+  const video = document.getElementById('intro-broadcast-video')
+  if (video) {
+    video.muted = false
+    const attempt = video.play()
+    if (attempt) {
+      attempt
+        .then(() => {
+          video.pause()
+          video.currentTime = 0
+        })
+        .catch(() => {
+          video.muted = true
+        })
+    }
+  }
+}
 
 const useIntroMedia = (isPreloaderDismissed, onVideoEnd) => {
   const videoRef = useRef(null)
-  const [muted, setMuted] = useState(() => isInAppBrowser() || isIOSDevice())
+  const [muted, setMuted] = useState(false)
 
   useEffect(() => {
     if (!isPreloaderDismissed) return
     const video = videoRef.current
     if (!video) return
 
-    const inAppOrIOS = isInAppBrowser() || isIOSDevice()
-    if (inAppOrIOS) {
-      video.muted = true
-      setMuted(true)
-      video.play().catch(() => {})
-    } else {
-      video.muted = false
-      const attempt = video.play()
-      if (!attempt) return
-      attempt
-        .then(() => setMuted(false))
-        .catch(() => {
-          video.muted = true
-          video.play().catch(() => {})
-          setMuted(true)
-        })
-    }
+    video.muted = false
+    const attempt = video.play()
+    if (!attempt) return
+    attempt
+      .then(() => setMuted(false))
+      .catch(() => {
+        video.muted = true
+        video.play().catch(() => {})
+        setMuted(true)
+      })
   }, [isPreloaderDismissed])
 
   const toggleAudio = useCallback(() => {
@@ -185,6 +196,7 @@ const Intro = ({ onVideoEnd, onVideoReady, isPreloaderDismissed }) => {
       aria-label="Introductory broadcast"
     >
       <video
+        id="intro-broadcast-video"
         ref={videoRef}
         src={INTRO_DATA.videoSrc}
         preload="auto"

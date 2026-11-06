@@ -13,7 +13,7 @@ const FeedbackForm = ({ onFormSubmit, isSubmitting }) => {
   const [message, setMessage] = useState('')
   const [honeypot, setHoneypot] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (honeypot) return
 
@@ -33,7 +33,7 @@ const FeedbackForm = ({ onFormSubmit, isSubmitting }) => {
       return
     }
 
-    onFormSubmit({
+    const success = await onFormSubmit({
       name: cleanName,
       role: cleanRole,
       company: cleanCompany,
@@ -41,11 +41,13 @@ const FeedbackForm = ({ onFormSubmit, isSubmitting }) => {
       message: cleanMsg,
     })
 
-    setName('')
-    setRole('')
-    setCompany('')
-    setRating(5)
-    setMessage('')
+    if (success) {
+      setName('')
+      setRole('')
+      setCompany('')
+      setRating(5)
+      setMessage('')
+    }
   }
 
   return (

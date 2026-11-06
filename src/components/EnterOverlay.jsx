@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { unlockAudioContext } from '../utils/audioContext'
 import { trackEvent } from '../utils/analytics'
 import { HANDSHAKE_DATA } from '../data/portfolioData'
+import { primeIntroVideo } from './Intro'
 
 const EnterOverlay = ({ onEnter }) => {
   const handleInitiate = async (e) => {
     e.preventDefault()
     trackEvent('interaction', 'handshake_initiated')
+    primeIntroVideo()
     await unlockAudioContext()
     onEnter?.()
   }

@@ -87,15 +87,46 @@ const preloadAudioBuffers = async () => {
   return Promise.all(assets.map((src) => loadAudioBuffer(src)))
 }
 
+let isGlobalResumeListenerAttached = false
+
+const attachGlobalResumeListener = () => {
+  if (isGlobalResumeListenerAttached || typeof window === 'undefined') return
+  isGlobalResumeListenerAttached = true
+
+  const resumeSuspendedContext = () => {
+    if (sharedAudioContext && sharedAudioContext.state === 'suspended') {
+      sharedAudioContext.resume().catch(() => {})
+    }
+  }
+
+  window.addEventListener('click', resumeSuspendedContext, { passive: true })
+  window.addEventListener('touchstart', resumeSuspendedContext, { passive: true })
+}
+
 export const unlockAudioContext = async () => {
   const ctx = getSharedAudioContext()
-  if (ctx && ctx.state === 'suspended') {
+  if (!ctx) return null
+
+  if (ctx.state === 'suspended') {
     try {
       await ctx.resume()
     } catch {
       // Ignore user gesture rejection
     }
   }
+
+  // Play a 1-sample silent AudioBuffer to permanently bless WebKit/iOS audio playback
+  try {
+    const silentBuffer = ctx.createBuffer(1, 1, 22050)
+    const source = ctx.createBufferSource()
+    source.buffer = silentBuffer
+    source.connect(ctx.destination)
+    source.start(0)
+  } catch {
+    // Safe fallback
+  }
+
+  attachGlobalResumeListener()
   preloadAudioBuffers().catch(() => {})
   return ctx
 }

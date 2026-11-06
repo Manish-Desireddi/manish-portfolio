@@ -187,28 +187,12 @@ const useKeyboardModality = () => {
   }, [])
 }
 
-const TelemetryProviders = () => {
-  const [consentPrefs, setConsentPrefs] = useState(() => getConsentPreferences())
-
-  useEffect(() => {
-    const handleConsentChange = (e) => {
-      setConsentPrefs(e.detail || null)
-    }
-    window.addEventListener('sys-privacy-consent-changed', handleConsentChange)
-    return () => window.removeEventListener('sys-privacy-consent-changed', handleConsentChange)
-  }, [])
-
-  return (
-    <>
-      {consentPrefs?.analytics && (
-        <Analytics beforeSend={(event) => (getConsentPreferences()?.analytics ? event : null)} />
-      )}
-      {consentPrefs?.telemetry && (
-        <SpeedInsights beforeSend={(data) => (getConsentPreferences()?.telemetry ? data : null)} />
-      )}
-    </>
-  )
-}
+const TelemetryProviders = () => (
+  <>
+    <Analytics beforeSend={(event) => (getConsentPreferences()?.analytics === false ? null : event)} />
+    <SpeedInsights beforeSend={(data) => (getConsentPreferences()?.telemetry === false ? null : data)} />
+  </>
+)
 
 const setupLenisInstance = () => {
   ScrollTrigger.config({ ignoreMobileResize: true })
@@ -550,21 +534,11 @@ const App = () => {
     )
   }
 
-  if (!hasEntered) {
-    return (
-      <>
-        <InAppBrowserBanner />
-        <TelemetryProviders />
-        <CustomCursor />
-        <EnterOverlay onEnter={() => setHasEntered(true)} />
-      </>
-    )
-  }
-
   return (
     <>
       <InAppBrowserBanner />
       <TelemetryProviders />
+      {!hasEntered && <EnterOverlay onEnter={() => setHasEntered(true)} />}
       <PortfolioLayout
         isOffline={isOffline}
         isAssetsReady={isAssetsReady}

@@ -7,7 +7,6 @@ import { FEEDBACK_META } from '../data/portfolioData'
 import { showToast } from './ToastManager'
 import { trackEvent } from '../utils/analytics'
 
-const LOCAL_STORAGE_KEY = 'portfolio_feedbacks_v3'
 const USER_VOTES_KEY = 'portfolio_user_votes_v3'
 
 const getLocalVotes = () => {
@@ -29,6 +28,73 @@ const calculateVoteDeltas = (currentVote, direction) => {
   if (currentVote === 'down') return { nextVote: null, upDelta: 0, downDelta: -1 }
   if (currentVote === 'up') return { nextVote: 'down', upDelta: -1, downDelta: 1 }
   return { nextVote: 'down', upDelta: 0, downDelta: 1 }
+}
+
+const rescueStrandedFeedbacks = async (serverFeedbacks) => {
+  if (typeof window === 'undefined') return []
+  try {
+    const rawV3 = localStorage.getItem('portfolio_feedbacks_v3')
+    const rawV2 = localStorage.getItem('portfolio_feedbacks_v2')
+    const listV3 = rawV3 ? JSON.parse(rawV3) : []
+    const listV2 = rawV2 ? JSON.parse(rawV2) : []
+    const combined = [...(Array.isArray(listV3) ? listV3 : []), ...(Array.isArray(listV2) ? listV2 : [])]
+
+    const candidates = combined.filter(
+      (item) => item && typeof item === 'object' && !String(item.id).startsWith('seed-') && item.name && item.message
+    )
+
+    if (candidates.length === 0) {
+      localStorage.removeItem('portfolio_feedbacks_v3')
+      localStorage.removeItem('portfolio_feedbacks_v2')
+      return []
+    }
+
+    const serverSignatures = new Set(serverFeedbacks.map((s) => `${s.name.trim()}:::${s.message.trim()}`))
+    const stranded = candidates.filter((c) => !serverSignatures.has(`${c.name.trim()}:::${c.message.trim()}`))
+
+    if (stranded.length === 0) {
+      localStorage.removeItem('portfolio_feedbacks_v3')
+      localStorage.removeItem('portfolio_feedbacks_v2')
+      return []
+    }
+
+    const rescued = []
+    let allSucceeded = true
+
+    for (const item of stranded) {
+      try {
+        const res = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: item.name,
+            role: item.role,
+            company: item.company,
+            rating: item.rating,
+            message: item.message,
+            created_at: item.created_at,
+          }),
+        })
+        if (res.status === 201) {
+          const saved = await res.json()
+          rescued.push(saved)
+        } else {
+          allSucceeded = false
+        }
+      } catch {
+        allSucceeded = false
+      }
+    }
+
+    if (allSucceeded) {
+      localStorage.removeItem('portfolio_feedbacks_v3')
+      localStorage.removeItem('portfolio_feedbacks_v2')
+    }
+
+    return rescued
+  } catch {
+    return []
+  }
 }
 
 const FeedbackEmptyState = () => (
@@ -54,31 +120,20 @@ const FeedbackSection = () => {
         const data = await res.json()
         if (Array.isArray(data)) {
           const cleanData = data.filter((item) => !String(item.id).startsWith('seed-'))
-          setFeedbacks(cleanData)
-          try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cleanData))
-          } catch {
-            // Storage unavailable
-          }
+          const rescued = await rescueStrandedFeedbacks(cleanData)
+          setFeedbacks(rescued.length > 0 ? [...rescued, ...cleanData] : cleanData)
           return
         }
       }
     } catch {
-      // Fallback to local storage on network/dev failure
+      // Neon database unreachable or network failure
     }
-
-    try {
-      const localRaw = localStorage.getItem(LOCAL_STORAGE_KEY)
-      const parsed = localRaw ? JSON.parse(localRaw) : []
-      setFeedbacks(Array.isArray(parsed) ? parsed.filter((item) => !String(item.id).startsWith('seed-')) : [])
-    } catch {
-      setFeedbacks([])
-    }
+    // Neon Postgres is the single source of truth - zero localStorage or in-memory fallback
+    setFeedbacks([])
   }, [])
 
   useEffect(() => {
     try {
-      localStorage.removeItem('portfolio_feedbacks_v2')
       localStorage.removeItem('portfolio_hidden_feedback_ids_v2')
       localStorage.removeItem('portfolio_user_upvotes_v2')
     } catch {
@@ -88,12 +143,20 @@ const FeedbackSection = () => {
   }, [fetchFeedbacks])
 
   const sortedFeedbacks = useMemo(() => {
-    return [...feedbacks].sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0))
+    return [...feedbacks].sort((a, b) => {
+      const scoreA = (a.upvotes || 0) - (a.downvotes || 0)
+      const scoreB = (b.upvotes || 0) - (b.downvotes || 0)
+      if (scoreB !== scoreA) return scoreB - scoreA
+      return new Date(b.created_at || 0) - new Date(a.created_at || 0)
+    })
   }, [feedbacks])
 
-  const handleVote = (id, direction) => {
+  const handleVote = async (id, direction) => {
     const currentVote = userVotes[id] || null
     const { nextVote, upDelta, downDelta } = calculateVoteDeltas(currentVote, direction)
+
+    const prevUserVotes = { ...userVotes }
+    const prevFeedbacks = feedbacks
 
     const nextUserVotes = { ...userVotes }
     if (nextVote) {
@@ -109,8 +172,8 @@ const FeedbackSection = () => {
       // Storage unavailable
     }
 
-    setFeedbacks((prev) => {
-      const updated = prev.map((item) => {
+    setFeedbacks((prev) =>
+      prev.map((item) => {
         if (item.id !== id) return item
         return {
           ...item,
@@ -118,38 +181,39 @@ const FeedbackSection = () => {
           downvotes: Math.max(0, (item.downvotes || 0) + downDelta),
         }
       })
-      try {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated))
-      } catch {
-        // Storage unavailable
+    )
+
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, upDelta, downDelta }),
+      })
+      if (!res.ok) {
+        throw new Error('Database vote patch failed')
       }
-      return updated
-    })
-
-    fetch('/api/feedback', {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id, upDelta, downDelta }),
-    }).catch(() => {})
-
-    trackEvent('interaction', `feedback_${direction}voted`, { feedbackId: id, toggled: !nextVote })
+      trackEvent('interaction', `feedback_${direction}voted`, { feedbackId: id, toggled: !nextVote })
+    } catch {
+      // Rollback on database or network error
+      setUserVotes(prevUserVotes)
+      setFeedbacks(prevFeedbacks)
+      try {
+        localStorage.setItem(USER_VOTES_KEY, JSON.stringify(prevUserVotes))
+      } catch {
+        // Safe storage fallback
+      }
+      showToast({
+        type: 'error',
+        title: 'VOTE FAILED',
+        message: 'Unable to record vote to ledger. Please try again.',
+      })
+    }
   }
 
   const handleFormSubmit = async (formData) => {
     setIsSubmitting(true)
-    const newEntry = {
-      id: `fb-${Date.now()}`,
-      ...formData,
-      verified: false,
-      upvotes: 1,
-      downvotes: 0,
-      is_hidden: false,
-      created_at: new Date().toISOString(),
-    }
-
-    let serverEntry = null
     try {
       const res = await fetch('/api/feedback', {
         method: 'POST',
@@ -159,28 +223,29 @@ const FeedbackSection = () => {
         body: JSON.stringify(formData),
       })
       if (res.ok) {
-        serverEntry = await res.json()
+        const saved = await res.json()
+        setFeedbacks((prev) => [saved, ...prev.filter((f) => f.id !== saved.id)])
+        setIsSubmitting(false)
+        trackEvent('interaction', 'feedback_submitted', { rating: formData.rating })
+        showToast({
+          type: 'success',
+          title: 'FEEDBACK LOGGED',
+          message: 'Your endorsement is now active on the public telemetry wall.',
+        })
+        return true
       }
     } catch {
-      // Offline fallback
-    }
-
-    const entryToUse = serverEntry || newEntry
-    try {
-      const updated = [entryToUse, ...feedbacks.filter((f) => f.id !== entryToUse.id)]
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated))
-      setFeedbacks(updated)
-    } catch {
-      setFeedbacks((prev) => [entryToUse, ...prev.filter((f) => f.id !== entryToUse.id)])
+      // Offline or Neon database failure
     }
 
     setIsSubmitting(false)
-    trackEvent('interaction', 'feedback_submitted', { rating: formData.rating })
     showToast({
-      type: 'success',
-      title: 'FEEDBACK LOGGED',
-      message: 'Your endorsement is now active on the public telemetry wall.',
+      type: 'error',
+      title: 'TRANSMISSION FAILED',
+      message: 'Unable to save feedback to database. Please try again.',
+      duration: 5000,
     })
+    return false
   }
 
   return (

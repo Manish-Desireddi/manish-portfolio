@@ -785,7 +785,7 @@ export const DEMO_VARIANTS = {
   'modal-storefront': {
     title: 'Agentic Commerce is now Live.',
     body: 'The Agentic Commerce Platform is a self-hosted e-commerce platform that runs entirely within your own environment. It features a modular architecture, secure payment integrations, and real-time inventory sync.',
-    status: 'LIVE DEPLOYEMENT',
+    status: 'LIVE DEPLOYMENT',
     liveUrl: 'https://agentic-commerce-server.vercel.app/',
     gateStatus: 'verified',
     ctaLabel: 'LAUNCH LIVE WORKSPACE',
