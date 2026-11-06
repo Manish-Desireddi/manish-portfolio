@@ -15,6 +15,7 @@ import SectionHeader from './SectionHeader'
 import { useModalLifecycle } from '../utils/useModalLifecycle'
 import { trackEvent } from '../utils/analytics'
 import { getCachedCertImage } from '../utils/canvasScrubber'
+import { playCertSlideSfx } from '../utils/audioContext'
 
 const CATEGORIES = CERTIFICATIONS_META.categories
 
@@ -106,11 +107,11 @@ const CertModalHeader = ({ onClose, closeBtnRef, selectedCategory, onSelectCateg
         aria-label="Close credentials database"
       >
         <X size={16} />
-        <span className="font-heading uppercase text-xs tracking-wider">Close Database</span>
+        <span className="font-heading uppercase text-xs tracking-wider">{CERTIFICATIONS_META.labels?.closeDatabase || 'Close Database'}</span>
       </button>
 
       <div className="font-mono text-pink-400 text-xs tracking-widest bg-zinc-950 px-2.5 py-1 border border-zinc-800">
-        INDEX: {activeIndex + 1} / {totalCerts}
+        {CERTIFICATIONS_META.labels?.indexPrefix || 'INDEX:'} {activeIndex + 1} / {totalCerts}
       </div>
     </div>
 
@@ -174,7 +175,7 @@ const CertSlideView = ({ cert }) => {
 
           <div className="grid grid-cols-2 gap-2 mb-4">
             <div className="bg-black/90 border border-zinc-900 p-2">
-              <p className="text-[10px] font-mono text-zinc-500 uppercase">Clearance</p>
+              <p className="text-[10px] font-mono text-zinc-500 uppercase">{CERTIFICATIONS_META.labels?.clearance || 'Clearance'}</p>
               <p className={`text-xs font-heading uppercase ${clearanceStyle.textColor} flex items-center gap-1.5 mt-0.5 truncate`}>
                 {clearanceStyle.icon}
                 {cert.clearance || 'ACTIVE'}
@@ -182,13 +183,13 @@ const CertSlideView = ({ cert }) => {
             </div>
 
             <div className="bg-black/90 border border-zinc-900 p-2">
-              <p className="text-[10px] font-mono text-zinc-500 uppercase">Category</p>
+              <p className="text-[10px] font-mono text-zinc-500 uppercase">{CERTIFICATIONS_META.labels?.category || 'Category'}</p>
               <p className="text-xs font-mono text-pink-400 truncate mt-0.5">{cert.category}</p>
             </div>
 
             {cert.idBadge && (
               <div className="col-span-2 bg-black/90 border border-zinc-900 p-2">
-                <p className="text-[10px] font-mono text-zinc-500 uppercase">Credential ID</p>
+                <p className="text-[10px] font-mono text-zinc-500 uppercase">{CERTIFICATIONS_META.labels?.credentialId || 'Credential ID'}</p>
                 <p className="text-xs font-mono text-zinc-300 truncate mt-0.5">{cert.idBadge}</p>
               </div>
             )}
@@ -203,7 +204,7 @@ const CertSlideView = ({ cert }) => {
             onClick={() => trackEvent('interaction', 'verify_cert_external', { cert: cert.id })}
             className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#fbbf24] hover:bg-[#f59e0b] text-black font-heading uppercase text-xs tracking-wider transition-colors shadow-md mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 cursor-pointer"
           >
-            Verify Credential <ExternalLink size={14} />
+            {CERTIFICATIONS_META.labels?.verifyCredential || 'Verify Credential'} <ExternalLink size={14} />
           </a>
         )}
       </div>
@@ -221,11 +222,11 @@ const CertModalPagination = ({ activeIndex, totalCerts, onPrev, onNext }) => (
       aria-label="Previous certificate"
     >
       <ChevronLeft size={16} />
-      <span className="font-heading uppercase text-xs hidden sm:inline">Previous</span>
+      <span className="font-heading uppercase text-xs hidden sm:inline">{CERTIFICATIONS_META.labels?.previous || 'Previous'}</span>
     </button>
 
     <span className="text-zinc-500 font-mono text-[10px] uppercase tracking-widest hidden sm:inline">
-      SWIPE OR USE ARROW KEYS TO NAVIGATE
+      {CERTIFICATIONS_META.labels?.navigationHint || 'SWIPE OR USE ARROW KEYS TO NAVIGATE'}
     </span>
 
     <button
@@ -235,7 +236,7 @@ const CertModalPagination = ({ activeIndex, totalCerts, onPrev, onNext }) => (
       className="flex items-center gap-1.5 px-3 py-1.5 border border-zinc-800 bg-black text-white disabled:opacity-40 disabled:pointer-events-none hover:border-pink-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 cursor-pointer"
       aria-label="Next certificate"
     >
-      <span className="font-heading uppercase text-xs hidden sm:inline">Next</span>
+      <span className="font-heading uppercase text-xs hidden sm:inline">{CERTIFICATIONS_META.labels?.next || 'Next'}</span>
       <ChevronRight size={16} />
     </button>
   </div>
@@ -257,6 +258,15 @@ const CertificationModal = ({ allCerts, onClose, initialIndex = 0 }) => {
 
   const currentCerts = filteredCerts.length > 0 ? filteredCerts : allCerts
   const activeCert = currentCerts[Math.min(activeIndex, currentCerts.length - 1)]
+
+  const isFirstRender = useRef(true)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    playCertSlideSfx()
+  }, [activeIndex, selectedCategory])
 
   useEffect(() => {
     const onKey = (e) => {

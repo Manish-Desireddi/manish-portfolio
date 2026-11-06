@@ -108,20 +108,26 @@ const DownloadHeader = ({ project, palette }) => (
   </motion.div>
 )
 
-const ChecksumRow = ({ sha256, palette }) => {
+const ChecksumRow = ({ sha256, palette, project }) => {
   const [copied, setCopied] = useState(false)
   const scrambledHash = useScrambleText(sha256)
 
   const handleCopy = () => {
     navigator.clipboard?.writeText(sha256)
     setCopied(true)
+    showToast({
+      type: 'success',
+      title: 'CHECKSUM COPIED',
+      message: 'SHA-256 hash copied to clipboard.',
+      duration: 2500,
+    })
     setTimeout(() => setCopied(false), 2500)
   }
 
   return (
     <div className="mt-4 pt-4 border-t border-zinc-800">
       <div className="flex items-center justify-between text-zinc-500 font-mono text-xs mb-1.5">
-        <span>SHA-256 CHECKSUM</span>
+        <span>{project?.labels?.sha256Checksum || 'SHA-256 CHECKSUM'}</span>
         <button
           type="button"
           onClick={handleCopy}
@@ -142,7 +148,7 @@ const ChecksumRow = ({ sha256, palette }) => {
 }
 
 const DownloadCta = ({ project, palette, isMobile, verifying, onDownload }) => {
-  const buttonText = verifying ? 'VERIFYING TELEMETRY...' : 'DOWNLOAD INSTALLER (.EXE)'
+  const buttonText = verifying ? 'VERIFYING TELEMETRY...' : (project?.labels?.downloadInstaller || 'DOWNLOAD INSTALLER (.EXE)')
 
   return (
     <div className="mt-6">
@@ -273,7 +279,7 @@ const DownloadModule = ({ project, palette }) => {
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <span className={`font-heading uppercase tracking-widest text-xs ${palette.textLight}`}>
-                LATEST BUILD TELEMETRY
+                {project.labels?.latestBuildTelemetry || 'LATEST BUILD TELEMETRY'}
               </span>
               <span className="font-mono text-xs text-zinc-500">{project.version}</span>
             </div>
@@ -285,10 +291,10 @@ const DownloadModule = ({ project, palette }) => {
             <div className="flex items-center gap-4 font-mono text-xs text-zinc-400">
               <span>PAYLOAD: {scrambledSize}</span>
               <span className="text-zinc-600">|</span>
-              <span className={palette.textLight}>ARCH: x64 WIN</span>
+              <span className={palette.textLight}>{project.labels?.archWin || 'ARCH: x64 WIN'}</span>
             </div>
 
-            <ChecksumRow sha256={project.sha256} palette={palette} />
+            <ChecksumRow sha256={project.sha256} palette={palette} project={project} />
           </div>
 
           <div className="relative z-10">
@@ -332,7 +338,7 @@ const FeatureCard = ({ feature, palette, index }) => {
   )
 }
 
-const SystemSpecsPanel = ({ requirements, palette }) => (
+const SystemSpecsPanel = ({ requirements, palette, project }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -351,7 +357,7 @@ const SystemSpecsPanel = ({ requirements, palette }) => (
         <div className="flex items-center gap-3">
           <HardDrive size={20} className={palette.textLight} />
           <h3 className="font-heading uppercase text-lg tracking-tight text-white">
-            HARDWARE SPECIFICATIONS
+            {project?.labels?.hardwareSpecifications || 'HARDWARE SPECIFICATIONS'}
           </h3>
         </div>
         <div className={`px-2.5 py-0.5 border ${palette.border} bg-black/60 font-mono text-[10px] ${palette.textLight} tracking-widest uppercase flex items-center gap-1.5`}>
@@ -431,7 +437,7 @@ const DownloadPage = () => {
           className="inline-flex items-center gap-2 text-zinc-500 hover:text-white text-sm font-heading uppercase tracking-widest mb-16 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
         >
           <ArrowLeft size={16} />
-          Return to Portfolio
+          {project.labels?.returnToPortfolio || 'Return to Portfolio'}
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
@@ -454,6 +460,7 @@ const DownloadPage = () => {
           <SystemSpecsPanel
             requirements={project.systemRequirements}
             palette={palette}
+            project={project}
           />
         </div>
       </div>

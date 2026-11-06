@@ -13,6 +13,7 @@ import Expertise from './components/Expertise'
 import Leadership from './components/Leadership'
 import Certifications from './components/Certifications'
 import InteractiveCLI from './components/InteractiveCLI'
+import FeedbackSection from './components/FeedbackSection'
 import Footer from './components/Footer'
 import CustomCursor from './components/CustomCursor'
 import Navigation from './components/Navigation'
@@ -22,6 +23,7 @@ import NotFoundPage from './components/NotFoundPage'
 import ToastManager, { showToast } from './components/ToastManager'
 import CookieConsent from './components/CookieConsent'
 import EnterOverlay from './components/EnterOverlay'
+import InAppBrowserBanner from './components/InAppBrowserBanner'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 
@@ -129,6 +131,7 @@ const VALID_HASHES = new Set([
   '#certifications',
   '#cli',
   '#terminal',
+  '#feedback',
   '#contact',
   '#footer',
 ])
@@ -184,33 +187,28 @@ const useKeyboardModality = () => {
   }, [])
 }
 
-const useConsentPreferences = () => {
-  const [prefs, setPrefs] = useState(() => getConsentPreferences())
+const TelemetryProviders = () => {
+  const [consentPrefs, setConsentPrefs] = useState(() => getConsentPreferences())
+
   useEffect(() => {
     const handleConsentChange = (e) => {
-      setPrefs(e.detail || getConsentPreferences())
-    }
-    const handleStorage = (e) => {
-      if (e.key === 'sys_privacy_consent_v1') {
-        setPrefs(getConsentPreferences())
-      }
+      setConsentPrefs(e.detail || null)
     }
     window.addEventListener('sys-privacy-consent-changed', handleConsentChange)
-    window.addEventListener('storage', handleStorage)
-    return () => {
-      window.removeEventListener('sys-privacy-consent-changed', handleConsentChange)
-      window.removeEventListener('storage', handleStorage)
-    }
+    return () => window.removeEventListener('sys-privacy-consent-changed', handleConsentChange)
   }, [])
-  return prefs
-}
 
-const TelemetryProviders = ({ prefs }) => (
-  <>
-    {prefs?.analytics && <Analytics />}
-    {prefs?.telemetry && <SpeedInsights />}
-  </>
-)
+  return (
+    <>
+      {consentPrefs?.analytics && (
+        <Analytics beforeSend={(event) => (getConsentPreferences()?.analytics ? event : null)} />
+      )}
+      {consentPrefs?.telemetry && (
+        <SpeedInsights beforeSend={(data) => (getConsentPreferences()?.telemetry ? data : null)} />
+      )}
+    </>
+  )
+}
 
 const setupLenisInstance = () => {
   ScrollTrigger.config({ ignoreMobileResize: true })
@@ -422,9 +420,10 @@ const PortfolioLayout = ({
           onModalStateChange={setIsProjectModalActive}
         />
         <Expertise />
-        <Leadership />
+        <Leadership isReady={isAssetsReady && !heroActive} />
         <Certifications onModalStateChange={setIsCertModalActive} />
         <InteractiveCLI />
+        <FeedbackSection />
         <Footer isOffline={isOffline} />
       </main>
 
@@ -452,7 +451,6 @@ const App = () => {
   const isModalActive = isCertModalActive || isProjectModalActive
   usePortfolioMetadata(locState.pathname, locState.hash)
   useKeyboardModality()
-  const consentPrefs = useConsentPreferences()
 
   const { bufferProgress, isPreloadComplete, heroFrames, projectFrames } =
     useAssetPreloader(hasEntered)
@@ -531,7 +529,8 @@ const App = () => {
   if (isDownloadRoute && downloadProject) {
     return (
       <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
-        <TelemetryProviders prefs={consentPrefs} />
+        <InAppBrowserBanner />
+        <TelemetryProviders />
         <CustomCursor accentColor="teal" />
         <ToastManager />
         <DownloadPage />
@@ -542,7 +541,8 @@ const App = () => {
   if (is404) {
     return (
       <div className="relative min-h-[100dvh] bg-app-dark no-scrollbar">
-        <TelemetryProviders prefs={consentPrefs} />
+        <InAppBrowserBanner />
+        <TelemetryProviders />
         <CustomCursor />
         <ToastManager />
         <NotFoundPage onReturnHome={handleReturnHome} />
@@ -553,7 +553,8 @@ const App = () => {
   if (!hasEntered) {
     return (
       <>
-        <TelemetryProviders prefs={consentPrefs} />
+        <InAppBrowserBanner />
+        <TelemetryProviders />
         <CustomCursor />
         <EnterOverlay onEnter={() => setHasEntered(true)} />
       </>
@@ -562,7 +563,8 @@ const App = () => {
 
   return (
     <>
-      <TelemetryProviders prefs={consentPrefs} />
+      <InAppBrowserBanner />
+      <TelemetryProviders />
       <PortfolioLayout
         isOffline={isOffline}
         isAssetsReady={isAssetsReady}

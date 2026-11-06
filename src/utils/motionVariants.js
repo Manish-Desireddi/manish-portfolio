@@ -26,21 +26,12 @@ export const fadeUpVariant = {
 }
 
 export const blockRevealVariant = {
-  hidden: {
-    scaleY: 0,
-    originY: 0,
+  hidden: { height: '0%', top: '0%' },
+  visible: {
+    height: ['0%', '100%', '0%'],
+    top: ['0%', '0%', '100%'],
+    transition: { duration: 0.8, ease: 'easeInOut', times: [0, 0.5, 1] },
   },
-  // fallow-ignore-next-line complexity
-  visible: (custom = 0) => ({
-    scaleY: prefersReducedMotion ? [0, 0, 0] : [0, 1, 0],
-    originY: [0, 0, 1],
-    transition: {
-      duration: prefersReducedMotion ? 0.05 : 0.8,
-      delay: prefersReducedMotion ? 0 : custom * 0.08,
-      ease: 'easeInOut',
-      times: [0, 0.5, 1],
-    },
-  }),
 }
 
 export const modalSpring = {

@@ -5,7 +5,7 @@
       "destination": "/#/downloads/ai-assistant"
     },
     {
-      "source": "/((?!assets/|downloads/|favicon\\.svg).*)",
+      "source": "/((?!api/|assets/|downloads/|favicon\\.svg).*)",
       "destination": "/index.html"
     }
   ],

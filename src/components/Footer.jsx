@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useForm, ValidationError } from '@formspree/react'
-import { Linkedin, Github, Instagram, ArrowUp, AlertCircle, CheckCircle2, Cookie } from 'lucide-react'
+import { Linkedin, Github, ArrowUp, AlertCircle, CheckCircle2, Cookie } from 'lucide-react'
 import { showToast } from './ToastManager'
 import { trackEvent } from '../utils/analytics'
-import { FOOTER_DATA } from '../data/portfolioData'
+import { FOOTER_DATA, NAV_ITEMS } from '../data/portfolioData'
 
 const DeveloperBadge = () => (
   <div className="w-[120px] shrink-0 border-4 border-white bg-black flex overflow-hidden self-start shadow-xl">
@@ -32,14 +32,14 @@ const TransmissionConfirmedCard = ({ onReset }) => (
       </h3>
     </div>
     <p className="text-zinc-300 font-mono text-xs sm:text-sm leading-relaxed">
-      Your dispatch has been ingested and logged into the communications buffer. Response protocols will initiate within 24 standard hours.
+      {FOOTER_DATA.confirmationMessage}
     </p>
     <button
       type="button"
       onClick={onReset}
       className="mt-4 px-6 py-2.5 bg-zinc-900 hover:bg-emerald-500 hover:text-black text-emerald-400 font-heading uppercase text-xs tracking-wider border border-emerald-500/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 cursor-pointer"
     >
-      Send Another Transmission
+      {FOOTER_DATA.resetButton}
     </button>
   </div>
 )
@@ -49,7 +49,7 @@ const FormAlertBanners = ({ isOnline, hasErrors }) => (
     {!isOnline && (
       <div className="p-3 bg-red-950/60 border border-red-500/80 text-red-200 text-xs font-mono flex items-center gap-2">
         <AlertCircle size={16} className="text-red-400 shrink-0" />
-        <span>SYS.OFFLINE // Re-establish connectivity to submit messages.</span>
+        <span>{FOOTER_DATA.offlineBanner}</span>
       </div>
     )}
     {hasErrors && (
@@ -155,20 +155,31 @@ const ContactForm = ({ isOffline }) => {
       setSubmitted(true)
       trackEvent('contact', 'form_dispatched')
       showToast({
-        title: 'TRANSMISSION DISPATCHED',
-        message: 'Message delivered to Manish Desireddi.',
+        title: FOOTER_DATA.successToastTitle || 'TRANSMISSION DISPATCHED',
+        message: FOOTER_DATA.successToastMessage || 'Message delivered to Manish Desireddi.',
         type: 'success',
         duration: 4000,
       })
     }
   }, [formState.succeeded])
 
+  useEffect(() => {
+    if (formState.errors && formState.errors.length > 0) {
+      showToast({
+        type: 'error',
+        title: FOOTER_DATA.errorToastTitle || 'TRANSMISSION ERROR',
+        message: FOOTER_DATA.errorToastMessage || 'Unable to dispatch message. Please verify your fields and try again.',
+        duration: 3000,
+      })
+    }
+  }, [formState.errors])
+
   const handleFormSubmit = async (e) => {
     e.preventDefault()
     if (!isOnline) {
       showToast({
-        title: 'NETWORK OFFLINE',
-        message: 'Cannot transmit form while system is offline.',
+        title: FOOTER_DATA.offlineToastTitle || 'NETWORK OFFLINE',
+        message: FOOTER_DATA.offlineToastMessage || 'Cannot transmit form while system is offline.',
         type: 'error',
         duration: 4000,
       })
@@ -200,50 +211,36 @@ const ContactForm = ({ isOffline }) => {
 const FooterSectorDirectory = () => (
   <div>
     <h3 className="font-heading uppercase text-sm tracking-widest text-zinc-400 mb-4 border-b border-zinc-800 pb-2">
-      SYSTEM SECTOR DIRECTORY
+      {FOOTER_DATA.sectorDirectoryTitle || 'SYSTEM SECTOR DIRECTORY'}
     </h3>
     <div className="grid grid-cols-2 gap-2 text-xs font-mono text-zinc-400">
-      <a href="#home" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">01 // HOME</a>
-      <a href="#about" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">02 // ABOUT</a>
-      <a href="#experience" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">03 // EXPERIENCE</a>
-      <a href="#projects" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">04 // PROJECTS</a>
-      <a href="#architecture" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">05 // EXPERTISE</a>
-      <a href="#leadership" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">06 // LEADERSHIP</a>
-      <a href="#certifications" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">07 // ACCREDITATIONS</a>
-      <a href="#cli" className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500">08 // TERMINAL CLI</a>
+      {NAV_ITEMS.filter((item) => item.id !== 'contact').map((item, idx) => (
+        <a
+          key={item.id}
+          href={`#${item.id}`}
+          className="hover:text-pink-400 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-pink-500"
+        >
+          {String(idx + 1).padStart(2, '0')} // {item.label.toUpperCase()}
+        </a>
+      ))}
     </div>
   </div>
 )
 
-const FooterSocialLinks = () => (
-  <div>
-    <p className="font-heading uppercase text-xs tracking-widest text-zinc-400 mb-3">EXTERNAL CHANNELS</p>
-    <div className="flex gap-4">
-      <a
-        href="https://linkedin.com/in/Manish-Desireddi"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
-        aria-label="Manish Desireddi on LinkedIn"
-      >
-        <Linkedin size={20} />
-      </a>
-      <a
-        href="https://github.com/Manish-Desireddi"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
-        aria-label="Manish Desireddi on GitHub"
-      >
-        <Github size={20} />
-      </a>
-      <a
-        href="https://huggingface.co/manishdesireddi"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
-        aria-label="Manish Desireddi on HuggingFace"
-      >
+const NaukriIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" aria-hidden="true">
+    <path d="M6 4h4v7.2L14 4h4v16h-4v-7.2L10 20H6V4z" />
+  </svg>
+)
+
+const renderSocialIcon = (id) => {
+  switch (id) {
+    case 'linkedin':
+      return <Linkedin size={20} />
+    case 'github':
+      return <Github size={20} />
+    case 'huggingface':
+      return (
         <div
           className="w-5 h-5 bg-current transition-colors"
           style={{
@@ -257,16 +254,32 @@ const FooterSocialLinks = () => (
             maskPosition: 'center',
           }}
         />
-      </a>
-      <a
-        href="https://instagram.com/the.manish.desireddi_"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
-        aria-label="Manish Desireddi on Instagram"
-      >
-        <Instagram size={20} />
-      </a>
+      )
+    case 'naukri':
+      return <NaukriIcon />
+    default:
+      return null
+  }
+}
+
+const FooterSocialLinks = () => (
+  <div>
+    <p className="font-heading uppercase text-xs tracking-widest text-zinc-400 mb-3">
+      {FOOTER_DATA.socialsTitle || 'EXTERNAL CHANNELS'}
+    </p>
+    <div className="flex gap-4">
+      {FOOTER_DATA.socials.map((social) => (
+        <a
+          key={social.id}
+          href={social.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center hover:bg-pink-900/40 hover:border-pink-400 transition-all text-zinc-400 hover:text-pink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
+          aria-label={social.ariaLabel || `Manish Desireddi on ${social.label}`}
+        >
+          {renderSocialIcon(social.id)}
+        </a>
+      ))}
     </div>
   </div>
 )

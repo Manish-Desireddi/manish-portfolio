@@ -38,7 +38,7 @@ const ProjectCardFront = ({ project, onOpenDemo, onOpenRepo, onFlip, isFlipped }
           }}
           className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-400 hover:text-pink-400 tracking-wider transition-colors uppercase cursor-pointer"
         >
-          <span>FLIP FOR TELEMETRY</span>
+          <span>{PROJECTS_META.labels?.flipForTelemetry || 'FLIP FOR TELEMETRY'}</span>
           <span className="text-pink-400">➔</span>
         </button>
       </div>
@@ -64,7 +64,7 @@ const ProjectCardFront = ({ project, onOpenDemo, onOpenRepo, onFlip, isFlipped }
           }}
           className="px-4 md:px-5 py-2 md:py-2.5 bg-white text-black font-heading uppercase hover:bg-pink-400 hover:text-black transition-colors text-xs sm:text-sm shadow-[0_0_15px_rgba(255,255,255,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
         >
-          Explore Demo
+          {PROJECTS_META.labels?.exploreDemo || 'Explore Demo'}
         </button>
         <button
           type="button"
@@ -74,12 +74,12 @@ const ProjectCardFront = ({ project, onOpenDemo, onOpenRepo, onFlip, isFlipped }
           }}
           className="px-4 md:px-5 py-2 md:py-2.5 border-2 border-zinc-700 text-white font-heading uppercase hover:bg-white/10 hover:border-white transition-colors text-xs sm:text-sm cursor-pointer"
         >
-          View Source
+          {PROJECTS_META.labels?.viewSource || 'View Source'}
         </button>
       </div>
 
       <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest hidden sm:inline">
-        CLICK CARD TO FLIP
+        {PROJECTS_META.labels?.clickCardToFlip || 'CLICK CARD TO FLIP'}
       </span>
     </div>
   </div>
@@ -101,7 +101,7 @@ const ProjectCardBack = ({ project, onFlip, isFlipped }) => (
 
     <div className="flex items-center justify-between gap-3 mb-2 border-b border-zinc-800 pb-2 shrink-0">
       <span className="font-mono text-[10px] tracking-widest text-orange-400 uppercase">
-        TELEMETRY // SPECIFICATIONS
+        {PROJECTS_META.labels?.telemetrySpecs || 'TELEMETRY // SPECIFICATIONS'}
       </span>
       <button
         type="button"
@@ -112,14 +112,14 @@ const ProjectCardBack = ({ project, onFlip, isFlipped }) => (
         className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-400 hover:text-orange-400 tracking-wider transition-colors uppercase cursor-pointer"
       >
         <span className="text-orange-400">↩</span>
-        <span>RETURN TO OVERVIEW</span>
+        <span>{PROJECTS_META.labels?.returnToOverview || 'RETURN TO OVERVIEW'}</span>
       </button>
     </div>
 
     <div className="overflow-y-auto no-scrollbar min-h-0 flex-1 space-y-3 pr-1 mb-2">
       <div>
         <h4 className="font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1.5">
-          Stack Architecture
+          {PROJECTS_META.labels?.stackArchitecture || 'Stack Architecture'}
         </h4>
         <div className="flex flex-wrap gap-1.5">
           {project.tags.map((tag) => (
@@ -136,7 +136,7 @@ const ProjectCardBack = ({ project, onFlip, isFlipped }) => (
       {project.highlights && project.highlights.length > 0 && (
         <div>
           <h4 className="font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1">
-            Engineering Highlights
+            {PROJECTS_META.labels?.engineeringHighlights || 'Engineering Highlights'}
           </h4>
           <ul className="space-y-1">
             {project.highlights.map((item, idx) => (
@@ -169,7 +169,10 @@ const ProjectCardBack = ({ project, onFlip, isFlipped }) => (
 
 const ProjectCard = ({ project, onOpenDemo, onOpenRepo }) => {
   const [isFlipped, setIsFlipped] = useState(false)
-  const toggleFlip = () => setIsFlipped((prev) => !prev)
+  const toggleFlip = () => {
+    setIsFlipped((prev) => !prev)
+    trackEvent('interaction', 'project_card_flip', { projectId: project.id })
+  }
 
   return (
     <div className="w-[100vw] h-full flex items-center justify-center px-4 sm:px-8 lg:px-20 shrink-0">
@@ -213,7 +216,7 @@ const ScrollDownIndicator = () => (
       <div className="w-1 h-2 bg-pink-400 rounded-full animate-bounce" />
     </div>
     <span className="font-mono text-[9px] tracking-widest text-zinc-400 uppercase">
-      SCROLL DOWN
+      {PROJECTS_META.labels?.scrollDown || 'SCROLL DOWN'}
     </span>
   </div>
 )
@@ -347,7 +350,7 @@ const Projects = ({ projectFrames = [], onModalStateChange }) => {
 
   const handleOpenRepo = (project) => {
     trackEvent('interaction', 'project_repo_open', { projectId: project.id })
-    if (project.id === 'subq-audio-engine') {
+    if (project.isPublicRepo && project.github) {
       window.open(project.github, '_blank', 'noopener,noreferrer')
     } else {
       setRepoState({ open: true, title: project.title })

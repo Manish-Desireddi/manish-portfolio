@@ -1,5 +1,6 @@
 import { showToast } from '../components/ToastManager'
 import { DOWNLOAD_PROJECTS } from '../data/portfolioData'
+import { isInAppBrowser, isIOSDevice } from './browserDetect'
 
 const ASSET_UNAVAILABLE_TOAST = {
   type: 'error',
@@ -27,8 +28,6 @@ export function resolveDownloadProject(routeOrSlug) {
 
 /**
  * Triggers a download by dynamically injecting an anchor tag.
- * @param {string} url
- * @param {string} fileName
  */
 function executeBrowserDownload(url, fileName) {
   const link = document.createElement('a')
@@ -52,19 +51,30 @@ const isAssetAccessible = async (url) => {
   }
 }
 
+const isPdfTarget = (url, fileName) =>
+  String(url || '').toLowerCase().includes('.pdf') || String(fileName || '').toLowerCase().includes('.pdf')
+
+const handleSyncMobileNav = (url, onVerified) => {
+  if (typeof window !== 'undefined') {
+    window.location.assign(url)
+    onVerified?.()
+    return true
+  }
+  return false
+}
+
 /**
  * Performs pre-flight HEAD verification on an asset URL before triggering browser download.
  * Flags missing resources or SPA text/html fallbacks with a styled HUD error toast.
- *
- * @param {string} url - Target asset URL
- * @param {string} [fileName] - Suggested download filename
- * @param {Function} [onVerified] - Optional callback executed on verification success
- * @returns {Promise<boolean>}
  */
 export async function verifyAndTriggerDownload(url, fileName, onVerified) {
   if (!url) {
     showToast(ASSET_UNAVAILABLE_TOAST)
     return false
+  }
+
+  if (isPdfTarget(url, fileName) && (isInAppBrowser() || isIOSDevice())) {
+    return handleSyncMobileNav(url, onVerified)
   }
 
   const accessible = await isAssetAccessible(url)
@@ -74,6 +84,6 @@ export async function verifyAndTriggerDownload(url, fileName, onVerified) {
   }
 
   executeBrowserDownload(url, fileName)
-  if (typeof onVerified === 'function') onVerified()
+  onVerified?.()
   return true
 }

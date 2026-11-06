@@ -1,7 +1,7 @@
 // --- Site Metadata & System Config -------------------------------------------
 export const SITE_METADATA = {
-  version: '0.1.0',
-  displayVersion: 'v0.1.0',
+  version: '0.2.0',
+  displayVersion: 'v0.2.0',
   canonicalBase: 'https://manish-desireddi.vercel.app',
   defaultTitle: 'Manish Desireddi — AI Systems Architect & Full-Stack Engineer',
   defaultDescription: 'Personal portfolio of Manish Desireddi — AI Engineer specializing in Autonomous Multi-Agent Systems, C++/CUDA Neural Inference, and Distributed Automation Pipelines.',
@@ -11,12 +11,22 @@ export const SITE_METADATA = {
     monogram: 'MD',
   },
   offlineBanner: 'OFFLINE MODE // LOCAL CACHE ACTIVE',
-  hudDrawerFooter: 'PORTFOLIO SYSTEM // HYPERION HUD v0.1.0',
+  hudDrawerFooter: 'PORTFOLIO SYSTEM // HYPERION HUD v0.2.0',
   routes: {
     downloadAura: {
       title: 'AURA AI OS // Desktop Client Download — Manish Desireddi',
       description: 'Download the Windows x64 desktop installer for AURA AI Operating System v0.1.0.',
     },
+  },
+  inAppBrowserBanner: {
+    eyebrow: 'VIEWING IN EMBEDDED WEBVIEW // OPEN IN SAFARI/CHROME FOR 120HZ EXPERIENCE',
+    copyLink: 'Copy Link',
+    openBrowser: 'Open Browser',
+    dismissNotice: 'Dismiss Banner',
+  },
+  navigation: {
+    drawerHeader: 'SYS.NAV // HUD COMMAND DRAWER',
+    downloadResumeLabel: 'Download Official Resume',
   },
 }
 
@@ -154,6 +164,14 @@ export const DOWNLOAD_PROJECTS = {
       { key: 'DISK', label: 'LOCAL STORAGE', value: '500 MB Available Storage', status: 'READY' },
       { key: 'NET', label: 'NETWORK INTERFACE', value: 'Broadband Internet Link for Cloud Telemetry', status: 'READY' },
     ],
+    labels: {
+      returnToPortfolio: 'Return to Portfolio',
+      latestBuildTelemetry: 'LATEST BUILD TELEMETRY',
+      archWin: 'ARCH: x64 WIN',
+      sha256Checksum: 'SHA-256 CHECKSUM',
+      downloadInstaller: 'DOWNLOAD INSTALLER (.EXE)',
+      hardwareSpecifications: 'HARDWARE SPECIFICATIONS',
+    },
   },
 }
 DOWNLOAD_PROJECTS['ai-assistant'] = DOWNLOAD_PROJECTS.aura
@@ -168,6 +186,7 @@ export const NAV_ITEMS = [
   { id: 'leadership', label: 'Leadership', icon: 'Target' },
   { id: 'certifications', label: 'Accreditations', icon: 'Award' },
   { id: 'cli', label: 'Terminal', icon: 'Terminal' },
+  { id: 'feedback', label: 'Feedback', icon: 'MessageSquarePlus' },
   { id: 'contact', label: 'Contact Dispatch', icon: 'Mail' },
 ]
 
@@ -225,6 +244,7 @@ export const EXPERIENCE_META = {
   category: 'EXPERIENCE',
   title: "WHERE I'VE SHIPPED.",
   subtitle: '> EXECUTING PRODUCTION PROTOCOLS AT SCALE...',
+  nodePrefix: 'VERIFIED DIRECTIVE',
 }
 
 // --- Projects Meta ----------------------------------------------------------
@@ -233,6 +253,17 @@ export const PROJECTS_META = {
   category: 'PROJECTS',
   title: 'ENGINEERED TO SCALE',
   subtitle: '> High-performance AI pipelines & autonomous systems.',
+  labels: {
+    flipForTelemetry: 'FLIP FOR TELEMETRY',
+    exploreDemo: 'Explore Demo',
+    viewSource: 'View Source',
+    clickCardToFlip: 'CLICK CARD TO FLIP',
+    telemetrySpecs: 'TELEMETRY // SPECIFICATIONS',
+    returnToOverview: 'RETURN TO OVERVIEW',
+    stackArchitecture: 'Stack Architecture',
+    engineeringHighlights: 'Engineering Highlights',
+    scrollDown: 'SCROLL DOWN',
+  },
 }
 
 // --- Profile Card -----------------------------------------------------------
@@ -300,6 +331,17 @@ export const CERTIFICATIONS_META = {
   categories: ['All', 'AI', 'Cloud & DevOps', 'Software', 'Automation'],
   modalClose: 'CLOSE CREDENTIAL VIEWER',
   viewCredential: 'VIEW CREDENTIAL',
+  labels: {
+    closeDatabase: 'Close Database',
+    indexPrefix: 'INDEX:',
+    clearance: 'Clearance',
+    category: 'Category',
+    credentialId: 'Credential ID',
+    verifyCredential: 'Verify Credential',
+    previous: 'Previous',
+    next: 'Next',
+    navigationHint: 'SWIPE OR USE ARROW KEYS TO NAVIGATE',
+  },
 }
 
 export const CERTIFICATIONS = [
@@ -356,6 +398,7 @@ export const EXPERIENCE = [
     company: 'Nokia Solutions and Networks',
     location: 'Bengaluru, India',
     date: 'AUG 2025 — JUN 2026',
+    roleProtocol: 'ROLE PROTOCOL // AI Automation for Performance, Verification and Validation Team',
     responsibilities: [
       'Researched and developed machine learning components for a UI Self-Healing poc and a Load Model, utilizing predictive analytics to simulate high-stress network conditions, benchmark system resilience, and dynamically resolve interface anomalies during performance verification.',
       'Architected Python Selenium automation on Chromium browsers to execute ~80 repetitive UI workflows—enforcing strict <4GB memory thresholds—and designed targeted sanity suites to provision test data and validate cell-building modules on critical paths.',
@@ -383,7 +426,27 @@ export const PROJECTS = [
     metrics: { memory: 'O(1)', throughput: '>200k tok/s', bounds: '< 256MB VRAM' },
     tags: ['C++', 'CUDA', 'PyTorch', 'PyBind11', 'CMake', 'GSAP'],
     github: 'https://github.com/Manish-Desireddi/Sub-Quadratic-Audio-Transformer-Engine',
+    isPublicRepo: true,
     demoKind: 'modal-subq',
+    accent: 'pink',
+  },
+  {
+    id: 'cascade-eta',
+    title: 'Cascade-ETA Delay Propagation Engine',
+    description:
+      'An industrial multi-stage freight ETA and non-linear delay propagation system powered by Chained Stage-Cascade LightGBM quantile regressors (P10/P50/P90), a Platt-calibrated SLA breach classifier, and additive TreeSHAP explainability. Reconstructs multi-leg Delhivery & OSRM telemetry with a kinematic monotonicity imputer and provides a real-time What-If counterfactual disruption simulator.',
+    highlights: [
+      '32.4% Stage-1 MAE reduction & 45.3% Stage-3 MAE reduction vs monolithic LightGBM',
+      'Platt-calibrated SLA breach classifier achieving 0.984 ROC-AUC & 0.086 Brier score',
+      'TreeSHAP variance decomposition across 4 operational logistics buckets',
+      'Real-time What-If counterfactual simulator over DuckDB & Polars feature store',
+    ],
+    metrics: { mae: '-32.4% vs Base', roc_auc: '0.984 SLA', brier: '0.086 Calib' },
+    tags: ['Python', 'LightGBM', 'TreeSHAP', 'DuckDB', 'Polars', 'FastAPI', 'Next.js 15'],
+    github: 'https://github.com/Manish-Desireddi/ETA',
+    isPublicRepo: true,
+    liveUrl: 'https://eta-eight-livid.vercel.app/',
+    demoKind: 'modal-eta',
     accent: 'pink',
   },
   {
@@ -400,6 +463,7 @@ export const PROJECTS = [
     metrics: { param: '7B', dataset: 'ShapeNet', method: 'LoRA + GAN' },
     tags: ['Deep Learning', 'LoRA', 'GANs', 'ShapeNet', 'FAISS', 'RAG'],
     github: 'https://github.com/Manish-Desireddi',
+    isPublicRepo: false,
     demoKind: 'modal-3d',
     accent: 'pink',
   },
@@ -417,6 +481,7 @@ export const PROJECTS = [
     metrics: { agents: '15 Active', db: 'FAISS & Postgres', protocol: 'JSON-RPC' },
     tags: ['Python', 'LangGraph', 'FAISS', 'Redis', 'Celery', 'Next.js'],
     github: 'https://github.com/Manish-Desireddi',
+    isPublicRepo: false,
     demoKind: 'modal-storefront',
     accent: 'pink',
   },
@@ -434,6 +499,7 @@ export const PROJECTS = [
     metrics: { factors: '7-Weight Scoring', backend: 'ONNX/FastEmbed', fallback: 'BM25' },
     tags: ['Python', 'Selenium', 'ONNX', 'FAISS', 'DOM Analysis', 'XPath'],
     github: 'https://github.com/Manish-Desireddi',
+    isPublicRepo: false,
     demoKind: 'modal-commercial',
     accent: 'orange',
   },
@@ -451,6 +517,7 @@ export const PROJECTS = [
     metrics: { memory: 'SQLite + ChromaDB', ui: 'React 19 + GSAP', tts: 'Edge Neural' },
     tags: ['Python', 'LangGraph', 'React 19', 'FastAPI', 'ChromaDB', 'PyWebView', 'Tailwind v4'],
     github: 'https://github.com/Manish-Desireddi',
+    isPublicRepo: false,
     demoKind: 'download-aura',
     downloadSlug: 'aura',
     accent: 'orange',
@@ -488,6 +555,7 @@ export const LEADERSHIP = {
     degree: 'B.Tech - Artificial Intelligence & Data Science',
     institution: 'KL University',
     cgpa: '8.65',
+    metricLabel: 'Cumulative Academic Metric',
     location: 'Vijayawada, India',
     date: '2022 - 2026',
   },
@@ -531,11 +599,11 @@ export const CLI_DATA = {
   },
   promptLabel: 'guest@manish-os ~',
   bootMessages: [
-    'Manish-OS v0.1.0 initialized.',
+    'Manish-OS v0.2.0 initialized.',
     'Type "help" to see available commands.',
   ],
   commands: {
-    help: 'Available commands: whoami, cat skills.txt, run agent, clear, help',
+    help: 'Available commands: whoami, python telemetry.py, cat projects, npx install aura, python agent.py, cat skills.txt, clear, help',
     whoami: 'Manish Desireddi — AI & Full-Stack Engineer.\nB.Tech AI & Data Science (KL University, CGPA 8.65). Ex-Nokia Intern.',
     'cat skills.txt': SKILLS_TXT_LINES.join('\n'),
     clear: 'CLEAR_TERMINAL',
@@ -549,13 +617,50 @@ export const CLI_DATA = {
   fallbackError: 'Command not recognized. Type "help" for valid directives.',
 }
 
+// --- Feedback Wall & Peer Endorsements --------------------------------------
+export const FEEDBACK_META = {
+  index: '08',
+  category: 'FEEDBACK',
+  title: 'SIGNALS & ENDORSEMENTS',
+  subtitle: '> PEER REVIEWS // SYSTEM TELEMETRY & FEEDBACK',
+  formHeading: 'Transmit Feedback',
+  fields: {
+    name: {
+      label: 'Name / Codename *',
+      placeholder: 'Your Name',
+    },
+    role: {
+      label: 'Role / Title',
+      placeholder: 'Your Role (Optional)',
+    },
+    organization: {
+      label: 'Organization',
+      placeholder: 'Company / Institute (Optional)',
+    },
+    rating: {
+      label: 'Signal Rating',
+    },
+    message: {
+      label: 'Feedback Transmission *',
+      placeholder: 'Share technical review, feedback, or verification remarks...',
+    },
+  },
+  submitButton: 'PUBLISH FEEDBACK',
+  submittingButton: 'TRANSMITTING...',
+  emptyState: {
+    title: 'NO TRANSMISSIONS LOGGED',
+    subtitle: 'BE THE FIRST TO SUBMIT FEEDBACK',
+    description: 'Submissions will appear here once verified across the telemetry pipeline.',
+  },
+}
+
 // --- Footer & Contact Form --------------------------------------------------
 export const FOOTER_DATA = {
   title: 'INITIATE CONTACT',
   subtitle: 'TRANSMIT SECURE TELEMETRY',
   fields: {
-    name: { label: 'CODENAME / NAME', placeholder: 'e.g. John Doe' },
-    email: { label: 'SIGNAL ADDRESS / EMAIL', placeholder: 'john@example.com' },
+    name: { label: 'CODENAME / NAME', placeholder: 'Your Name' },
+    email: { label: 'SIGNAL ADDRESS / EMAIL', placeholder: 'your.email@domain.com' },
     subject: { label: 'DIRECTIVE / SUBJECT', placeholder: 'Project Inquiry' },
     message: { label: 'TRANSMISSION / MESSAGE', placeholder: 'Enter encrypted mission brief...' },
   },
@@ -563,11 +668,23 @@ export const FOOTER_DATA = {
   submittingButton: 'TRANSMITTING...',
   successMessage: 'TRANSMISSION RECEIVED // TELEMETRY ACKNOWLEDGED',
   errorMessage: 'TRANSMISSION FAILED // PLEASE RETRY',
+  confirmationMessage: 'Your dispatch has been ingested and logged into the communications buffer. Response protocols will initiate within 24 standard hours.',
+  resetButton: 'Send Another Transmission',
+  offlineBanner: 'SYS.OFFLINE // Re-establish connectivity to submit messages.',
+  offlineToastTitle: 'NETWORK OFFLINE',
+  offlineToastMessage: 'Cannot transmit form while system is offline.',
+  successToastTitle: 'TRANSMISSION DISPATCHED',
+  successToastMessage: 'Message delivered to Manish Desireddi.',
+  errorToastTitle: 'TRANSMISSION ERROR',
+  errorToastMessage: 'Unable to dispatch message. Please verify your fields and try again.',
+  sectorDirectoryTitle: 'SYSTEM SECTOR DIRECTORY',
+  socialsTitle: 'EXTERNAL CHANNELS',
+  privacySettingsButton: 'Cookie Settings',
   socials: [
-    { label: 'GitHub', url: 'https://github.com/Manish-Desireddi' },
-    { label: 'LinkedIn', url: 'https://linkedin.com/in/Manish-Desireddi' },
-    { label: 'HuggingFace', url: 'https://huggingface.co/manishdesireddi' },
-    { label: 'Email', url: 'mailto:manishdesireddi@gmail.com' },
+    { id: 'linkedin', label: 'LinkedIn', url: 'https://linkedin.com/in/Manish-Desireddi', ariaLabel: 'Manish Desireddi on LinkedIn' },
+    { id: 'github', label: 'GitHub', url: 'https://github.com/Manish-Desireddi', ariaLabel: 'Manish Desireddi on GitHub' },
+    { id: 'huggingface', label: 'HuggingFace', url: 'https://huggingface.co/manishdesireddi', ariaLabel: 'Manish Desireddi on HuggingFace' },
+    { id: 'naukri', label: 'Naukri', url: 'https://www.naukri.com/code360/profile/manish_desireddi', ariaLabel: 'Manish Desireddi on Naukri' },
   ],
   copyright: '© 2026 MANISH DESIREDDI. ALL RIGHTS RESERVED.',
   developerStamp: {
@@ -588,6 +705,21 @@ export const MODALS_DATA = {
   demo: {
     title: 'SYSTEM SIMULATION',
     closeLabel: 'TERMINATE SIMULATION',
+    defaultVariant: {
+      title: 'Demo Under Development',
+      body: 'This project demo is currently under active engineering refinement.',
+      status: 'PENDING RELEASE',
+      gateStatus: 'pending',
+    },
+    pipelineHeader: 'DEPLOYMENT PIPELINE',
+    pipelineSubheader: 'TELEMETRY 3-NODE',
+    nodes: [
+      { id: '01', name: '[01] CORE ARCHITECTURE', status: 'VERIFIED' },
+      { id: '02', name: '[02] WEIGHTS & RUNTIME', status: 'VERIFIED' },
+      { id: '03', name: '[03] PUBLIC ACCESS GATE' },
+    ],
+    protocolBadge: 'DEPLOYMENT PROTOCOL // SANDBOX STATUS',
+    dismissNotice: 'Dismiss Notice',
   },
 }
 
@@ -631,23 +763,38 @@ export const DEMO_VARIANTS = {
     body: 'The Sub-Quadratic Audio Transformer Engine is open-source and ready for testing. Access the repository directly below.',
     status: 'LIVE ON GITHUB',
     gateStatus: 'verified',
+    repoUrl: 'https://github.com/Manish-Desireddi/Sub-Quadratic-Audio-Transformer-Engine',
+    ctaLabel: 'ACCESS GITHUB REPOSITORY',
+  },
+  'modal-eta': {
+    title: 'Cascade-ETA is Live on GitHub.',
+    body: 'The CascadeETA Delay Propagation Engine is open-source and ready for testing. Access the repository directly below.',
+    status: 'LIVE DEPLOYMENT',
+    gateStatus: 'verified',
+    liveUrl: 'https://eta-eight-livid.vercel.app/',
+    repoUrl: 'https://github.com/Manish-Desireddi/ETA',
+    ctaLabel: 'LAUNCH LIVE WORKSPACE',
   },
   'modal-3d': {
     title: '3D latents are still cooking.',
     body: 'The diffusion pipeline is currently in active training on ShapeNet. A live preview will be available once the latents converge - check back soon.',
     status: 'TRAINING CONVERGENCE',
     gateStatus: 'pending',
+    ctaLabel: 'REQUEST ARCHITECTURE BRIEF',
   },
   'modal-storefront': {
-    title: 'Storefront is being assembled.',
-    body: 'The AI PC Builder commerce experience is wiring up payments, inventory, and the recommendation engine. Launching soon.',
-    status: 'COMMERCE PIPELINE',
-    gateStatus: 'pending',
+    title: 'Agentic Commerce is now Live.',
+    body: 'The Agentic Commerce Platform is a self-hosted e-commerce platform that runs entirely within your own environment. It features a modular architecture, secure payment integrations, and real-time inventory sync.',
+    status: 'LIVE DEPLOYEMENT',
+    liveUrl: 'https://agentic-commerce-server.vercel.app/',
+    gateStatus: 'verified',
+    ctaLabel: 'LAUNCH LIVE WORKSPACE',
   },
   'modal-commercial': {
     title: 'Available on commercial license.',
     body: 'The Classic build runs fully offline on multi-GPU hardware (AMD Radeon AI Pro + NVIDIA RTX 3060) and is being prepared for commercial release. Reach out for a private trial, demo, or licensing conversation.',
     status: 'COMMERCIAL LICENSE',
     gateStatus: 'pending',
+    ctaLabel: 'REQUEST COMMERCIAL DEMO',
   },
 }

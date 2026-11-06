@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react'
 import { CERTIFICATIONS } from '../data/portfolioData'
+import { trackEvent } from './analytics'
 
 const certImageCache = new Map()
 
@@ -147,6 +148,7 @@ export const useAssetPreloader = (hasEntered) => {
   useEffect(() => {
     if (!hasEntered) return
     let isCancelled = false
+    const startTime = typeof performance !== 'undefined' ? performance.now() : Date.now()
 
     const isMobile = typeof window !== 'undefined'
       && (window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches)
@@ -184,9 +186,18 @@ export const useAssetPreloader = (hasEntered) => {
       mapConcurrent(certUrls, concurrency, (url) => loadWithProgress(url, true)),
     ]).then(([heroes, projects]) => {
       if (isCancelled) return
+      const endTime = typeof performance !== 'undefined' ? performance.now() : Date.now()
+      const totalLoadMs = Math.round(endTime - startTime)
       setHeroFrames(fillMissingFrames(heroes))
       setProjectFrames(fillMissingFrames(projects))
       setIsPreloadComplete(true)
+      trackEvent('performance', 'preloader_complete', {
+        totalAssets: totalFrames,
+        loadDurationMs: totalLoadMs,
+        hardwareConcurrency: concurrency,
+        viewport: typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : 'unknown',
+        dpr: typeof window !== 'undefined' ? window.devicePixelRatio : 1,
+      })
     })
 
     return () => {

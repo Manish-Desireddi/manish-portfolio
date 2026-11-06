@@ -3,6 +3,7 @@ import SectionHeader from './SectionHeader'
 import { Terminal, CornerDownLeft } from 'lucide-react'
 import { trackEvent } from '../utils/analytics'
 import { CLI_DATA } from '../data/portfolioData'
+import { executeCliDirective } from '../utils/cliCommandHandlers'
 
 const handleArrowUp = (input, container, history, index, setIdx, setInput) => {
   if (!input && container) {
@@ -118,28 +119,6 @@ const InteractiveCLI = () => {
     }
   }, [history])
 
-  const executeSpecialCommand = (key, trimmed) => {
-    if (key === 'clear') {
-      setHistory([{ type: 'system', content: 'Terminal cleared. Type "help" for available commands.' }])
-      return true
-    }
-    if (key === 'run agent') {
-      setHistory((prev) => [
-        ...prev,
-        { type: 'user', content: [`$ ${trimmed}`] },
-        { type: 'system', content: CLI_DATA.agentSimulationSteps.slice(0, 2) },
-      ])
-      setTimeout(() => {
-        setHistory((prev) => [
-          ...prev,
-          { type: 'system', content: CLI_DATA.agentSimulationSteps.slice(2) },
-        ])
-      }, 1500)
-      return true
-    }
-    return false
-  }
-
   // fallow-ignore-next-line complexity
   const handleCommand = (cmd) => {
     const trimmed = cmd.trim()
@@ -147,10 +126,13 @@ const InteractiveCLI = () => {
 
     setCommandHistory((prev) => [trimmed, ...prev])
     setHistoryIndex(-1)
-    trackEvent('interaction', 'cli_command', { command: trimmed })
 
     const key = trimmed.toLowerCase()
-    if (executeSpecialCommand(key, trimmed)) return
+    if (key !== 'python telemetry.py' && key !== 'telemetry') {
+      trackEvent('interaction', 'cli_command', { command: trimmed })
+    }
+
+    if (executeCliDirective(key, trimmed, { setHistory })) return
 
     if (key === 'cat skills.txt' && containerRef.current) {
       lastOutputStartRef.current = containerRef.current.scrollHeight

@@ -14,11 +14,22 @@ import {
   Download,
   Mail,
   ChevronRight,
+  MessageSquare,
+  MessageSquarePlus,
+  Volume2,
+  VolumeX,
 } from 'lucide-react'
 import { NAV_ITEMS, SITE_METADATA, ABOUT_DATA } from '../data/portfolioData'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { trackEvent } from '../utils/analytics'
 import { verifyAndTriggerDownload } from '../utils/assetVerifier'
+import { showToast } from './ToastManager'
+import { isReducedMotion } from '../utils/motionVariants'
+import {
+  isAudioHapticMuted,
+  toggleAudioHaptic,
+  playMechanicalClick,
+} from '../utils/audioContext'
 
 const ICON_MAP = {
   Home,
@@ -29,6 +40,8 @@ const ICON_MAP = {
   Target,
   Award,
   Terminal,
+  MessageSquare,
+  MessageSquarePlus,
   Mail,
 }
 
@@ -130,7 +143,7 @@ const NavigationDrawer = ({ isOpen, onClose, activeId, onSelect, onResumeDownloa
         <div className="flex items-center gap-3">
           <span className="w-2.5 h-2.5 rounded-full bg-pink-500 animate-pulse" />
           <span className="font-heading uppercase text-sm sm:text-base tracking-widest text-pink-400">
-            SYS.NAV // HUD COMMAND DRAWER
+            {SITE_METADATA.navigation?.drawerHeader || 'SYS.NAV // HUD COMMAND DRAWER'}
           </span>
         </div>
         <button
@@ -159,7 +172,7 @@ const NavigationDrawer = ({ isOpen, onClose, activeId, onSelect, onResumeDownloa
         <DrawerMenuLink
           href={ABOUT_DATA.resumeUrl}
           onClick={onResumeDownload}
-          label="Download Official Resume"
+          label={SITE_METADATA.navigation?.downloadResumeLabel || 'Download Official Resume'}
           icon={Download}
           isActive={false}
           badge="PDF"
@@ -178,7 +191,40 @@ const NavigationDrawer = ({ isOpen, onClose, activeId, onSelect, onResumeDownloa
 const Navigation = ({ onRequestHero, isModalActive }) => {
   const [activeId, setActiveId] = useState('home')
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [isAudioMuted, setIsAudioMuted] = useState(() => isAudioHapticMuted())
   const drawerRef = useRef(null)
+
+  useEffect(() => {
+    const handleAudioChange = (e) => {
+      setIsAudioMuted(Boolean(e.detail?.muted))
+    }
+    const handleStorage = (e) => {
+      if (e.key === 'portfolio_audio_haptic_muted') {
+        setIsAudioMuted(e.newValue === 'true')
+      }
+    }
+    window.addEventListener('portfolio-audio-haptic-changed', handleAudioChange)
+    window.addEventListener('storage', handleStorage)
+    return () => {
+      window.removeEventListener('portfolio-audio-haptic-changed', handleAudioChange)
+      window.removeEventListener('storage', handleStorage)
+    }
+  }, [])
+
+  const handleToggleAudioHaptic = useCallback(() => {
+    const next = toggleAudioHaptic()
+    setIsAudioMuted(next)
+    if (!next) {
+      playMechanicalClick()
+    }
+    showToast({
+      type: 'info',
+      title: 'AUDIO HAPTICS',
+      message: next ? 'System sound effects muted.' : 'System sound effects active.',
+      duration: 2000,
+    })
+    trackEvent('interaction', 'audio_haptic_toggle', { muted: next })
+  }, [])
 
   // fallow-ignore-next-line complexity
   const getScrollOffset = useCallback((id) => {
@@ -240,6 +286,7 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
   const goToSection = useCallback(
     (e, id) => {
       e?.preventDefault()
+      playMechanicalClick()
       setActiveId(id)
       setDrawerOpen(false)
       trackEvent('navigation', 'nav_jump', { section: id })
@@ -260,7 +307,7 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
       }
 
       const targetScroll = getScrollOffset(id)
-      const dur = Math.max(Math.abs(window.scrollY - targetScroll) / 2000, 1.8)
+      const dur = isReducedMotion() ? 0.05 : Math.max(Math.abs(window.scrollY - targetScroll) / 2000, 1.8)
       if (window.lenis) {
         window.lenis.scrollTo(targetScroll, {
           duration: dur,
@@ -278,7 +325,14 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
     e?.preventDefault()
     setDrawerOpen(false)
     trackEvent('download', 'resume_pdf', { source: 'drawer_navigation' })
-    await verifyAndTriggerDownload(ABOUT_DATA.resumeUrl, ABOUT_DATA.resumeFileName)
+    await verifyAndTriggerDownload(ABOUT_DATA.resumeUrl, ABOUT_DATA.resumeFileName, () => {
+      showToast({
+        type: 'success',
+        title: 'DOSSIER DISPATCHED',
+        message: 'Downloading Manish_Desireddi_Resume.pdf...',
+        duration: 2500,
+      })
+    })
   }
 
   if (isModalActive) return null
@@ -286,11 +340,20 @@ const Navigation = ({ onRequestHero, isModalActive }) => {
   return (
     <>
       <nav
-        className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
+        className="fixed bottom-[max(1rem,calc(env(safe-area-inset-bottom,0px)+0.75rem))] left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
         aria-label="Primary navigation"
       >
         <div className="flex items-center bg-black/90 border-2 border-zinc-800 shadow-2xl backdrop-blur-md rounded-none max-w-[95vw]">
           <DesktopNavStrip activeId={activeId} onSelect={goToSection} />
+          <button
+            type="button"
+            onClick={handleToggleAudioHaptic}
+            className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 border-r md:border-r border-zinc-800 text-zinc-400 hover:text-pink-400 hover:bg-zinc-900 transition-colors cursor-pointer"
+            aria-label={isAudioMuted ? 'Unmute audio haptics' : 'Mute audio haptics'}
+            title={isAudioMuted ? 'Audio Haptics Muted' : 'Audio Haptics Active'}
+          >
+            {isAudioMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
           <MobileMenuButton drawerOpen={drawerOpen} onToggle={() => setDrawerOpen((p) => !p)} />
         </div>
       </nav>

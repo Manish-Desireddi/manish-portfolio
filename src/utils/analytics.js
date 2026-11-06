@@ -5,6 +5,12 @@ import { track } from '@vercel/analytics'
 const STORAGE_KEY = 'sys_privacy_consent_v1'
 const PERF_METRICS_KEY = 'sys_perf_metrics'
 const MAX_METRICS_RECORDS = 50
+const MAX_SESSION_EVENTS = 100
+const MAX_PENDING_QUEUE = 50
+
+// In-memory queues
+const pendingConsentQueue = []
+const liveSessionEvents = []
 
 const purgeNonEssentialStorage = (prefs) => {
   if (typeof window === 'undefined') return
@@ -43,6 +49,31 @@ export const setConsentPreferences = (prefs) => {
     if (!prefs?.analytics || !prefs?.telemetry) {
       purgeNonEssentialStorage(prefs)
     }
+
+    // Flush pre-consent event queue if permission granted
+    if (pendingConsentQueue.length > 0) {
+      if (prefs?.analytics) {
+        pendingConsentQueue.forEach((ev) => {
+          try {
+            track(ev.action, { category: ev.category, ...ev.metadata })
+          } catch {
+            // Vercel analytics fallback
+          }
+        })
+      }
+      if (prefs?.telemetry) {
+        pendingConsentQueue.forEach((ev) => {
+          appendPerfMetric({
+            action: ev.action,
+            category: ev.category,
+            metadata: ev.metadata,
+            timestamp: ev.timestamp,
+          })
+        })
+      }
+      pendingConsentQueue.length = 0
+    }
+
     window.dispatchEvent(new CustomEvent('sys-privacy-consent-changed', { detail: prefs }))
   } catch {
     // Safe storage fallback
@@ -83,11 +114,10 @@ const appendPerfMetric = (metric) => {
 
 /**
  * Dispatches an event according to category and telemetry permission.
+ * Buffers pre-consent events in pendingConsentQueue until user interacts with CookieConsent.
+ * Records liveSessionEvents regardless of consent for in-session CLI display.
  */
 export const trackEvent = (category, action, metadata = {}) => {
-  const prefs = getConsentPreferences()
-  if (!canDispatchEvent(category, prefs)) return
-
   const payload = {
     category,
     action,
@@ -95,6 +125,28 @@ export const trackEvent = (category, action, metadata = {}) => {
     timestamp: new Date().toISOString(),
     viewport: typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : 'unknown',
   }
+
+  // Record into in-memory live session events for immediate CLI vitals display
+  liveSessionEvents.push(payload)
+  if (liveSessionEvents.length > MAX_SESSION_EVENTS) {
+    liveSessionEvents.shift()
+  }
+
+  const prefs = getConsentPreferences()
+
+  // Pre-consent: queue until user sets preferences
+  if (prefs === null) {
+    pendingConsentQueue.push(payload)
+    if (pendingConsentQueue.length > MAX_PENDING_QUEUE) {
+      pendingConsentQueue.shift()
+    }
+    if (isDebugTelemetryEnabled()) {
+      console.debug('[SYS.TELEMETRY:QUEUED]', payload)
+    }
+    return
+  }
+
+  if (!canDispatchEvent(category, prefs)) return
 
   if (prefs?.telemetry) {
     appendPerfMetric({ action, category, metadata, timestamp: payload.timestamp })
@@ -113,4 +165,49 @@ export const trackEvent = (category, action, metadata = {}) => {
   }
 
   globalThis.window?.dataLayer?.push(payload)
+}
+
+const readNavDomLoadMs = () => {
+  try {
+    const nav = window.performance?.getEntriesByType?.('navigation')?.[0]
+    return nav ? Math.round(nav.domContentLoadedEventEnd - nav.startTime) || Math.round(nav.duration) : 140
+  } catch {
+    return 140
+  }
+}
+
+const readStoredPerfMetrics = () => {
+  try {
+    const raw = localStorage.getItem(PERF_METRICS_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+const getJsHeapMemory = () => {
+  const mem = window.performance?.memory?.usedJSHeapSize
+  return mem ? `${Math.round(mem / 1048576)}MB` : 'Active'
+}
+
+/**
+ * Exports aggregated telemetry and performance metrics for the Interactive CLI & Admin Bar.
+ * Strictly limits recentEvents to the last 3 events.
+ */
+export const getStoredMetricsSummary = () => {
+  if (typeof window === 'undefined') {
+    return { domLoadMs: 0, bufferMs: 0, dpr: 1, recentEvents: [] }
+  }
+
+  const events = liveSessionEvents.length > 0 ? liveSessionEvents : readStoredPerfMetrics()
+  const preloader = events.find((ev) => ev.action === 'preloader_complete')
+
+  return {
+    domLoadMs: Math.max(readNavDomLoadMs(), 140),
+    bufferMs: preloader?.metadata?.loadDurationMs || 420,
+    dpr: window.devicePixelRatio || 1,
+    viewport: `${window.innerWidth}x${window.innerHeight}`,
+    memory: getJsHeapMemory(),
+    recentEvents: events.slice(-3).reverse(),
+  }
 }

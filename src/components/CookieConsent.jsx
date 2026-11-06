@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Cookie, Settings, Check, X } from 'lucide-react'
 import { getConsentPreferences, setConsentPreferences } from '../utils/analytics'
 import { PRIVACY_DATA } from '../data/portfolioData'
+import { showToast } from './ToastManager'
 
 const CookiePreferencesForm = ({
   analyticsAllowed,
@@ -98,22 +99,34 @@ const CookieConsent = () => {
     return () => window.removeEventListener('app:open-privacy', handleOpenRequest)
   }, [])
 
+  const notifySaved = () => {
+    showToast({
+      type: 'info',
+      title: 'PRIVACY PREFERENCES SAVED',
+      message: 'Your cookie settings have been updated.',
+      duration: 2500,
+    })
+  }
+
   const handleAcceptAll = () => {
     setConsentPreferences({ essential: true, analytics: true, telemetry: true })
     setIsOpen(false)
     setShowConfig(false)
+    notifySaved()
   }
 
   const handleEssentialOnly = () => {
     setConsentPreferences({ essential: true, analytics: false, telemetry: false })
     setIsOpen(false)
     setShowConfig(false)
+    notifySaved()
   }
 
   const handleSaveCustom = () => {
     setConsentPreferences({ essential: true, analytics: analyticsAllowed, telemetry: telemetryAllowed })
     setIsOpen(false)
     setShowConfig(false)
+    notifySaved()
   }
 
   return (

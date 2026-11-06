@@ -1,17 +1,10 @@
 import React, { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ExternalLink, ShieldCheck, Mail } from 'lucide-react'
-import { DEMO_VARIANTS } from '../data/portfolioData'
+import { DEMO_VARIANTS, MODALS_DATA } from '../data/portfolioData'
 import { modalSpring } from '../utils/motionVariants'
 import { useModalLifecycle, scrollToContactSection } from '../utils/useModalLifecycle'
 import { trackEvent } from '../utils/analytics'
-
-const DEFAULT_VARIANT = {
-  title: 'Demo Under Development',
-  body: 'This project demo is currently under active engineering refinement.',
-  status: 'PENDING RELEASE',
-  gateStatus: 'pending',
-}
 
 const DeploymentTelemetryPipeline = ({ variant }) => {
   const isGateVerified = variant.gateStatus === 'verified'
@@ -19,51 +12,42 @@ const DeploymentTelemetryPipeline = ({ variant }) => {
   return (
     <div className="my-6 p-3.5 bg-zinc-950/90 border border-zinc-900 text-left">
       <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-3 border-b border-zinc-900 pb-1.5">
-        <span>DEPLOYMENT PIPELINE</span>
-        <span className="text-pink-400">TELEMETRY 3-NODE</span>
+        <span>{MODALS_DATA.demo.pipelineHeader}</span>
+        <span className="text-pink-400">{MODALS_DATA.demo.pipelineSubheader}</span>
       </div>
 
       <div className="space-y-2.5">
-        <div className="flex items-center justify-between text-xs font-mono">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            <span className="text-zinc-300">[01] CORE ARCHITECTURE</span>
-          </div>
-          <span className="text-emerald-400 text-[11px] font-bold">VERIFIED</span>
-        </div>
-
-        <div className="flex items-center justify-between text-xs font-mono">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            <span className="text-zinc-300">[02] WEIGHTS & RUNTIME</span>
-          </div>
-          <span className="text-emerald-400 text-[11px] font-bold">VERIFIED</span>
-        </div>
-
-        <div className="flex items-center justify-between text-xs font-mono">
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-2 h-2 rounded-full ${
-                isGateVerified ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'
-              }`}
-            />
-            <span className="text-zinc-300">[03] PUBLIC ACCESS GATE</span>
-          </div>
-          <span
-            className={`text-[11px] font-bold ${
-              isGateVerified ? 'text-emerald-400' : 'text-amber-400'
-            }`}
-          >
-            {variant.status || 'PENDING RELEASE'}
-          </span>
-        </div>
+        {MODALS_DATA.demo.nodes.map((node, idx) => {
+          const isGateNode = idx === 2
+          const isVerified = isGateNode ? isGateVerified : true
+          const statusText = isGateNode ? (variant.status || 'PENDING RELEASE') : (node.status || 'VERIFIED')
+          return (
+            <div key={node.id} className="flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    isVerified ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'
+                  }`}
+                />
+                <span className="text-zinc-300">{node.name}</span>
+              </div>
+              <span
+                className={`text-[11px] font-bold ${
+                  isVerified ? 'text-emerald-400' : 'text-amber-400'
+                }`}
+              >
+                {statusText}
+              </span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
 }
 
 const DemoModal = ({ isOpen, onClose, variantId, projectTitle }) => {
-  const variant = DEMO_VARIANTS[variantId] ?? DEFAULT_VARIANT
+  const variant = DEMO_VARIANTS[variantId] ?? MODALS_DATA.demo.defaultVariant
   const closeBtnRef = useRef(null)
 
   useModalLifecycle(isOpen, onClose, closeBtnRef)
@@ -108,7 +92,7 @@ const DemoModal = ({ isOpen, onClose, variantId, projectTitle }) => {
 
               <div className="flex items-center justify-center gap-2 mb-4 text-orange-400 font-mono text-xs uppercase tracking-widest">
                 <ShieldCheck size={16} />
-                <span>DEPLOYMENT PROTOCOL // SANDBOX STATUS</span>
+                <span>{MODALS_DATA.demo.protocolBadge}</span>
               </div>
 
               <h3 className="text-xl sm:text-2xl font-heading text-white uppercase tracking-tight mb-3">
@@ -122,15 +106,15 @@ const DemoModal = ({ isOpen, onClose, variantId, projectTitle }) => {
               <DeploymentTelemetryPipeline variant={variant} />
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                {variantId === 'modal-subq' ? (
+                {variant.liveUrl || variant.repoUrl ? (
                   <a
-                    href="https://github.com/Manish-Desireddi/Sub-Quadratic-Audio-Transformer-Engine"
+                    href={variant.liveUrl || variant.repoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => trackEvent('interaction', 'open_subq_repo')}
+                    onClick={() => trackEvent('interaction', 'open_project_link', { project: projectTitle, url: variant.liveUrl || variant.repoUrl })}
                     className="px-6 py-3 bg-pink-500 hover:bg-white text-black font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                   >
-                    <ExternalLink size={16} /> ACCESS GITHUB REPOSITORY
+                    <ExternalLink size={16} /> {variant.ctaLabel || 'LAUNCH LIVE WORKSPACE'}
                   </a>
                 ) : (
                   <button
@@ -138,7 +122,7 @@ const DemoModal = ({ isOpen, onClose, variantId, projectTitle }) => {
                     onClick={handleRequestWalkthrough}
                     className="px-6 py-3 bg-pink-500 hover:bg-white text-black font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                   >
-                    <Mail size={16} /> REQUEST LIVE WALKTHROUGH
+                    <Mail size={16} /> {variant.ctaLabel || 'REQUEST LIVE WALKTHROUGH'}
                   </button>
                 )}
 
@@ -148,7 +132,7 @@ const DemoModal = ({ isOpen, onClose, variantId, projectTitle }) => {
                   onClick={onClose}
                   className="px-6 py-3 border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-heading uppercase tracking-wider text-xs sm:text-sm transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
                 >
-                  Dismiss Notice
+                  {MODALS_DATA.demo.dismissNotice}
                 </button>
               </div>
             </motion.div>

@@ -6,6 +6,7 @@ import SectionHeader from './SectionHeader'
 import ProfileCard from './ProfileCard'
 import { verifyAndTriggerDownload } from '../utils/assetVerifier'
 import { trackEvent } from '../utils/analytics'
+import { showToast } from './ToastManager'
 
 const SORTED_TECH = [...TECH_STACK].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
 const MARQUEE_ITEMS = [...SORTED_TECH, ...SORTED_TECH]
@@ -64,7 +65,14 @@ const About = () => {
   const handleResumeDownload = async (e) => {
     e.preventDefault()
     trackEvent('download', 'resume_pdf', { source: 'about_section' })
-    await verifyAndTriggerDownload(ABOUT_DATA.resumeUrl, ABOUT_DATA.resumeFileName)
+    await verifyAndTriggerDownload(ABOUT_DATA.resumeUrl, ABOUT_DATA.resumeFileName, () => {
+      showToast({
+        type: 'success',
+        title: 'DOSSIER DISPATCHED',
+        message: 'Downloading Manish_Desireddi_Resume.pdf...',
+        duration: 2500,
+      })
+    })
   }
 
   return (

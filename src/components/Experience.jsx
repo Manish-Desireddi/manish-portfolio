@@ -1,8 +1,9 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import { CalendarDays, MapPin, CheckCircle2, Shield } from 'lucide-react'
 import { EXPERIENCE, EXPERIENCE_META } from '../data/portfolioData'
 import SectionHeader from './SectionHeader'
+import { updateExperienceZipwayAudio, stopExperienceZipwayAudio } from '../utils/audioContext'
 
 const ExperienceHeaderBar = ({ entry }) => (
   <div className="sticky top-20 z-20 mb-8 p-4 sm:p-5 bg-black/40 backdrop-blur-md border border-pink-500/30 flex flex-wrap items-center justify-between gap-4 shadow-[0_0_20px_rgba(236,72,153,0.15)]">
@@ -12,7 +13,9 @@ const ExperienceHeaderBar = ({ entry }) => (
         <h3 className="font-heading text-lg sm:text-xl uppercase tracking-wide text-white">
           {entry.title} <span className="text-pink-400">·</span> {entry.company}
         </h3>
-        <p className="font-mono text-xs text-zinc-400">ROLE PROTOCOL // AI Automation for Performance, Verification and Validation Team</p>
+        <p className="font-mono text-xs text-zinc-400">
+          {entry.roleProtocol || 'ROLE PROTOCOL // AI Automation for Performance, Verification and Validation Team'}
+        </p>
       </div>
     </div>
 
@@ -49,7 +52,7 @@ const ExperienceNodeCard = ({ item, index }) => (
           className="text-pink-500 group-hover:text-pink-400 group-hover:drop-shadow-[0_0_8px_rgba(236,72,153,0.9)] transition-all shrink-0"
         />
         <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-widest">
-          NODE 0{index + 1} // VERIFIED DIRECTIVE
+          NODE 0{index + 1} // {EXPERIENCE_META.nodePrefix || 'VERIFIED DIRECTIVE'}
         </span>
       </div>
       <Shield size={12} className="text-pink-500/60" />
@@ -62,14 +65,19 @@ const ExperienceNodeCard = ({ item, index }) => (
 )
 
 const ExperienceTimeline = ({ entry }) => (
-  <div className="relative">
+  <motion.div
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, amount: 0.15 }}
+    className="relative"
+  >
     <ExperienceHeaderBar entry={entry} />
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {entry.responsibilities.map((item, i) => (
         <ExperienceNodeCard key={i} item={item} index={i} />
       ))}
     </div>
-  </div>
+  </motion.div>
 )
 
 const Experience = () => {
@@ -77,8 +85,43 @@ const Experience = () => {
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ['start 85%', 'end 25%'],
+    offset: ['start 80%', 'end 25%'],
   })
+
+  useEffect(() => {
+    let lastProgress = scrollYProgress.get()
+    let lastTime = performance.now()
+    let decayTimeout = null
+
+    const unsubscribe = scrollYProgress.on('change', (current) => {
+      const now = performance.now()
+      const timeDelta = Math.max(now - lastTime, 16)
+      const distDelta = Math.abs(current - lastProgress)
+
+      lastProgress = current
+      lastTime = now
+
+      const inBounds = current > 0 && current < 1
+
+      if (inBounds && distDelta > 0.0004) {
+        const velocity = (distDelta / timeDelta) * 100
+        updateExperienceZipwayAudio(velocity, true)
+
+        if (decayTimeout) clearTimeout(decayTimeout)
+        decayTimeout = setTimeout(() => {
+          updateExperienceZipwayAudio(0, true)
+        }, 80)
+      } else if (!inBounds) {
+        stopExperienceZipwayAudio()
+      }
+    })
+
+    return () => {
+      unsubscribe()
+      if (decayTimeout) clearTimeout(decayTimeout)
+      stopExperienceZipwayAudio()
+    }
+  }, [scrollYProgress])
 
   const lineScaleY = useSpring(
     useTransform(scrollYProgress, [0, 1], [0, 1]),

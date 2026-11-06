@@ -4,27 +4,34 @@ import { Volume2, VolumeX, ChevronRight } from 'lucide-react'
 import { showToast } from './ToastManager'
 import { trackEvent } from '../utils/analytics'
 import { INTRO_DATA, HERO_DATA } from '../data/portfolioData'
+import { isInAppBrowser, isIOSDevice } from '../utils/browserDetect'
 
 const useIntroMedia = (isPreloaderDismissed, onVideoEnd) => {
   const videoRef = useRef(null)
-  const [muted, setMuted] = useState(false)
+  const [muted, setMuted] = useState(() => isInAppBrowser() || isIOSDevice())
 
   useEffect(() => {
     if (!isPreloaderDismissed) return
     const video = videoRef.current
     if (!video) return
 
-    video.muted = false
-    const attempt = video.play()
-    if (!attempt) return
-
-    attempt
-      .then(() => setMuted(false))
-      .catch(() => {
-        video.muted = true
-        video.play().catch(() => {})
-        setMuted(true)
-      })
+    const inAppOrIOS = isInAppBrowser() || isIOSDevice()
+    if (inAppOrIOS) {
+      video.muted = true
+      setMuted(true)
+      video.play().catch(() => {})
+    } else {
+      video.muted = false
+      const attempt = video.play()
+      if (!attempt) return
+      attempt
+        .then(() => setMuted(false))
+        .catch(() => {
+          video.muted = true
+          video.play().catch(() => {})
+          setMuted(true)
+        })
+    }
   }, [isPreloaderDismissed])
 
   const toggleAudio = useCallback(() => {
@@ -43,6 +50,7 @@ const useIntroMedia = (isPreloaderDismissed, onVideoEnd) => {
   }, [])
 
   const handleVideoEnd = useCallback(() => {
+    trackEvent('interaction', 'intro_completed')
     setTimeout(() => onVideoEnd?.(), 400)
   }, [onVideoEnd])
 
@@ -180,7 +188,7 @@ const Intro = ({ onVideoEnd, onVideoReady, isPreloaderDismissed }) => {
         ref={videoRef}
         src={INTRO_DATA.videoSrc}
         preload="auto"
-        muted={false}
+        muted={muted}
         playsInline
         loop={false}
         onEnded={handleVideoEnd}
